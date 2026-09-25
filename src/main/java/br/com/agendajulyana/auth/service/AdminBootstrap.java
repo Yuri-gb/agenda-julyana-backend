@@ -20,19 +20,19 @@ public class AdminBootstrap implements CommandLineRunner {
     private final IdentidadeAutenticacaoRepository identidades;
     private final PasswordEncoder encoder;
 
-    @Value(${app.security.bootstrap-admin.enabled:false})
+    @Value("${app.security.bootstrap-admin.enabled:false}")
     private boolean enabled;
 
-    @Value(${app.security.bootstrap-admin.name:})
+    @Value("${app.security.bootstrap-admin.name:}")
     private String name;
 
-    @Value(${app.security.bootstrap-admin.email:})
+    @Value("${app.security.bootstrap-admin.email:}")
     private String email;
 
-    @Value(${app.security.bootstrap-admin.phone:})
+    @Value("${app.security.bootstrap-admin.phone:}")
     private String phone;
 
-    @Value(${app.security.bootstrap-admin.password:})
+    @Value("${app.security.bootstrap-admin.password:}")
     private String password;
 
     public AdminBootstrap(
@@ -54,9 +54,7 @@ public class AdminBootstrap implements CommandLineRunner {
             return;
         }
 
-        if (usuarios.findAll().stream()
-            .flatMap(usuario -> usuario.getPapeis().stream())
-            .anyMatch(papel -> papel.getNome() == PapelNome.ADMIN)) {
+        if (usuarios.existsByPapelNome(PapelNome.ADMIN)) {
             log.info("Bootstrap de ADMIN ignorado: já existe administrador.");
             return;
         }
