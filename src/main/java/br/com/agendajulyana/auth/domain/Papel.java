@@ -1,6 +1,8 @@
 package br.com.agendajulyana.auth.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -13,7 +15,8 @@ public class Papel {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, unique = true, columnDefinition = "papel_nome")
     private PapelNome nome;
 
     protected Papel() {
