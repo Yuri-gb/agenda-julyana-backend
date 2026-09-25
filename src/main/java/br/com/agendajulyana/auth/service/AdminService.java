@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Service
 public class AdminService {
 
@@ -18,17 +20,20 @@ public class AdminService {
     private final PapelRepository papeis;
     private final IdentidadeAutenticacaoRepository identidades;
     private final PasswordEncoder encoder;
+    private final AuditoriaRepository auditorias;
 
     public AdminService(
         UsuarioRepository usuarios,
         PapelRepository papeis,
         IdentidadeAutenticacaoRepository identidades,
-        PasswordEncoder encoder
+        PasswordEncoder encoder,
+        AuditoriaRepository auditorias
     ) {
         this.usuarios = usuarios;
         this.papeis = papeis;
         this.identidades = identidades;
         this.encoder = encoder;
+        this.auditorias = auditorias;
     }
 
     @Transactional
@@ -69,6 +74,15 @@ public class AdminService {
             usuario,
             email,
             encoder.encode(request.senha())
+        ));
+
+        auditorias.save(new Auditoria(
+            solicitante,
+            "CRIAR_ADMIN",
+            "USUARIO",
+            usuario.getId(),
+            "SUCESSO",
+            Map.of("email", email)
         ));
     }
 }
