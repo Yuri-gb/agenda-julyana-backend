@@ -137,7 +137,7 @@ class PasswordRecoveryServiceTest {
         var recuperacao = new RecuperacaoSenha(usuario, "codigo-hash", OffsetDateTime.now().plusMinutes(15));
         recuperacao.verificar("token-hash", OffsetDateTime.now().minusMinutes(1));
 
-        when(recuperacoes.findByTokenRedefinicaoHashAndUtilizadoEmIsNull("token-hash")).thenReturn(Optional.of(recuperacao));
+        when(recuperacoes.findByTokenRedefinicaoHashAndUtilizadoEmIsNull("3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0")).thenReturn(Optional.of(recuperacao));
 
         assertThrows(IllegalArgumentException.class, () -> service.redefinirSenha(new ResetPasswordRequest("token", "nova-senha", "nova-senha")));
         verify(identidades, never()).save(any());
