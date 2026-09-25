@@ -21,6 +21,7 @@ public class IndisponibilidadeServico {
     @Column(nullable = false)
     private OffsetDateTime fim;
 
+    @Column(columnDefinition = "text")
     private String motivo;
 
     @Column(name = "criado_em", nullable = false)
