@@ -3,6 +3,7 @@ package br.com.agendajulyana.auth.service;
 import br.com.agendajulyana.auth.domain.*;
 import br.com.agendajulyana.auth.dto.CriarAdminRequest;
 import br.com.agendajulyana.auth.repository.IdentidadeAutenticacaoRepository;
+import br.com.agendajulyana.auth.repository.AuditoriaRepository;
 import br.com.agendajulyana.auth.repository.PapelRepository;
 import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
