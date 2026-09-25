@@ -30,6 +30,6 @@ public class AdminService {
         var papelAdmin=papeis.findByNome(PapelNome.ADMIN).orElseThrow(()->new IllegalStateException("Papel ADMIN não configurado."));
         usuario.adicionarPapel(papelAdmin);usuarios.save(usuario);
         identidades.save(IdentidadeAutenticacao.local(usuario,email,encoder.encode(request.senha())));
-        auditorias.save(new Auditoria(solicitante,"CRIAR_ADMIN","USUARIO",usuario.getId(),"SUCESSO",Map.of("email",email)));
+        auditorias.save(new Auditoria(solicitante.getId(),"CRIAR_ADMIN","USUARIO",usuario.getId(),"SUCESSO",Map.of("email",email)));
     }
 }
