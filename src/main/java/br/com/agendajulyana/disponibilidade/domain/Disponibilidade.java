@@ -11,7 +11,7 @@ public class Disponibilidade {
     private UUID id;
 
     @Column(name = "dia_semana", nullable = false)
-    private Integer diaSemana;
+    private Short diaSemana;
 
     @Column(name = "hora_inicio", nullable = false)
     private LocalTime horaInicio;
@@ -24,13 +24,13 @@ public class Disponibilidade {
 
     protected Disponibilidade() {}
 
-    public Disponibilidade(Integer diaSemana, LocalTime horaInicio, LocalTime horaFim) {
+    public Disponibilidade(Short diaSemana, LocalTime horaInicio, LocalTime horaFim) {
         this.diaSemana = diaSemana;
         this.horaInicio = horaInicio;
         this.horaFim = horaFim;
     }
 
-    public void atualizar(Integer diaSemana, LocalTime horaInicio, LocalTime horaFim) {
+    public void atualizar(Short diaSemana, LocalTime horaInicio, LocalTime horaFim) {
         this.diaSemana = diaSemana;
         this.horaInicio = horaInicio;
         this.horaFim = horaFim;
@@ -38,7 +38,7 @@ public class Disponibilidade {
 
     public void alterarAtivo(boolean ativo) { this.ativo = ativo; }
     public UUID getId() { return id; }
-    public Integer getDiaSemana() { return diaSemana; }
+    public Short getDiaSemana() { return diaSemana; }
     public LocalTime getHoraInicio() { return horaInicio; }
     public LocalTime getHoraFim() { return horaFim; }
     public boolean isAtivo() { return ativo; }
