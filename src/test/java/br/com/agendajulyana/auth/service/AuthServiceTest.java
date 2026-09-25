@@ -79,7 +79,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void deveAtualizarTelefoneDoUsuario() {
+    void deveAtualizarTelefoneDoUsuarioAutenticado() {
         var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
         var papel = new Papel(PapelNome.CLIENTE);
         var usuario = new Usuario("Cliente", "cliente@email.com", null);
@@ -89,7 +89,7 @@ class AuthServiceTest {
 
         var response = service.atualizarDados(
             "cliente@email.com",
-            new AtualizarUsuarioRequest(null, "75988887777")
+            new AtualizarUsuarioRequest("75988887777")
         );
 
         assertEquals("75988887777", response.telefone());
