@@ -17,14 +17,14 @@ public class DisponibilidadeService {
 
     @Transactional public DisponibilidadeResponse criar(DisponibilidadeRequest r){
         validarHorario(r.horaInicio(),r.horaFim());
-        return toResponse(repository.save(new Disponibilidade(r.diaSemana(),r.horaInicio(),r.horaFim())));
+        return toResponse(repository.save(new Disponibilidade(r.diaSemana().shortValue(),r.horaInicio(),r.horaFim())));
     }
     @Transactional(readOnly=true) public List<DisponibilidadeResponse> listar(){
         return repository.findAll().stream().map(this::toResponse).toList();
     }
     @Transactional(readOnly=true) public DisponibilidadeResponse buscar(UUID id){return toResponse(find(id));}
     @Transactional public DisponibilidadeResponse atualizar(UUID id, DisponibilidadeRequest r){
-        validarHorario(r.horaInicio(),r.horaFim()); Disponibilidade d=find(id); d.atualizar(r.diaSemana(),r.horaInicio(),r.horaFim()); return toResponse(d);
+        validarHorario(r.horaInicio(),r.horaFim()); Disponibilidade d=find(id); d.atualizar(r.diaSemana().shortValue(),r.horaInicio(),r.horaFim()); return toResponse(d);
     }
     @Transactional public DisponibilidadeResponse alterarStatus(UUID id, DisponibilidadeStatusRequest r){Disponibilidade d=find(id);d.alterarAtivo(r.ativo());return toResponse(d);}
     private Disponibilidade find(UUID id){return repository.findById(id).orElseThrow(()->new EntityNotFoundException("Disponibilidade não encontrada."));}
