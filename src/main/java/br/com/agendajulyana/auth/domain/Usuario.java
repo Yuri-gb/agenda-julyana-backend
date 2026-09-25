@@ -24,8 +24,6 @@ public class Usuario {
     @Column(length = 30)
     private String telefone;
 
-    @Column(name = "senha_hash", length = 255)
-    private String senhaHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,11 +46,10 @@ public class Usuario {
     protected Usuario() {
     }
 
-    public Usuario(String nome, String email, String telefone, String senhaHash) {
+    public Usuario(String nome, String email, String telefone) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
-        this.senhaHash = senhaHash;
         this.status = UsuarioStatus.ATIVO;
         this.criadoEm = OffsetDateTime.now();
         this.atualizadoEm = OffsetDateTime.now();
@@ -74,7 +71,6 @@ public class Usuario {
     public String getNome() { return nome; }
     public String getEmail() { return email; }
     public String getTelefone() { return telefone; }
-    public String getSenhaHash() { return senhaHash; }
     public UsuarioStatus getStatus() { return status; }
     public Set<Papel> getPapeis() { return papeis; }
 
