@@ -21,10 +21,10 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(nullable = false, length = 30)
+    @Column(length = 30)
     private String telefone;
 
-    @Column(name = "senha_hash", nullable = false, length = 255)
+    @Column(name = "senha_hash", length = 255)
     private String senhaHash;
 
     @Enumerated(EnumType.STRING)
