@@ -25,5 +25,5 @@ public class CategoriaService {
     private Usuario usuario(String email){return usuarios.findByEmailIgnoreCase(email).orElseThrow(()->new ResponseStatusException(HttpStatus.FORBIDDEN,"Usuário autenticado não encontrado."));}
     private CategoriaResponse resposta(Categoria c){return new CategoriaResponse(c.getId(),c.getNome(),c.getDescricao(),c.isAtivo());}
     private String texto(String v){return v==null||v.isBlank()?null:v.trim();}
-    private void auditar(Usuario u,String acao,UUID id,Map<String,Object> contexto){auditorias.save(new Auditoria(u,acao,"CATEGORIA",id,"SUCESSO",contexto));}
+    private void auditar(Usuario u,String acao,UUID id,Map<String,Object> contexto){auditorias.save(new Auditoria(u.getId(),acao,"CATEGORIA",id,"SUCESSO",contexto));}
 }
