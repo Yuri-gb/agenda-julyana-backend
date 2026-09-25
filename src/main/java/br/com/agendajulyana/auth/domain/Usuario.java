@@ -80,4 +80,13 @@ public class Usuario {
     public void adicionarPapel(Papel papel) {
         papeis.add(papel);
     }
+
+    public void atualizarDados(String nome, String telefone) {
+        if (nome != null && !nome.isBlank()) {
+            this.nome = nome.trim();
+        }
+        if (telefone != null) {
+            this.telefone = telefone.isBlank() ? null : telefone.trim();
+        }
+    }
 }
