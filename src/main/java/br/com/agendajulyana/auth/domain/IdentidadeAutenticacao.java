@@ -57,6 +57,14 @@ public class IdentidadeAutenticacao {
         return new IdentidadeAutenticacao(usuario, ProvedorAutenticacao.GOOGLE, subject, null);
     }
 
+    public void atualizarSenhaHash(String senhaHash) {
+        if (provedor != ProvedorAutenticacao.LOCAL) {
+            throw new IllegalStateException("Somente identidade local possui senha.");
+        }
+        this.senhaHash = senhaHash;
+        this.atualizadoEm = OffsetDateTime.now();
+    }
+
     public Usuario getUsuario() { return usuario; }
     public ProvedorAutenticacao getProvedor() { return provedor; }
     public String getIdentificadorExterno() { return identificadorExterno; }
