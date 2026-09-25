@@ -114,10 +114,10 @@ class PasswordRecoveryServiceTest {
         var service = service();
         var usuario = new Usuario("Cliente", "cliente@email.com", null);
         var recuperacao = new RecuperacaoSenha(usuario, "codigo-hash", OffsetDateTime.now().plusMinutes(15));
-        recuperacao.verificar("token-hash", OffsetDateTime.now().plusMinutes(10));
+        recuperacao.verificar("3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0", OffsetDateTime.now().plusMinutes(10));
         var identidade = IdentidadeAutenticacao.local(usuario, usuario.getEmail(), "senha-antiga");
 
-        when(recuperacoes.findByTokenRedefinicaoHashAndUtilizadoEmIsNull("token-hash")).thenReturn(Optional.of(recuperacao));
+        when(recuperacoes.findByTokenRedefinicaoHashAndUtilizadoEmIsNull("3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0")).thenReturn(Optional.of(recuperacao));
         when(identidades.findByProvedorAndIdentificadorExterno(ProvedorAutenticacao.LOCAL, usuario.getEmail().toLowerCase())).thenReturn(Optional.of(identidade));
         when(encoder.encode("nova-senha")).thenReturn("nova-senha-hash");
 
