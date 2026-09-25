@@ -1,7 +1,7 @@
 package br.com.agendajulyana.servico.service;
 
 import br.com.agendajulyana.auditoria.domain.Auditoria;
-import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
+import br.com.agendajulyana.auth.repository.AuditoriaRepository;
 import br.com.agendajulyana.auth.domain.Usuario;
 import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import br.com.agendajulyana.servico.domain.Categoria;
