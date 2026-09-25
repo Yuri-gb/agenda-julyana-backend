@@ -1,6 +1,8 @@
 package br.com.agendajulyana.auth.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -18,7 +20,8 @@ public class IdentidadeAutenticacao {
     private Usuario usuario;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "provedor_autenticacao")
     private ProvedorAutenticacao provedor;
 
     @Column(name = "identificador_externo", nullable = false, length = 255)
