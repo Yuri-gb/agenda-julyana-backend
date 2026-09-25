@@ -29,5 +29,5 @@ public class DisponibilidadeService {
     @Transactional public DisponibilidadeResponse alterarStatus(UUID id, DisponibilidadeStatusRequest r){Disponibilidade d=find(id);d.alterarAtivo(r.ativo());return toResponse(d);}
     private Disponibilidade find(UUID id){return repository.findById(id).orElseThrow(()->new EntityNotFoundException("Disponibilidade não encontrada."));}
     private void validarHorario(LocalTime inicio,LocalTime fim){if(!fim.isAfter(inicio))throw new IllegalArgumentException("horaFim deve ser posterior a horaInicio.");}
-    private DisponibilidadeResponse toResponse(Disponibilidade d){return new DisponibilidadeResponse(d.getId(),d.getDiaSemana(),d.getHoraInicio(),d.getHoraFim(),d.isAtivo());}
+    private DisponibilidadeResponse toResponse(Disponibilidade d){return new DisponibilidadeResponse(d.getId(),d.getDiaSemana().intValue(),d.getHoraInicio(),d.getHoraFim(),d.isAtivo());}
 }
