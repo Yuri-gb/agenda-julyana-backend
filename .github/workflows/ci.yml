@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build e testes automatizados
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: agenda_julyana
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d agenda_julyana"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/agenda_julyana
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET_BASE64: VGhpc0lzQVN1ZmZpY2llbnRseUxvbmdTZWNyZXRGb3JUZXN0aW5nMTIzNDU2Nzg5MDE=
+      JWT_EXPIRATION_MINUTES: 30
+      GOOGLE_CLIENT_ID: test-client
+      GOOGLE_CLIENT_SECRET: test-secret
+      GOOGLE_FRONTEND_CALLBACK: http://localhost:5173/auth/callback
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build e testes
+        run: ./mvnw -B clean verify
