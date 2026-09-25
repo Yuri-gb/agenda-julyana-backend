@@ -27,4 +27,12 @@ public class AuthController {
     public ResponseEntity<MeResponse> me(Authentication authentication){
         return ResponseEntity.ok(service.me(authentication.getName()));
     }
+
+    @PatchMapping("/me")
+    public ResponseEntity<MeResponse> atualizarDados(
+        Authentication authentication,
+        @Valid @RequestBody AtualizarUsuarioRequest request
+    ) {
+        return ResponseEntity.ok(service.atualizarDados(authentication.getName(), request));
+    }
 }
