@@ -17,6 +17,7 @@ public class Bloqueio {
     @Column(nullable = false)
     private OffsetDateTime fim;
 
+    @Column(columnDefinition = "text")
     private String motivo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
