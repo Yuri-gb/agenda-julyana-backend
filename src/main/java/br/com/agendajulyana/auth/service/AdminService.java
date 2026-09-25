@@ -1,7 +1,7 @@
 package br.com.agendajulyana.auth.service;
 
-import br.com.agendajulyana.auditoria.domain.Auditoria;
-import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
+import br.com.agendajulyana.auth.domain.Auditoria;
+import br.com.agendajulyana.auth.repository.AuditoriaRepository;
 import br.com.agendajulyana.auth.domain.*;
 import br.com.agendajulyana.auth.dto.CriarAdminRequest;
 import br.com.agendajulyana.auth.repository.IdentidadeAutenticacaoRepository;
