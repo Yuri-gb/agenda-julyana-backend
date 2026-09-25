@@ -57,6 +57,15 @@ public class AuthService {
         return response(usuario);
     }
 
+    @Transactional
+    public MeResponse atualizarDados(String email, AtualizarUsuarioRequest request) {
+        var usuario = usuarios.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        usuario.atualizarDados(request.nome(), request.telefone());
+        usuarios.save(usuario);
+        return me(usuario.getEmail());
+    }
+
     @Transactional(readOnly = true)
     public MeResponse me(String email) {
         var usuario = usuarios.findByEmailIgnoreCase(email).orElseThrow();
