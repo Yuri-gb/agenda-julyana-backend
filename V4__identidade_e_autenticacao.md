@@ -40,3 +40,11 @@ Nessas contas, a autenticação continua sendo realizada pelo Google.
 ### Fora do escopo desta etapa
 
 O envio por WhatsApp continua previsto no produto, mas não faz parte desta implementação.
+
+## Logout
+
+A autenticação da API utiliza JWT em modo stateless.
+
+Não existe sessão de servidor para ser destruída no logout. O cliente encerra a sessão removendo o JWT armazenado localmente e deixando de enviá-lo nas requisições seguintes.
+
+A revogação imediata de tokens não faz parte desta etapa. Caso seja necessária futuramente, deverá ser definida uma estratégia específica de revogação/refresh token.
