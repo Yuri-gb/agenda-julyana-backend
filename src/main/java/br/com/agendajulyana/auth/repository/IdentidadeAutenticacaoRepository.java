@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface IdentidadeAutenticacaoRepository extends JpaRepository<IdentidadeAutenticacao, UUID> {
     Optional<IdentidadeAutenticacao> findByProvedorAndIdentificadorExterno(
         ProvedorAutenticacao provedor, String identificadorExterno);
+
+    boolean existsByUsuarioIdAndProvedor(UUID usuarioId, ProvedorAutenticacao provedor);
 }
