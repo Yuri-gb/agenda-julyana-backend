@@ -37,7 +37,7 @@ class AuthServiceTest {
 
         assertEquals("Cliente", response.nome());
         assertEquals("cliente@email.com", response.email());
-        assertEquals("hash", response.token()); // token será ajustado pelo mock abaixo
+        assertEquals("CLIENTE", response.papeis().iterator().next());
         verify(usuarios).save(any(Usuario.class));
         verify(identidades).save(any(IdentidadeAutenticacao.class));
     }
