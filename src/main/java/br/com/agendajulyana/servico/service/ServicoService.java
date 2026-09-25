@@ -45,6 +45,6 @@ public class ServicoService {
     private Usuario usuario(String email){return usuarios.findByEmailIgnoreCase(email).orElseThrow(()->new ResponseStatusException(HttpStatus.FORBIDDEN,"Usuário autenticado não encontrado."));}
     private Set<Categoria> buscarCategorias(Set<UUID> ids){if(ids==null||ids.isEmpty())return new LinkedHashSet<>();var e=new LinkedHashSet<>(categorias.findAllById(ids));if(e.size()!=ids.size())throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Uma ou mais categorias não foram encontradas.");return e;}
     private ServicoResponse resposta(Servico s){return new ServicoResponse(s.getId(),s.getNome(),s.getDescricao(),s.getDuracaoMinutos(),s.getPreco(),s.getImagemUrl(),s.getStatus(),s.getCategorias().stream().map(c->new ServicoResponse.CategoriaResumo(c.getId(),c.getNome())).collect(Collectors.toCollection(LinkedHashSet::new)));}
-    private void auditar(Usuario u,String acao,UUID id,Map<String,Object> contexto){auditorias.save(new Auditoria(u,acao,"SERVICO",id,"SUCESSO",contexto));}
+    private void auditar(Usuario u,String acao,UUID id,Map<String,Object> contexto){auditorias.save(new Auditoria(u.getId(),acao,"SERVICO",id,"SUCESSO",contexto));}
     private String texto(String v){return v==null||v.isBlank()?null:v.trim();}
 }
