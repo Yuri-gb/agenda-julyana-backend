@@ -20,10 +20,11 @@ class AdminServiceTest {
     @Mock PapelRepository papeis;
     @Mock IdentidadeAutenticacaoRepository identidades;
     @Mock PasswordEncoder encoder;
+    @Mock AuditoriaRepository auditorias;
 
     @Test
     void devePermitirAdminCriarOutroAdmin() {
-        var service = new AdminService(usuarios, papeis, identidades, encoder);
+        var service = new AdminService(usuarios, papeis, identidades, encoder, auditorias);
         var solicitante = new Usuario("Admin", "admin@email.com", "75999999999");
         solicitante.adicionarPapel(new Papel(PapelNome.ADMIN));
         var papelAdmin = new Papel(PapelNome.ADMIN);
