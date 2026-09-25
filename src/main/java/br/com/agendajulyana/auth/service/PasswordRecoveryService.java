@@ -64,7 +64,7 @@ public class PasswordRecoveryService {
         );
 
         recuperacoes.deleteByUsuarioIdAndCriadoEmBefore(
-            usuario.getId(), OffsetDateTime.now().plusMinutes(1)
+            usuario.getId(), OffsetDateTime.now()
         );
         recuperacoes.save(recuperacao);
 
