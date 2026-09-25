@@ -23,6 +23,7 @@ class IndisponibilidadeServicoServiceTest {
 
     @Test void deveCriarIndisponibilidadeDoServico(){
         UUID id=UUID.randomUUID(); Servico servico=mock(Servico.class);
+        when(servico.getId()).thenReturn(id);
         when(servicoRepository.findById(id)).thenReturn(java.util.Optional.of(servico));
         when(repository.save(any(IndisponibilidadeServico.class))).thenAnswer(i->i.getArgument(0));
         var inicio=OffsetDateTime.now(); var fim=inicio.plusDays(1);
