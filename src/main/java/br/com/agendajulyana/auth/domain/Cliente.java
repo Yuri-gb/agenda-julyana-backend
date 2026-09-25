@@ -1,0 +1,3 @@
+package br.com.agendajulyana.auth.domain;
+import jakarta.persistence.*; import java.time.OffsetDateTime; import java.util.UUID;
+@Entity @Table(name="cliente") public class Cliente { @Id @GeneratedValue private UUID id; @OneToOne(optional=false,fetch=FetchType.LAZY) @JoinColumn(name="usuario_id",nullable=false,unique=true) private Usuario usuario; @Column(name="criado_em",nullable=false) private OffsetDateTime criadoEm; @Column(name="atualizado_em",nullable=false) private OffsetDateTime atualizadoEm; protected Cliente(){} public Cliente(Usuario u){usuario=u;criadoEm=OffsetDateTime.now();atualizadoEm=OffsetDateTime.now();} }
