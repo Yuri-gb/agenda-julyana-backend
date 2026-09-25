@@ -45,7 +45,7 @@ public class GoogleAuthenticationService {
                     "A conta já existe. Faça login normalmente e vincule o Google em um fluxo autenticado."
                 );
             }
-            usuario = new Usuario(nome, email.trim().toLowerCase(), null, null);
+            usuario = new Usuario(nome, email.trim().toLowerCase(), null);
             usuario.adicionarPapel(papeis.findByNome(PapelNome.CLIENTE)
                 .orElseThrow(() -> new IllegalStateException("Papel CLIENTE não configurado.")));
             usuarios.save(usuario);
