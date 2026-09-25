@@ -47,7 +47,7 @@ class AdminServiceTest {
 
     @Test
     void deveBloquearClienteDeCriarAdmin() {
-        var service = new AdminService(usuarios, papeis, identidades, encoder);
+        var service = new AdminService(usuarios, papeis, identidades, encoder, auditorias);
         var solicitante = new Usuario("Cliente", "cliente@email.com", "75999999999");
         solicitante.adicionarPapel(new Papel(PapelNome.CLIENTE));
 
