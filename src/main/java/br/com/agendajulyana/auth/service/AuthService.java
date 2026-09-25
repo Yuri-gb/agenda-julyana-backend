@@ -34,7 +34,7 @@ public class AuthService {
             throw new IllegalArgumentException("E-mail já cadastrado.");
         }
         var usuario = new Usuario(request.nome().trim(), request.email().trim().toLowerCase(),
-            request.telefone().trim(), null);
+            request.telefone().trim());
         usuario.adicionarPapel(papeis.findByNome(PapelNome.CLIENTE)
             .orElseThrow(() -> new IllegalStateException("Papel CLIENTE não configurado.")));
         usuarios.save(usuario);
