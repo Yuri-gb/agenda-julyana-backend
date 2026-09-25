@@ -1,6 +1,5 @@
 package br.com.agendajulyana.auditoria.domain;
 
-import br.com.agendajulyana.auth.domain.Usuario;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -12,7 +11,7 @@ import java.util.UUID;
 @Table(name = "auditoria")
 public class Auditoria {
     @Id @GeneratedValue private UUID id;
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "usuario_id") private Usuario usuario;
+    @Column(name = "usuario_id") private UUID usuarioId;
     @Column(nullable = false, length = 100) private String acao;
     @Column(name = "recurso_tipo", nullable = false, length = 100) private String recursoTipo;
     @Column(name = "recurso_id") private UUID recursoId;
@@ -20,8 +19,8 @@ public class Auditoria {
     @JdbcTypeCode(SqlTypes.JSON) @Column(columnDefinition = "jsonb") private Map<String,Object> contexto;
     @Column(name = "criado_em", nullable = false) private OffsetDateTime criadoEm;
     protected Auditoria() {}
-    public Auditoria(Usuario usuario,String acao,String recursoTipo,UUID recursoId,String resultado,Map<String,Object> contexto){
-        this.usuario=usuario;this.acao=acao;this.recursoTipo=recursoTipo;this.recursoId=recursoId;this.resultado=resultado;this.contexto=contexto;this.criadoEm=OffsetDateTime.now();
+    public Auditoria(UUID usuarioId,String acao,String recursoTipo,UUID recursoId,String resultado,Map<String,Object> contexto){
+        this.usuarioId=usuarioId;this.acao=acao;this.recursoTipo=recursoTipo;this.recursoId=recursoId;this.resultado=resultado;this.contexto=contexto;this.criadoEm=OffsetDateTime.now();
     }
     public UUID getId(){return id;}
 }
