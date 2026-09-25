@@ -1,6 +1,8 @@
 package br.com.agendajulyana.auth.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -26,7 +28,8 @@ public class Usuario {
 
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "usuario_status")
     private UsuarioStatus status;
 
     @Column(name = "criado_em", nullable = false)
