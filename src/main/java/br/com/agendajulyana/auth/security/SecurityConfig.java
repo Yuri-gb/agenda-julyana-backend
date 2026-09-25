@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 public class SecurityConfig {
@@ -15,11 +16,13 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(
         HttpSecurity http,
-        JwtAuthenticationFilter jwtAuthenticationFilter
+        JwtAuthenticationFilter jwtAuthenticationFilter,
+        GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler
     ) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
+            .oauth2Login(oauth -> oauth.successHandler(googleAuthenticationSuccessHandler))
             .httpBasic(basic -> basic.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
