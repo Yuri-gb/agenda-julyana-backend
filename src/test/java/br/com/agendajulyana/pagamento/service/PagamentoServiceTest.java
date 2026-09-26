@@ -1,7 +1,6 @@
 package br.com.agendajulyana.pagamento.service;
 
 import br.com.agendajulyana.agendamento.domain.Agendamento;
-import br.com.agendajulyana.agendamento.domain.ReservaStatus;
 import br.com.agendajulyana.agendamento.domain.ReservaTemporaria;
 import br.com.agendajulyana.auth.domain.Cliente;
 import br.com.agendajulyana.auth.domain.Usuario;
@@ -37,7 +36,10 @@ class PagamentoServiceTest {
 
     @Test
     void deveCriarCheckoutComValorDaEntrada() {
-        var usuario = new Usuario("Cliente", "cliente@example.com", "75999999999");
+        var usuarioId = UUID.randomUUID();
+        var usuario = mock(Usuario.class);
+        when(usuario.getId()).thenReturn(usuarioId);
+
         var cliente = new Cliente(usuario);
         var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
         var inicio = OffsetDateTime.now().plusHours(2);
@@ -52,7 +54,7 @@ class PagamentoServiceTest {
                 .thenReturn(new MercadoPagoOrderResponse("ORDER-123", "https://mercadopago.test/checkout/123", "created", "created"));
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
-        var response = service.criarCheckout(usuario.getId(), UUID.randomUUID());
+        var response = service.criarCheckout(usuarioId, UUID.randomUUID());
 
         assertEquals(new BigDecimal("100.00"), response.valor());
         assertEquals(PagamentoModalidade.ENTRADA, response.modalidade());
@@ -65,7 +67,10 @@ class PagamentoServiceTest {
 
     @Test
     void deveReutilizarCheckoutJaCriado() {
-        var usuario = new Usuario("Cliente", "cliente@example.com", "75999999999");
+        var usuarioId = UUID.randomUUID();
+        var usuario = mock(Usuario.class);
+        when(usuario.getId()).thenReturn(usuarioId);
+
         var cliente = new Cliente(usuario);
         var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
         var inicio = OffsetDateTime.now().plusHours(2);
@@ -80,7 +85,7 @@ class PagamentoServiceTest {
         when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
-        var response = service.criarCheckout(usuario.getId(), id);
+        var response = service.criarCheckout(usuarioId, id);
 
         assertEquals(new BigDecimal("200.00"), response.valor());
         assertEquals("ORDER-456", response.orderId());
@@ -90,8 +95,11 @@ class PagamentoServiceTest {
 
     @Test
     void deveRecusarCheckoutDeAgendamentoDeOutroCliente() {
-        var dono = new Usuario("Dono", "dono@example.com", "75999999999");
-        var outro = new Usuario("Outro", "outro@example.com", "75988888888");
+        var donoId = UUID.randomUUID();
+        var outroId = UUID.randomUUID();
+        var dono = mock(Usuario.class);
+        when(dono.getId()).thenReturn(donoId);
+
         var cliente = new Cliente(dono);
         var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
         var inicio = OffsetDateTime.now().plusHours(2);
@@ -102,7 +110,7 @@ class PagamentoServiceTest {
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
 
-        assertThrows(IllegalStateException.class, () -> service.criarCheckout(outro.getId(), id));
+        assertThrows(IllegalStateException.class, () -> service.criarCheckout(outroId, id));
         verifyNoInteractions(mercadoPago);
     }
 }
