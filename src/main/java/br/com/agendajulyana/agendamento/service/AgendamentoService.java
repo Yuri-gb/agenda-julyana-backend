@@ -7,6 +7,9 @@ import br.com.agendajulyana.auth.domain.Cliente;
 import br.com.agendajulyana.auth.repository.ClienteRepository;
 import br.com.agendajulyana.disponibilidade.repository.*;
 import br.com.agendajulyana.servico.domain.ServicoStatus;
+import br.com.agendajulyana.pagamento.domain.Pagamento;
+import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
+import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.servico.repository.ServicoRepository;
 import br.com.agendajulyana.auditoria.domain.Auditoria;
 import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
@@ -18,8 +21,8 @@ import java.time.*; import java.util.*;
 public class AgendamentoService {
  private final AgendamentoRepository agendamentos; private final ReservaTemporariaRepository reservas; private final ClienteRepository clientes; private final ServicoRepository servicos;
  private final DisponibilidadeRepository disponibilidades; private final BloqueioRepository bloqueios; private final IndisponibilidadeServicoRepository indisponibilidades; private final AuditoriaRepository auditorias;
- private final ReagendamentoRepository reagendamentos; private final CancelamentoRepository cancelamentos;
- public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;}
+ private final ReagendamentoRepository reagendamentos; private final CancelamentoRepository cancelamentos; private final PagamentoRepository pagamentos;
+ public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;}
  @Transactional public AgendamentoResponse criar(UUID usuarioId,CriarAgendamentoRequest req){
   Cliente cliente=clientes.findByUsuarioId(usuarioId).orElseThrow(()->new IllegalStateException("Perfil de cliente não encontrado."));
   var servico=servicos.findById(req.servicoId()).orElseThrow(()->new IllegalArgumentException("Serviço não encontrado."));
@@ -29,11 +32,12 @@ public class AgendamentoService {
   validarDisponibilidade(servico.getId(),inicio,fim);
   if(agendamentos.existeConflito(inicio,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO,AgendamentoStatus.CONFIRMADO)))throw new IllegalStateException("Horário já reservado.");
   var a=agendamentos.save(new Agendamento(cliente,servico,inicio,fim)); var r=reservas.save(new ReservaTemporaria(a,agora));
-  auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r);
+  pagamentos.save(new Pagamento(a,req.modalidadePagamento()));
+  auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r,req.modalidadePagamento());
  }
  @Transactional public AgendamentoResponse expirarReserva(UUID usuarioId,UUID agendamentoId){
   var a=obter(agendamentoId); var r=reservas.findByAgendamentoId(agendamentoId).orElseThrow();
-  if(r.getStatus()==ReservaStatus.ATIVA && r.estaExpirada(OffsetDateTime.now())){r.expirar();a.cancelar();auditar(usuarioId,"EXPIRAR_RESERVA","AGENDAMENTO",a.getId());} return response(a,r);
+  if(r.getStatus()==ReservaStatus.ATIVA && r.estaExpirada(OffsetDateTime.now())){r.expirar();a.cancelar();auditar(usuarioId,"EXPIRAR_RESERVA","AGENDAMENTO",a.getId());} return response(a,r,pagamentos.findByAgendamentoId(a.getId()).map(Pagamento::getModalidade).orElse(null));
  }
  @Transactional public AgendamentoResponse reagendar(UUID usuarioId,UUID id,ReagendarAgendamentoRequest req){
   var a=obter(id); if(a.getStatus()!=AgendamentoStatus.CONFIRMADO)throw new IllegalStateException("Apenas agendamento confirmado pode ser reagendado.");
@@ -43,7 +47,7 @@ public class AgendamentoService {
   var fim=novo.plusMinutes(a.getDuracaoMinutos()); validarDisponibilidade(a.getServico().getId(),novo,fim);
   if(agendamentos.existeConflito(novo,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO,AgendamentoStatus.CONFIRMADO)))throw new IllegalStateException("Novo horário já reservado.");
   var antigo=a.getInicio(); a.reagendar(novo); agendamentos.save(a); reagendamentos.save(new Reagendamento(a,(short)(total+1),antigo,novo,req.motivo()));
-  auditar(usuarioId,"REAGENDAR","AGENDAMENTO",id); return response(a,null);
+  auditar(usuarioId,"REAGENDAR","AGENDAMENTO",id); return response(a,null,pagamentos.findByAgendamentoId(a.getId()).map(Pagamento::getModalidade).orElse(null));
  }
  @Transactional public void cancelarCliente(UUID usuarioId,UUID id,CancelarAgendamentoRequest req){
   var a=obter(id); if(!a.getCliente().getUsuario().getId().equals(usuarioId))throw new IllegalStateException("Agendamento não pertence ao cliente.");
@@ -61,5 +65,5 @@ public class AgendamentoService {
  }
  private Agendamento obter(UUID id){return agendamentos.findById(id).orElseThrow(()->new IllegalArgumentException("Agendamento não encontrado."));}
  private void auditar(UUID u,String acao,String tipo,UUID id){auditorias.save(new Auditoria(u,acao,tipo,id,"SUCESSO",Map.of()));}
- private AgendamentoResponse response(Agendamento a,ReservaTemporaria r){return new AgendamentoResponse(a.getId(),a.getServico().getId(),a.getInicio(),a.getFim(),a.getDuracaoMinutos(),a.getValorServico(),a.getValorEntrada(),a.getStatus().name(),r==null?null:r.getId(),r==null?null:r.getExpiraEm());}
+ private AgendamentoResponse response(Agendamento a,ReservaTemporaria r,PagamentoModalidade modalidade){var valor=modalidade==null?null:a.valorParaPagamento(modalidade);return new AgendamentoResponse(a.getId(),a.getServico().getId(),a.getInicio(),a.getFim(),a.getDuracaoMinutos(),a.getValorServico(),a.getValorEntrada(),modalidade,valor,a.getStatus().name(),r==null?null:r.getId(),r==null?null:r.getExpiraEm());}
 }
