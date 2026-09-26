@@ -1,5 +1,7 @@
 package br.com.agendajulyana.integration.gmail;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/integrations/google/gmail")
 @ConditionalOnProperty(name = "app.gmail.authorization.enabled", havingValue = "true")
+@Tag(name = "Google Gmail", description = "Fluxo de autorização OAuth da conta Gmail usada como remetente.")
 public class GmailOAuthController {
 
     private final GmailOAuthService oauthService;
@@ -15,6 +18,10 @@ public class GmailOAuthController {
         this.oauthService = oauthService;
     }
 
+    @Operation(
+            summary = "Iniciar autorização do Gmail",
+            description = "Inicia o fluxo OAuth para autorizar a conta Gmail remetente. O Google redirecionará a autorização para o callback configurado."
+    )
     @GetMapping("/authorize")
     public String authorize() {
         return """
@@ -31,6 +38,10 @@ public class GmailOAuthController {
                 """.formatted(oauthService.criarUrlAutorizacao());
     }
 
+    @Operation(
+            summary = "Callback OAuth do Gmail",
+            description = "Endpoint de retorno utilizado pelo Google após a autorização da conta Gmail. Não deve ser executado manualmente; é acessado pelo redirecionamento OAuth."
+    )
     @GetMapping(value = "/callback", produces = MediaType.TEXT_HTML_VALUE)
     public String callback(
             @RequestParam(required = false) String code,
