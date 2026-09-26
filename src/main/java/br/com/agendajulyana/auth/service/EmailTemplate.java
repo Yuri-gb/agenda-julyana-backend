@@ -6,146 +6,214 @@ import org.springframework.stereotype.Component;
 public class EmailTemplate {
 
     private static final String VERDE_ESCURO = "#20351f";
-    private static final String VERDE_OLIVA = "#58633b";
+    private static final String VERDE_FUNDO = "#46552d";
+    private static final String VERDE_ICON = "#5c6b35";
     private static final String DOURADO = "#b38a32";
     private static final String CREME = "#f7f1e5";
+    private static final String CREME_CARD = "#efeedf";
     private static final String FUNDO = "#eee8dc";
 
     public String recuperarSenha(String nome, String codigo) {
-        return base("""
-                <h1 style="margin:0 0 10px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1.15;font-weight:400;">
-                    Olá, %s!
-                </h1>
-
-                <p style="margin:0 0 24px;color:#263022;font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.55;">
-                    Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.
-                </p>
-
-                <p style="margin:0 0 12px;color:%s;font-family:Arial,sans-serif;font-size:17px;line-height:1.5;">
-                    Use o código abaixo para continuar:
-                </p>
-
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+        var content = """
+                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
-                    <td style="padding:20px 22px;border:2px solid %s;border-radius:18px;background:%s;">
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                    <td style="padding:0;">
+
+                      <h1 style="margin:0 0 12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1.1;font-weight:400;">
+                        Olá, %s!
+                      </h1>
+
+                      <p style="margin:0 0 25px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.55;">
+                        Recebemos uma solicitação para redefinir<br class="desktop-only">
+                        a senha da sua conta na Agenda Julyana.
+                      </p>
+
+                      <p style="margin:0 0 12px;color:#697153;font-family:Arial,sans-serif;font-size:16px;line-height:1.5;">
+                        Use o código abaixo para continuar:
+                      </p>
+
+                      <!-- Código + ação visual de copiar -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 30px;">
                         <tr>
-                          <td align="center" valign="middle">
-                            <span style="color:%s;font-family:Arial,sans-serif;font-size:38px;line-height:1;font-weight:700;letter-spacing:9px;">
-                                %s
-                            </span>
+                          <td style="padding:17px 20px;border:2px solid %s;border-radius:18px;background:%s;">
+                            <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td align="center" valign="middle">
+                                  <span style="color:%s;font-family:Arial,sans-serif;font-size:38px;line-height:1;font-weight:700;letter-spacing:8px;">
+                                    %s
+                                  </span>
+                                </td>
+                                <td width="92" align="center" valign="middle" style="border-left:1px solid #d7c796;padding-left:12px;">
+                                  <!-- Ícone SVG preparado para a ação de copiar -->
+                                  <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:0 auto 5px;">
+                                    <rect x="8" y="4" width="14" height="17" rx="2" fill="none" stroke="%s" stroke-width="1.8"/>
+                                    <rect x="4" y="8" width="14" height="17" rx="2" fill="%s" stroke="%s" stroke-width="1.8"/>
+                                  </svg>
+                                  <div style="font-family:Arial,sans-serif;color:%s;font-size:10px;line-height:1.25;letter-spacing:.4px;">
+                                    COPIAR<br>CÓDIGO
+                                  </div>
+                                </td>
+                              </tr>
+                            </table>
                           </td>
-                          <td width="82" align="center" valign="middle" style="border-left:1px solid #d8c48e;padding-left:12px;">
-                            <div style="font-family:Arial,sans-serif;color:%s;font-size:25px;line-height:1;margin-bottom:5px;">⧉</div>
-                            <div style="font-family:Arial,sans-serif;color:%s;font-size:11px;line-height:1.2;letter-spacing:.5px;">
-                                COPIAR<br>CÓDIGO
+                        </tr>
+                      </table>
+
+                      <!-- Informações: círculos reservados para os assets -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 31px;">
+                        <tr>
+                          <td class="info-column" width="50%%" valign="middle" style="padding:0 13px 0 0;">
+                            <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td width="58" valign="middle">
+                                  <div style="width:48px;height:48px;border-radius:50%%;background:%s;">
+                                    <!-- ASSET: icon-validade -->
+                                  </div>
+                                </td>
+                                <td valign="middle" style="padding-left:9px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                                  Este código é válido por<br>
+                                  <strong>15 minutos.</strong>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+
+                          <td class="info-column" width="50%%" valign="middle" style="padding:0 0 0 13px;border-left:1px solid #d9d0b7;">
+                            <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td width="58" valign="middle">
+                                  <div style="width:48px;height:48px;border-radius:50%%;background:%s;">
+                                    <!-- ASSET: icon-uso-unico -->
+                                  </div>
+                                </td>
+                                <td valign="middle" style="padding-left:9px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                                  Pode ser utilizado<br>
+                                  apenas <strong>uma única vez.</strong>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Aviso de segurança: um único bloco, sem badge -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
+                        <tr>
+                          <td style="padding:18px 22px;background:%s;border-radius:15px;">
+                            <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                <td width="68" valign="middle" align="center">
+                                  <div style="width:50px;height:50px;border-radius:50%%;background:#f5f2e4;">
+                                    <!-- ASSET: icon-seguranca -->
+                                  </div>
+                                </td>
+                                <td valign="middle" style="padding-left:12px;">
+                                  <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.35;font-weight:700;">
+                                    Não solicitou a recuperação de senha?
+                                  </p>
+                                  <p style="margin:0;color:#35412e;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">
+                                    Se você não fez essa solicitação, ignore este e-mail.<br class="desktop-only">
+                                    Sua conta continuará segura.
+                                  </p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Assinatura -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+                        <tr>
+                          <td width="39%%" style="border-top:1px solid #cdbb8c;"></td>
+                          <td width="22%%" align="center" style="padding:0 10px;">
+                            <div style="width:34px;height:34px;margin:0 auto;border-radius:50%%;background:%s;">
+                              <!-- ASSET: icon-assinatura -->
+                            </div>
+                          </td>
+                          <td width="39%%" style="border-top:1px solid #cdbb8c;"></td>
+                        </tr>
+                      </table>
+
+                      <div style="text-align:center;">
+                        <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.4;">
+                          Cuidar de você é a nossa essência.
+                        </p>
+                        <p style="margin:0;color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;">
+                          Julyana Lima — Estética e Bem-estar
+                        </p>
+                      </div>
+
+                      <!-- Serviços -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin-top:30px;">
+                        <tr>
+                          <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
+                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                              <!-- ASSET: icon-estetica -->
+                            </div>
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                              Estética<br>Facial e Corporal
+                            </div>
+                          </td>
+                          <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
+                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                              <!-- ASSET: icon-massoterapia -->
+                            </div>
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                              Massoterapia
+                            </div>
+                          </td>
+                          <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
+                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                              <!-- ASSET: icon-relaxamento -->
+                            </div>
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                              Relaxamento
+                            </div>
+                          </td>
+                          <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
+                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                              <!-- ASSET: icon-bem-estar -->
+                            </div>
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                              Bem-estar
                             </div>
                           </td>
                         </tr>
                       </table>
-                    </td>
-                  </tr>
-                </table>
 
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 30px;">
-                  <tr>
-                    <td width="50%%" valign="top" style="padding:0 8px 0 0;">
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                          <td width="58" valign="middle">
-                            <div style="width:48px;height:48px;border-radius:50%%;background:#eef0dc;text-align:center;font-family:Arial,sans-serif;color:%s;font-size:25px;line-height:48px;">◷</div>
-                          </td>
-                          <td valign="middle" style="padding-left:8px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.4;">
-                            Este código é válido por<br><strong>15 minutos.</strong>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                    <td width="50%%" valign="top" style="padding:0 0 0 8px;border-left:1px solid #d8d0b8;">
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                          <td width="58" valign="middle">
-                            <div style="width:48px;height:48px;border-radius:50%%;background:#eef0dc;text-align:center;font-family:Arial,sans-serif;color:%s;font-size:23px;line-height:48px;">♢</div>
-                          </td>
-                          <td valign="middle" style="padding-left:8px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.4;">
-                            Pode ser utilizado<br>apenas <strong>uma única vez.</strong>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
-                  <tr>
-                    <td style="padding:20px 22px;background:#ebe9d9;border-radius:15px;">
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                          <td width="66" valign="top" align="center">
-                            <div style="font-family:Arial,sans-serif;color:%s;font-size:37px;line-height:1.1;">♙</div>
-                          </td>
-                          <td valign="top">
-                            <p style="margin:0 0 7px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.4;font-weight:700;">
-                                Não solicitou a recuperação de senha?
-                            </p>
-                            <p style="margin:0;color:#35412e;font-family:Arial,sans-serif;font-size:15px;line-height:1.55;">
-                                Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.
-                            </p>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;">
-                  <tr>
-                    <td width="42%%" style="border-top:1px solid #cdbb8c;"></td>
-                    <td width="16%%" align="center" style="color:%s;font-size:26px;line-height:1;">♧</td>
-                    <td width="42%%" style="border-top:1px solid #cdbb8c;"></td>
-                  </tr>
-                </table>
-
-                <div style="text-align:center;">
-                    <p style="margin:0 0 6px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.4;">
-                        Cuidar de você é a nossa essência.
-                    </p>
-                    <p style="margin:0;color:%s;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;">
-                        Julyana Lima — Estética e Bem-estar
-                    </p>
-                </div>
-
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin-top:30px;">
-                  <tr>
-                    <td width="25%%" align="center" valign="top">
-                      <div style="width:44px;height:44px;margin:0 auto 7px;border-radius:50%%;background:#eef0dc;color:%s;font-family:Arial,sans-serif;font-size:23px;line-height:44px;">♧</div>
-                      <div style="color:%s;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">Estética<br>Facial e Corporal</div>
-                    </td>
-                    <td width="25%%" align="center" valign="top">
-                      <div style="width:44px;height:44px;margin:0 auto 7px;border-radius:50%%;background:#eef0dc;color:%s;font-family:Arial,sans-serif;font-size:22px;line-height:44px;">⌁</div>
-                      <div style="color:%s;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">Massoterapia</div>
-                    </td>
-                    <td width="25%%" align="center" valign="top">
-                      <div style="width:44px;height:44px;margin:0 auto 7px;border-radius:50%%;background:#eef0dc;color:%s;font-family:Arial,sans-serif;font-size:22px;line-height:44px;">♨</div>
-                      <div style="color:%s;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">Relaxamento</div>
-                    </td>
-                    <td width="25%%" align="center" valign="top">
-                      <div style="width:44px;height:44px;margin:0 auto 7px;border-radius:50%%;background:#eef0dc;color:%s;font-family:Arial,sans-serif;font-size:22px;line-height:44px;">♡</div>
-                      <div style="color:%s;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">Bem-estar</div>
                     </td>
                   </tr>
                 </table>
                 """.formatted(
-                    VERDE_ESCURO, escape(nome), VERDE_OLIVA, DOURADO, CREME, DOURADO, escape(codigo),
-                    DOURADO, VERDE_OLIVA,
-                    VERDE_ESCURO, VERDE_ESCURO,
-                    VERDE_ESCURO, VERDE_OLIVA,
-                    DOURADO, VERDE_ESCURO, VERDE_ESCURO,
-                    DOURADO, VERDE_OLIVA,
-                    VERDE_OLIVA, VERDE_OLIVA,
-                    VERDE_OLIVA, VERDE_OLIVA,
-                    VERDE_OLIVA, VERDE_OLIVA
-                ));
+                VERDE_ESCURO,
+                escape(nome),
+                VERDE_ESCURO,
+                DOURADO,
+                CREME,
+                VERDE_ESCURO,
+                escape(codigo),
+                DOURADO,
+                CREME,
+                DOURADO,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ESCURO,
+                CREME_CARD,
+                VERDE_ESCURO,
+                VERDE_FUNDO,
+                DOURADO,
+                VERDE_ESCURO,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ICON,
+                VERDE_ICON
+        );
+
+        return base(content);
     }
 
     private String base(String content) {
@@ -156,47 +224,133 @@ public class EmailTemplate {
                   <meta charset="UTF-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <meta name="x-apple-disable-message-reformatting">
+                  <meta name="color-scheme" content="light dark">
+                  <meta name="supported-color-schemes" content="light dark">
                   <title>Agenda Julyana</title>
+                  <style>
+                    @media only screen and (max-width: 480px) {
+                      .email-shell {
+                        width:100%% !important;
+                        max-width:100%% !important;
+                        border-radius:0 !important;
+                      }
+                      .email-content {
+                        padding:30px 22px 28px !important;
+                      }
+                      .desktop-only {
+                        display:none !important;
+                      }
+                      .info-column {
+                        display:block !important;
+                        width:100%% !important;
+                        padding:0 0 16px !important;
+                        border-left:0 !important;
+                      }
+                      .service-column {
+                        width:50%% !important;
+                        padding-bottom:22px !important;
+                      }
+                    }
+                  </style>
                 </head>
                 <body style="margin:0;padding:0;background:%s;">
                   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
                     Comunicação da Agenda Julyana.
                   </div>
+
                   <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="background:%s;">
                     <tr>
                       <td align="center" style="padding:24px 12px;">
-                        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:600px;background:#fffdf8;border-radius:18px;overflow:hidden;">
+                        <table class="email-shell" role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:600px;background:%s;border-radius:18px;overflow:hidden;">
+
+                          <!-- Header -->
                           <tr>
                             <td style="padding:0;">
                               <img src="cid:julyana-email-header" width="600" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;max-width:600px;height:auto;border:0;">
                             </td>
                           </tr>
+
+                          <!-- Conteúdo -->
                           <tr>
-                            <td style="padding:40px 36px 38px;">
+                            <td class="email-content" style="padding:42px 36px 36px;">
                               %s
                             </td>
                           </tr>
+
+                          <!-- Footer -->
                           <tr>
-                            <td style="padding:28px 36px 26px;background:%s;text-align:center;border-radius:38px 38px 0 0;">
-                              <p style="margin:0 0 9px;color:#f8f1e5;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.4;">
-                                Siga nossas redes
-                              </p>
-                              <p style="margin:0 0 14px;color:#f8f1e5;font-family:Arial,sans-serif;font-size:25px;line-height:1;">
-                                ◎ &nbsp;&nbsp;◉ &nbsp;&nbsp;⌖
-                              </p>
-                              <p style="margin:0;color:#f8f1e5;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">
-                                <strong>⌖ &nbsp; Feira de Santana - BA</strong><br>
-                                <span style="font-size:12px;">Beleza, saúde e bem-estar em um só lugar.</span>
-                              </p>
+                            <td style="padding:0;background:%s;">
+                              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td class="footer-column" width="50%%" valign="middle" style="padding:24px 18px 25px 28px;border-right:1px solid rgba(247,241,229,.55);">
+                                    <p style="margin:0 0 11px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.35;">
+                                      Siga nossas redes
+                                    </p>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                      <tr>
+                                        <td style="padding-right:10px;">
+                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                            <!-- ASSET: icon-instagram -->
+                                          </div>
+                                        </td>
+                                        <td style="padding-right:10px;">
+                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                            <!-- ASSET: icon-whatsapp -->
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                            <!-- ASSET: icon-localizacao -->
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+
+                                  <td class="footer-column" width="50%%" valign="middle" style="padding:24px 28px 25px 18px;">
+                                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                                      <tr>
+                                        <td width="38" valign="middle" style="padding-right:10px;">
+                                          <div style="width:32px;height:32px;border-radius:50%%;border:1px solid %s;text-align:center;">
+                                            <!-- ASSET: icon-localizacao-footer -->
+                                          </div>
+                                        </td>
+                                        <td valign="middle">
+                                          <p style="margin:0 0 3px;color:%s;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;font-weight:700;">
+                                            Feira de Santana - BA
+                                          </p>
+                                          <p style="margin:0;color:%s;font-family:Arial,sans-serif;font-size:11px;line-height:1.4;">
+                                            Beleza, saúde e bem-estar em um só lugar.
+                                          </p>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
                             </td>
                           </tr>
+
                         </table>
                       </td>
                     </tr>
                   </table>
                 </body>
                 </html>
-                """.formatted(FUNDO, FUNDO, content, VERDE_ESCURO);
+                """.formatted(
+                FUNDO,
+                FUNDO,
+                CREME,
+                content,
+                VERDE_FUNDO,
+                CREME,
+                DOURADO,
+                DOURADO,
+                DOURADO,
+                CREME,
+                CREME,
+                CREME
+        );
     }
 
     private static String escape(String value) {
