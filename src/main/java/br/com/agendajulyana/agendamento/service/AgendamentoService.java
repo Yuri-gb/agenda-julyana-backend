@@ -32,7 +32,7 @@ public class AgendamentoService {
   auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r);
  }
  @Transactional public AgendamentoResponse expirarReserva(UUID usuarioId,UUID agendamentoId){
-  var a=obter(agendamentoId); var r=reservas.findAll().stream().filter(x->x.getAgendamento().getId().equals(agendamentoId)).findFirst().orElseThrow();
+  var a=obter(agendamentoId); var r=reservas.findByAgendamentoId(agendamentoId).orElseThrow();
   if(r.getStatus()==ReservaStatus.ATIVA && r.estaExpirada(OffsetDateTime.now())){r.expirar();a.cancelar();auditar(usuarioId,"EXPIRAR_RESERVA","AGENDAMENTO",a.getId());} return response(a,r);
  }
  @Transactional public AgendamentoResponse reagendar(UUID usuarioId,UUID id,ReagendarAgendamentoRequest req){
