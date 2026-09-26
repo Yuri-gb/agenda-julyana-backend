@@ -24,8 +24,8 @@ public class BloqueioService {
     }
     @Transactional(readOnly=true) public List<BloqueioResponse> listar(){return repository.findAll().stream().map(this::toResponse).toList();}
     @Transactional(readOnly=true) public BloqueioResponse buscar(UUID id){return toResponse(find(id));}
-    @Transactional public BloqueioResponse atualizar(UUID id,BloqueioRequest r){validar(r.inicio(),r.fim());if(repository.existeSobreposicao(r.inicio(),r.fim(),id)) throw new IllegalArgumentException("Já existe bloqueio sobreposto.");Bloqueio b=find(id);b.atualizar(r.inicio(),r.fim(),r.motivo());auditorias.save(new Auditoria(null,"ATUALIZAR_BLOQUEIO","BLOQUEIO",id,"SUCESSO",java.util.Map.of()));return toResponse(b);}
-    @Transactional public void excluir(UUID id){repository.delete(find(id));}
+    @Transactional public BloqueioResponse atualizar(UUID id,BloqueioRequest r, UUID usuarioId){validar(r.inicio(),r.fim());if(repository.existeSobreposicao(r.inicio(),r.fim(),id)) throw new IllegalArgumentException("Já existe bloqueio sobreposto.");Bloqueio b=find(id);b.atualizar(r.inicio(),r.fim(),r.motivo());auditorias.save(new Auditoria(usuarioId,"ATUALIZAR_BLOQUEIO","BLOQUEIO",id,"SUCESSO",java.util.Map.of()));return toResponse(b);}
+    @Transactional public void excluir(UUID id, UUID usuarioId){repository.delete(find(id));auditorias.save(new Auditoria(usuarioId,"EXCLUIR_BLOQUEIO","BLOQUEIO",id,"SUCESSO",java.util.Map.of()));}
     private Bloqueio find(UUID id){return repository.findById(id).orElseThrow(()->new EntityNotFoundException("Bloqueio não encontrado."));}
     private void validar(OffsetDateTime i,OffsetDateTime f){if(!f.isAfter(i))throw new IllegalArgumentException("fim deve ser posterior a inicio.");}
     private BloqueioResponse toResponse(Bloqueio b){return new BloqueioResponse(b.getId(),b.getInicio(),b.getFim(),b.getMotivo(),b.getCriadoPor().getId(),b.getCriadoEm());}
