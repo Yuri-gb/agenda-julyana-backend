@@ -27,9 +27,9 @@ public class GmailApiService {
     private final GmailApiProperties properties;
     private final RestClient restClient;
 
-    public GmailApiService(GmailApiProperties properties, RestClient.Builder restClientBuilder) {
+    public GmailApiService(GmailApiProperties properties) {
         this.properties = properties;
-        this.restClient = restClientBuilder.build();
+        this.restClient = RestClient.create();
     }
 
     public void enviar(String destinatario, String nome, String assunto, String html, String texto) {
