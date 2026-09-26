@@ -14,7 +14,7 @@ class EmailTemplateTest {
 
         assertAll(
                 () -> assertTrue(html.contains("cid:julyana-email-header")),
-                () -> assertTrue(html.contains("Olá!")),
+                () -> assertTrue(html.contains("Olá, Maria!")),
                 () -> assertTrue(html.contains("483921")),
                 () -> assertTrue(html.contains("15 minutos")),
                 () -> assertTrue(html.contains("uma única vez")),
