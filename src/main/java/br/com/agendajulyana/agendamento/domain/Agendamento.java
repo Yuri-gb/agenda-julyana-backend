@@ -2,6 +2,7 @@ package br.com.agendajulyana.agendamento.domain;
 
 import br.com.agendajulyana.auth.domain.Cliente;
 import br.com.agendajulyana.servico.domain.Servico;
+import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -35,6 +36,7 @@ public class Agendamento {
  public UUID getId(){return id;} public Cliente getCliente(){return cliente;} public Servico getServico(){return servico;}
  public OffsetDateTime getInicio(){return inicio;} public OffsetDateTime getFim(){return fim;} public int getDuracaoMinutos(){return duracaoMinutos;}
  public BigDecimal getValorServico(){return valorServico;} public BigDecimal getValorEntrada(){return valorEntrada;} public AgendamentoStatus getStatus(){return status;}
+ public BigDecimal valorParaPagamento(PagamentoModalidade modalidade){return modalidade==PagamentoModalidade.ENTRADA?valorEntrada:valorServico;}
  public void confirmar(){exigir(AgendamentoStatus.AGUARDANDO_PAGAMENTO);status=AgendamentoStatus.CONFIRMADO;}
  public void cancelar(){if(status==AgendamentoStatus.REALIZADO||status==AgendamentoStatus.CANCELADO)throw new IllegalStateException("Agendamento não pode ser cancelado.");status=AgendamentoStatus.CANCELADO;}
  public void realizar(){exigir(AgendamentoStatus.CONFIRMADO);status=AgendamentoStatus.REALIZADO;}
