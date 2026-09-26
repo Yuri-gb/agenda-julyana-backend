@@ -10,6 +10,7 @@ import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import br.com.agendajulyana.agendamento.repository.AgendamentoRepository;
 import br.com.agendajulyana.agendamento.repository.ReservaTemporariaRepository;
 import br.com.agendajulyana.servico.domain.Servico;
@@ -35,6 +36,7 @@ class PagamentoServiceTest {
     @Mock PagamentoRepository pagamentos;
     @Mock MercadoPagoClient mercadoPago;
     @Mock TentativaPagamentoRepository tentativas;
+    @Mock ReembolsoRepository reembolsos;
 
     @Test
     void deveCriarCheckoutComValorDaEntrada() {
@@ -55,7 +57,7 @@ class PagamentoServiceTest {
         when(mercadoPago.criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class)))
                 .thenReturn(new MercadoPagoOrderResponse("ORDER-123", "https://mercadopago.test/checkout/123", "created", "created"));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         var response = service.criarCheckout(usuarioId, UUID.randomUUID());
 
         assertEquals(new BigDecimal("100.00"), response.valor());
