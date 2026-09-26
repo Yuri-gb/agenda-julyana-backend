@@ -24,11 +24,11 @@ public class IndisponibilidadeServicoService {
     }
     @Transactional(readOnly=true) public List<IndisponibilidadeServicoResponse> listar(){return repository.findAll().stream().map(this::toResponse).toList();}
     @Transactional(readOnly=true) public IndisponibilidadeServicoResponse buscar(UUID id){return toResponse(find(id));}
-    @Transactional public IndisponibilidadeServicoResponse atualizar(UUID id,IndisponibilidadeServicoRequest r){
+    @Transactional public IndisponibilidadeServicoResponse atualizar(UUID id,IndisponibilidadeServicoRequest r, UUID usuarioId){
         validar(r.inicio(),r.fim()); if(repository.existeSobreposicao(r.servicoId(),r.inicio(),r.fim(),id)) throw new IllegalArgumentException("Já existe indisponibilidade sobreposta para esse serviço."); if(!find(id).getServico().getId().equals(r.servicoId()))throw new IllegalArgumentException("O serviço da indisponibilidade não pode ser alterado.");
-        IndisponibilidadeServico x=find(id);x.atualizar(r.inicio(),r.fim(),r.motivo());auditorias.save(new Auditoria(null,"ATUALIZAR_INDISPONIBILIDADE_SERVICO","INDISPONIBILIDADE_SERVICO",id,"SUCESSO",java.util.Map.of()));return toResponse(x);
+        IndisponibilidadeServico x=find(id);x.atualizar(r.inicio(),r.fim(),r.motivo());auditorias.save(new Auditoria(usuarioId,"ATUALIZAR_INDISPONIBILIDADE_SERVICO","INDISPONIBILIDADE_SERVICO",id,"SUCESSO",java.util.Map.of()));return toResponse(x);
     }
-    @Transactional public void excluir(UUID id){repository.delete(find(id));}
+    @Transactional public void excluir(UUID id, UUID usuarioId){repository.delete(find(id));auditorias.save(new Auditoria(usuarioId,"EXCLUIR_INDISPONIBILIDADE_SERVICO","INDISPONIBILIDADE_SERVICO",id,"SUCESSO",java.util.Map.of()));}
     private IndisponibilidadeServico find(UUID id){return repository.findById(id).orElseThrow(()->new EntityNotFoundException("Indisponibilidade não encontrada."));}
     private void validar(OffsetDateTime i,OffsetDateTime f){if(!f.isAfter(i))throw new IllegalArgumentException("fim deve ser posterior a inicio.");}
     private IndisponibilidadeServicoResponse toResponse(IndisponibilidadeServico x){return new IndisponibilidadeServicoResponse(x.getId(),x.getServico().getId(),x.getInicio(),x.getFim(),x.getMotivo(),x.getCriadoEm());}
