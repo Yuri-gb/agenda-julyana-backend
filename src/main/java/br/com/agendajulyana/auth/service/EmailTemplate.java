@@ -13,36 +13,36 @@ public class EmailTemplate {
 
     public String recuperarSenha(String nome, String codigo) {
         return base("""
-                <h1 style="margin:0 0 18px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1.1;font-weight:400;">
-                    Olá!
+                <h1 style="margin:0 0 8px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:38px;line-height:1.15;font-weight:400;">
+                    Olá, %s!
                 </h1>
-                <p style="margin:0 0 20px;color:#263022;font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.55;">
+                <p style="margin:0 0 22px;color:#263022;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.55;">
                     Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.
                 </p>
-                <p style="margin:0 0 12px;color:%s;font-family:Arial,sans-serif;font-size:17px;line-height:1.5;">
+                <p style="margin:0 0 12px;color:%s;font-family:Arial,sans-serif;font-size:16px;line-height:1.5;">
                     Use o código abaixo para continuar:
                 </p>
-                <div style="margin:0 0 28px;padding:22px 24px;border:2px solid %s;border-radius:16px;background:%s;text-align:center;">
-                    <span style="color:%s;font-family:Arial,sans-serif;font-size:38px;line-height:1;font-weight:700;letter-spacing:9px;">
+                <div style="margin:0 0 26px;padding:22px 24px;border:2px solid %s;border-radius:16px;background:%s;text-align:center;">
+                    <span style="color:%s;font-family:Arial,sans-serif;font-size:36px;line-height:1;font-weight:700;letter-spacing:8px;">
                         %s
                     </span>
                 </div>
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
                     <tr>
-                        <td width="50%%" valign="top" style="padding:0 14px 0 0;">
+                        <td width="50%%" valign="top" style="padding:0 8px 0 0;">
                             <div style="padding:16px;background:#f1f0df;border-radius:14px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.45;">
                                 Este código é válido por <strong>15 minutos.</strong>
                             </div>
                         </td>
-                        <td width="50%%" valign="top" style="padding:0 0 0 14px;">
+                        <td width="50%%" valign="top" style="padding:0 0 0 8px;">
                             <div style="padding:16px;background:#f1f0df;border-radius:14px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.45;">
                                 Pode ser utilizado apenas <strong>uma única vez.</strong>
                             </div>
                         </td>
                     </tr>
                 </table>
-                <div style="margin:0 0 30px;padding:22px 24px;background:#ebe9d9;border-radius:14px;">
-                    <p style="margin:0 0 8px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.4;font-weight:700;">
+                <div style="margin:0 0 30px;padding:20px 22px;background:#ebe9d9;border-radius:14px;">
+                    <p style="margin:0 0 8px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.4;font-weight:700;">
                         Não solicitou a recuperação de senha?
                     </p>
                     <p style="margin:0;color:#35412e;font-family:Arial,sans-serif;font-size:15px;line-height:1.55;">
@@ -50,7 +50,7 @@ public class EmailTemplate {
                     </p>
                 </div>
                 <div style="border-top:1px solid #cdbb8c;padding-top:22px;text-align:center;">
-                    <p style="margin:0 0 6px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.4;">
+                    <p style="margin:0 0 6px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.4;">
                         Cuidar de você é a nossa essência.
                     </p>
                     <p style="margin:0;color:%s;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;">
@@ -58,8 +58,8 @@ public class EmailTemplate {
                     </p>
                 </div>
                 """.formatted(
-                    VERDE_ESCURO, VERDE_OLIVA, DOURADO, CREME, DOURADO, escape(codigo),
-                    VERDE_ESCURO, VERDE_ESCURO, VERDE_ESCURO, VERDE_OLIVA, DOURADO
+                    VERDE_ESCURO, escape(nome), VERDE_OLIVA, DOURADO, CREME, DOURADO, escape(codigo),
+                    VERDE_ESCURO, VERDE_ESCURO, VERDE_OLIVA, DOURADO
                 ));
     }
 
@@ -87,12 +87,12 @@ public class EmailTemplate {
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:42px 40px 38px;">
+                            <td style="padding:40px 36px 34px;">
                               %s
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:18px 40px 24px;background:%s;text-align:center;">
+                            <td style="padding:18px 36px 22px;background:%s;text-align:center;">
                               <p style="margin:0;color:#f8f1e5;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;">
                                 Julyana Lima — Estética e Bem-estar
                               </p>
@@ -112,7 +112,7 @@ public class EmailTemplate {
         return value.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
-                .replace("\"", "&quot;")
+                .replace(""", "&quot;")
                 .replace("'", "&#39;");
     }
 }
