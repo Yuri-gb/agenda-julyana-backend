@@ -17,15 +17,17 @@ public class AuthService {
     private final IdentidadeAutenticacaoRepository identidades;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
+    private final ClienteRepository clientes;
 
     public AuthService(UsuarioRepository usuarios, PapelRepository papeis,
                        IdentidadeAutenticacaoRepository identidades,
-                       PasswordEncoder encoder, JwtService jwt) {
+                       PasswordEncoder encoder, JwtService jwt, ClienteRepository clientes) {
         this.usuarios = usuarios;
         this.papeis = papeis;
         this.identidades = identidades;
         this.encoder = encoder;
         this.jwt = jwt;
+        this.clientes = clientes;
     }
 
     @Transactional
@@ -38,6 +40,7 @@ public class AuthService {
         usuario.adicionarPapel(papeis.findByNome(PapelNome.CLIENTE)
             .orElseThrow(() -> new IllegalStateException("Papel CLIENTE não configurado.")));
         usuarios.save(usuario);
+        clientes.save(new Cliente(usuario));
         identidades.save(IdentidadeAutenticacao.local(usuario, request.email(),
             encoder.encode(request.senha())));
         return response(usuario);

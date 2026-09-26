@@ -14,10 +14,11 @@ public class GoogleAuthenticationService {
     private final PapelRepository papeis;
     private final IdentidadeAutenticacaoRepository identidades;
     private final JwtService jwt;
+    private final ClienteRepository clientes;
 
     public GoogleAuthenticationService(UsuarioRepository usuarios, PapelRepository papeis,
-                                       IdentidadeAutenticacaoRepository identidades, JwtService jwt) {
-        this.usuarios = usuarios; this.papeis = papeis; this.identidades = identidades; this.jwt = jwt;
+                                       IdentidadeAutenticacaoRepository identidades, JwtService jwt, ClienteRepository clientes) {
+        this.usuarios = usuarios; this.papeis = papeis; this.identidades = identidades; this.jwt = jwt; this.clientes = clientes;
     }
 
     @Transactional
@@ -49,6 +50,7 @@ public class GoogleAuthenticationService {
             usuario.adicionarPapel(papeis.findByNome(PapelNome.CLIENTE)
                 .orElseThrow(() -> new IllegalStateException("Papel CLIENTE não configurado.")));
             usuarios.save(usuario);
+            clientes.save(new Cliente(usuario));
             identidades.save(IdentidadeAutenticacao.google(usuario, subject));
         }
 
