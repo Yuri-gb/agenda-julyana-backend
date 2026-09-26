@@ -3,9 +3,13 @@ package br.com.agendajulyana.integration.gmail;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.io.ByteArrayOutputStream;
@@ -46,13 +50,16 @@ public class GmailApiService {
     }
 
     private String obterAccessToken() {
+        var form = new LinkedMultiValueMap<String, String>();
+        form.add("client_id", properties.clientId());
+        form.add("client_secret", properties.clientSecret());
+        form.add("refresh_token", properties.refreshToken());
+        form.add("grant_type", "refresh_token");
+
         var response = restClient.post()
                 .uri(TOKEN_URL)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body("client_id=" + encode(properties.clientId())
-                        + "&client_secret=" + encode(properties.clientSecret())
-                        + "&refresh_token=" + encode(properties.refreshToken())
-                        + "&grant_type=refresh_token")
+                .body(form)
                 .retrieve()
                 .body(TokenResponse.class);
 
@@ -67,38 +74,43 @@ public class GmailApiService {
             throws Exception {
         var session = Session.getInstance(new Properties());
         var message = new MimeMessage(session);
+
         message.setRecipient(Message.RecipientType.TO, new InternetAddress(destinatario, nome));
         message.setFrom(new InternetAddress(properties.from()));
         message.setSubject(assunto, StandardCharsets.UTF_8.name());
 
-        var multipart = new jakarta.mail.Multipart() {
-            @Override
-            public jakarta.mail.BodyPart getBodyPart(int index) {
-                return null;
-            }
+        var related = new MimeMultipart("related");
+        var alternative = new MimeMultipart("alternative");
 
-            @Override
-            public int getCount() {
-                return 0;
-            }
-        };
-        // A montagem abaixo usa MimeMultipart para manter texto alternativo e HTML.
-        var alternative = new jakarta.mail.internet.MimeMultipart("alternative");
-        var plain = new jakarta.mail.internet.MimeBodyPart();
+        var plain = new MimeBodyPart();
         plain.setText(texto, StandardCharsets.UTF_8.name());
-        var rich = new jakarta.mail.internet.MimeBodyPart();
-        rich.setContent(html, "text/html; charset=UTF-8");
         alternative.addBodyPart(plain);
+
+        var rich = new MimeBodyPart();
+        rich.setContent(html, "text/html; charset=UTF-8");
         alternative.addBodyPart(rich);
-        message.setContent(alternative);
+
+        var content = new MimeBodyPart();
+        content.setContent(alternative);
+        related.addBodyPart(content);
+
+        var header = new ClassPathResource("email/julyana-email-header.jpg");
+        if (!header.exists()) {
+            throw new IllegalStateException("Cabeçalho de e-mail não encontrado no classpath.");
+        }
+
+        var image = new MimeBodyPart();
+        image.setDataHandler(new jakarta.activation.DataHandler(header.getURL()));
+        image.setHeader("Content-ID", "<julyana-email-header>");
+        image.setDisposition(MimeBodyPart.INLINE);
+        related.addBodyPart(image);
+
+        message.setContent(related);
 
         var output = new ByteArrayOutputStream();
         message.writeTo(output);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(output.toByteArray());
-    }
 
-    private static String encode(String value) {
-        return java.net.URLEncoder.encode(value, StandardCharsets.UTF_8);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(output.toByteArray());
     }
 
     private record TokenResponse(String access_token, String expires_in, String token_type) {
