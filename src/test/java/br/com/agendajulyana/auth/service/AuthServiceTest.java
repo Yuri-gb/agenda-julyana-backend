@@ -21,10 +21,11 @@ class AuthServiceTest {
     @Mock IdentidadeAutenticacaoRepository identidades;
     @Mock PasswordEncoder encoder;
     @Mock JwtService jwt;
+    @Mock ClienteRepository clientes;
 
     @Test
     void deveCadastrarClienteComCredencialLocal() {
-        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
+        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt, clientes);
         var papel = new Papel(PapelNome.CLIENTE);
 
         when(usuarios.existsByEmailIgnoreCase("cliente@email.com")).thenReturn(false);
