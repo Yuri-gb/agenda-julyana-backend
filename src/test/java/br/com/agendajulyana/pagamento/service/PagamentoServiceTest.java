@@ -88,7 +88,7 @@ class PagamentoServiceTest {
         when(reservas.findByAgendamentoId(id)).thenReturn(Optional.of(reserva));
         when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         var response = service.criarCheckout(usuarioId, id);
 
         assertEquals(new BigDecimal("200.00"), response.valor());
@@ -112,7 +112,7 @@ class PagamentoServiceTest {
         var id = UUID.randomUUID();
         when(agendamentos.findById(id)).thenReturn(Optional.of(agendamento));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
 
         assertThrows(IllegalStateException.class, () -> service.criarCheckout(outroId, id));
         verifyNoInteractions(mercadoPago);
