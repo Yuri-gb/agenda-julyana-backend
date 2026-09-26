@@ -60,7 +60,7 @@ class AuthServiceTest {
 
     @Test
     void deveAutenticarComSenhaLocal() {
-        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
+        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt, clientes);
         var papel = new Papel(PapelNome.CLIENTE);
         var usuario = new Usuario("Cliente", "cliente@email.com", "75999999999");
         usuario.adicionarPapel(papel);
@@ -81,7 +81,7 @@ class AuthServiceTest {
 
     @Test
     void deveAtualizarTelefoneDoUsuarioAutenticado() {
-        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
+        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt, clientes);
         var papel = new Papel(PapelNome.CLIENTE);
         var usuario = new Usuario("Cliente", "cliente@email.com", null);
         usuario.adicionarPapel(papel);
@@ -99,7 +99,7 @@ class AuthServiceTest {
 
     @Test
     void deveRecusarSenhaLocalIncorreta() {
-        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
+        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt, clientes);
         var usuario = new Usuario("Cliente", "cliente@email.com", "75999999999");
         var identidade = IdentidadeAutenticacao.local(usuario, "cliente@email.com", "hash");
 
