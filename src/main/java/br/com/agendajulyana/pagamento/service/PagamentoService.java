@@ -2,6 +2,7 @@ package br.com.agendajulyana.pagamento.service;
 
 import br.com.agendajulyana.agendamento.domain.AgendamentoStatus;
 import br.com.agendajulyana.agendamento.domain.ReservaStatus;
+import br.com.agendajulyana.agendamento.domain.ReservaTemporaria;
 import br.com.agendajulyana.agendamento.repository.AgendamentoRepository;
 import br.com.agendajulyana.agendamento.repository.ReservaTemporariaRepository;
 import br.com.agendajulyana.pagamento.domain.Pagamento;
