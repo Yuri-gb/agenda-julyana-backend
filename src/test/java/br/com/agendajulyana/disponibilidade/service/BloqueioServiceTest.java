@@ -1,5 +1,6 @@
 package br.com.agendajulyana.disponibilidade.service;
 
+import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
 import br.com.agendajulyana.auth.domain.Usuario;
 import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import br.com.agendajulyana.disponibilidade.domain.Bloqueio;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class BloqueioServiceTest {
     @Mock BloqueioRepository repository;
+    @Mock AuditoriaRepository auditorias;
     @Mock UsuarioRepository usuarioRepository;
     @InjectMocks BloqueioService service;
 
