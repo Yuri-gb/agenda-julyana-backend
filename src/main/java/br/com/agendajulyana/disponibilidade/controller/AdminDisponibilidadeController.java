@@ -23,12 +23,12 @@ public class AdminDisponibilidadeController {
     @PostMapping("/bloqueios") @ResponseStatus(HttpStatus.CREATED) public BloqueioResponse criarBloqueio(@Valid @RequestBody BloqueioRequest r,Authentication a){return bloqueio.criar(r,UUID.fromString(a.getName()));}
     @GetMapping("/bloqueios") public List<BloqueioResponse> listarBloqueios(){return bloqueio.listar();}
     @GetMapping("/bloqueios/{id}") public BloqueioResponse buscarBloqueio(@PathVariable UUID id){return bloqueio.buscar(id);}
-    @PutMapping("/bloqueios/{id}") public BloqueioResponse atualizarBloqueio(@PathVariable UUID id,@Valid @RequestBody BloqueioRequest r){return bloqueio.atualizar(id,r);}
-    @DeleteMapping("/bloqueios/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirBloqueio(@PathVariable UUID id){bloqueio.excluir(id);}
+    @PutMapping("/bloqueios/{id}") public BloqueioResponse atualizarBloqueio(@PathVariable UUID id,@Valid @RequestBody BloqueioRequest r, Authentication a){return bloqueio.atualizar(id,r, UUID.fromString(a.getName()));}
+    @DeleteMapping("/bloqueios/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirBloqueio(@PathVariable UUID id, Authentication a){bloqueio.excluir(id, UUID.fromString(a.getName()));}
 
     @PostMapping("/servicos-indisponiveis") @ResponseStatus(HttpStatus.CREATED) public IndisponibilidadeServicoResponse criarInd(@Valid @RequestBody IndisponibilidadeServicoRequest r){return indisponibilidade.criar(r);}
     @GetMapping("/servicos-indisponiveis") public List<IndisponibilidadeServicoResponse> listarInd(){return indisponibilidade.listar();}
     @GetMapping("/servicos-indisponiveis/{id}") public IndisponibilidadeServicoResponse buscarInd(@PathVariable UUID id){return indisponibilidade.buscar(id);}
-    @PutMapping("/servicos-indisponiveis/{id}") public IndisponibilidadeServicoResponse atualizarInd(@PathVariable UUID id,@Valid @RequestBody IndisponibilidadeServicoRequest r){return indisponibilidade.atualizar(id,r);}
-    @DeleteMapping("/servicos-indisponiveis/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirInd(@PathVariable UUID id){indisponibilidade.excluir(id);}
+    @PutMapping("/servicos-indisponiveis/{id}") public IndisponibilidadeServicoResponse atualizarInd(@PathVariable UUID id,@Valid @RequestBody IndisponibilidadeServicoRequest r, Authentication a){return indisponibilidade.atualizar(id,r, UUID.fromString(a.getName()));}
+    @DeleteMapping("/servicos-indisponiveis/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirInd(@PathVariable UUID id, Authentication a){indisponibilidade.excluir(id, UUID.fromString(a.getName()));}
 }
