@@ -30,7 +30,8 @@ public class PagamentoService {
             AgendamentoRepository agendamentos,
             ReservaTemporariaRepository reservas,
             PagamentoRepository pagamentos,
-            MercadoPagoClient mercadoPago
+            MercadoPagoClient mercadoPago,
+            TentativaPagamentoRepository tentativas
     ) {
         this.agendamentos = agendamentos;
         this.reservas = reservas;
