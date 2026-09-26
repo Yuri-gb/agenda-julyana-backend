@@ -23,9 +23,9 @@ public class GmailOAuthService {
     private final RestClient restClient;
     private final Map<String, Instant> states = new ConcurrentHashMap<>();
 
-    public GmailOAuthService(GmailApiProperties properties, RestClient.Builder restClientBuilder) {
+    public GmailOAuthService(GmailApiProperties properties) {
         this.properties = properties;
-        this.restClient = restClientBuilder.build();
+        this.restClient = RestClient.create();
     }
 
     public String criarUrlAutorizacao() {
