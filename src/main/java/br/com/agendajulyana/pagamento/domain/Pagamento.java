@@ -40,6 +40,9 @@ public class Pagamento {
     @Column(name = "referencia_externa")
     private String referenciaExterna;
 
+    @Column(name = "checkout_url")
+    private String checkoutUrl;
+
     @Column(name = "criado_em", nullable = false)
     private OffsetDateTime criadoEm;
 
@@ -79,6 +82,19 @@ public class Pagamento {
     public PagamentoStatus getStatus() { return status; }
     public String getProvedor() { return provedor; }
     public String getReferenciaExterna() { return referenciaExterna; }
+    public String getCheckoutUrl() { return checkoutUrl; }
+
+    public void registrarOrder(String referenciaExterna, String checkoutUrl) {
+        exigir(PagamentoStatus.PENDENTE);
+        if (referenciaExterna == null || referenciaExterna.isBlank()) {
+            throw new IllegalArgumentException("A referência externa do pagamento é obrigatória.");
+        }
+        if (checkoutUrl == null || checkoutUrl.isBlank()) {
+            throw new IllegalArgumentException("A URL de checkout do pagamento é obrigatória.");
+        }
+        this.referenciaExterna = referenciaExterna;
+        this.checkoutUrl = checkoutUrl;
+    }
 
     public void aprovar(String referenciaExterna) {
         exigir(PagamentoStatus.PENDENTE);
