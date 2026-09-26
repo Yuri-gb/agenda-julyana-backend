@@ -9,6 +9,8 @@ import br.com.agendajulyana.pagamento.domain.PagamentoStatus;
 import br.com.agendajulyana.pagamento.dto.CheckoutPagamentoResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
+import br.com.agendajulyana.pagamento.domain.TentativaPagamento;
+import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class PagamentoService {
     private final ReservaTemporariaRepository reservas;
     private final PagamentoRepository pagamentos;
     private final MercadoPagoClient mercadoPago;
+    private final TentativaPagamentoRepository tentativas;
 
     public PagamentoService(
             AgendamentoRepository agendamentos,
@@ -33,6 +36,7 @@ public class PagamentoService {
         this.reservas = reservas;
         this.pagamentos = pagamentos;
         this.mercadoPago = mercadoPago;
+        this.tentativas = tentativas;
     }
 
     @Transactional
@@ -67,13 +71,14 @@ public class PagamentoService {
             return resposta(pagamento);
         }
 
-        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor());
+        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor(), pagamento.getId());
         if (order == null || order.id() == null || order.checkout_url() == null) {
             throw new IllegalStateException("Mercado Pago não retornou uma ordem válida.");
         }
 
         pagamento.registrarOrder(order.id(), order.checkout_url());
         pagamentos.save(pagamento);
+        tentativas.save(new TentativaPagamento(reserva, pagamento, order.id()));
 
         return resposta(pagamento);
     }
