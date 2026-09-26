@@ -19,7 +19,7 @@ public class MercadoPagoClient {
         this.properties = properties;
     }
 
-    public MercadoPagoOrderResponse criarOrder(Agendamento agendamento, BigDecimal valor) {
+    public MercadoPagoOrderResponse criarOrder(Agendamento agendamento, BigDecimal valor, UUID idempotencyKey) {
         var usuario = agendamento.getCliente().getUsuario();
         var payerEmail = properties.testPayerEmail() != null && !properties.testPayerEmail().isBlank()
                 ? properties.testPayerEmail()
@@ -42,11 +42,18 @@ public class MercadoPagoClient {
 
         return client.post()
                 .uri("/v1/orders")
-                .header("X-Idempotency-Key", UUID.randomUUID().toString())
+                .header("X-Idempotency-Key", idempotencyKey.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
                 .body(MercadoPagoOrderResponse.class);
+    }
+
+    public MercadoPagoOrderStatus consultarOrder(String orderId) {
+        return client.get()
+                .uri("/v1/orders/{id}", orderId)
+                .retrieve()
+                .body(MercadoPagoOrderStatus.class);
     }
 
     record MercadoPagoOrderRequest(

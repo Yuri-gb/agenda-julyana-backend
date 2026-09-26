@@ -21,7 +21,7 @@ class AgendamentoServiceTest {
  @Mock DisponibilidadeRepository disponibilidades; @Mock BloqueioRepository bloqueios; @Mock IndisponibilidadeServicoRepository indisponibilidades; @Mock AuditoriaRepository auditorias;
  @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos;
  @Test void deveCriarReservaDe30Minutos(){
-  var usuario=new Usuario("Cliente","c@e.com","75999999999"); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
+  var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
   var agora=OffsetDateTime.now().plusHours(1).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class)));
@@ -39,7 +39,7 @@ class AgendamentoServiceTest {
   assertEquals(Duration.ofMinutes(30),Duration.between(reservaSalva.getValue().getInicio(),reservaSalva.getValue().getExpiraEm()));
  }
  @Test void deveRecusarConflito(){
-  var usuario=new Usuario("Cliente","c@e.com","75999999999"); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
+  var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
   var inicio=OffsetDateTime.now().plusHours(2);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
@@ -49,7 +49,7 @@ class AgendamentoServiceTest {
   assertThrows(IllegalStateException.class,()->s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL)));
  }
  @Test void deveCobrarValorTotalQuandoModalidadeForPagamentoTotal(){
-  var cliente=new Cliente(new Usuario("Cliente","total@e.com","75999999999")); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
+  var usuario=new Usuario("Cliente","total@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
   var inicio=OffsetDateTime.now().plusHours(2);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));

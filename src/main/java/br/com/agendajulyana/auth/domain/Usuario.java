@@ -26,6 +26,11 @@ public class Usuario {
     @Column(length = 30)
     private String telefone;
 
+    @Column(name = "telefone_verificado", nullable = false)
+    private boolean telefoneVerificado;
+
+    @Column(name = "telefone_verificado_em")
+    private OffsetDateTime telefoneVerificadoEm;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
@@ -46,13 +51,14 @@ public class Usuario {
     )
     private Set<Papel> papeis = new HashSet<>();
 
-    protected Usuario() {
-    }
+    protected Usuario() {}
 
     public Usuario(String nome, String email, String telefone) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
+        this.telefoneVerificado = false;
+        this.telefoneVerificadoEm = null;
         this.status = UsuarioStatus.ATIVO;
         this.criadoEm = OffsetDateTime.now();
         this.atualizadoEm = OffsetDateTime.now();
@@ -74,6 +80,8 @@ public class Usuario {
     public String getNome() { return nome; }
     public String getEmail() { return email; }
     public String getTelefone() { return telefone; }
+    public boolean isTelefoneVerificado() { return telefoneVerificado; }
+    public OffsetDateTime getTelefoneVerificadoEm() { return telefoneVerificadoEm; }
     public UsuarioStatus getStatus() { return status; }
     public Set<Papel> getPapeis() { return papeis; }
 
@@ -86,7 +94,25 @@ public class Usuario {
             this.nome = nome.trim();
         }
         if (telefone != null) {
-            this.telefone = telefone.isBlank() ? null : telefone.trim();
+            var novoTelefone = telefone.isBlank() ? null : telefone.trim();
+            if (!java.util.Objects.equals(this.telefone, novoTelefone)) {
+                this.telefone = novoTelefone;
+                this.telefoneVerificado = false;
+                this.telefoneVerificadoEm = null;
+            }
         }
+    }
+
+    public void confirmarTelefone() {
+        if (telefone == null || telefone.isBlank()) {
+            throw new IllegalStateException("Não é possível verificar um telefone não informado.");
+        }
+        this.telefoneVerificado = true;
+        this.telefoneVerificadoEm = OffsetDateTime.now();
+    }
+
+    public void invalidarVerificacaoTelefone() {
+        this.telefoneVerificado = false;
+        this.telefoneVerificadoEm = null;
     }
 }

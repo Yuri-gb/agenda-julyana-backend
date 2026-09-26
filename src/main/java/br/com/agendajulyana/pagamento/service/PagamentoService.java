@@ -2,6 +2,7 @@ package br.com.agendajulyana.pagamento.service;
 
 import br.com.agendajulyana.agendamento.domain.AgendamentoStatus;
 import br.com.agendajulyana.agendamento.domain.ReservaStatus;
+import br.com.agendajulyana.agendamento.domain.ReservaTemporaria;
 import br.com.agendajulyana.agendamento.repository.AgendamentoRepository;
 import br.com.agendajulyana.agendamento.repository.ReservaTemporariaRepository;
 import br.com.agendajulyana.pagamento.domain.Pagamento;
@@ -9,6 +10,10 @@ import br.com.agendajulyana.pagamento.domain.PagamentoStatus;
 import br.com.agendajulyana.pagamento.dto.CheckoutPagamentoResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
+import br.com.agendajulyana.pagamento.domain.TentativaPagamento;
+import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
+import br.com.agendajulyana.pagamento.domain.Reembolso;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,17 +27,23 @@ public class PagamentoService {
     private final ReservaTemporariaRepository reservas;
     private final PagamentoRepository pagamentos;
     private final MercadoPagoClient mercadoPago;
+    private final TentativaPagamentoRepository tentativas;
+    private final ReembolsoRepository reembolsos;
 
     public PagamentoService(
             AgendamentoRepository agendamentos,
             ReservaTemporariaRepository reservas,
             PagamentoRepository pagamentos,
-            MercadoPagoClient mercadoPago
+            MercadoPagoClient mercadoPago,
+            TentativaPagamentoRepository tentativas,
+            ReembolsoRepository reembolsos
     ) {
         this.agendamentos = agendamentos;
         this.reservas = reservas;
         this.pagamentos = pagamentos;
         this.mercadoPago = mercadoPago;
+        this.tentativas = tentativas;
+        this.reembolsos = reembolsos;
     }
 
     @Transactional
@@ -67,15 +78,82 @@ public class PagamentoService {
             return resposta(pagamento);
         }
 
-        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor());
+        var pagamentoPersistido = pagamentos.save(pagamento);
+        if (pagamentoPersistido == null) pagamentoPersistido = pagamento;
+        pagamento = pagamentoPersistido;
+        var idempotencyKey = pagamento.getId() != null ? pagamento.getId() :
+                (agendamento.getId() != null ? agendamento.getId() : UUID.randomUUID());
+        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor(), idempotencyKey);
         if (order == null || order.id() == null || order.checkout_url() == null) {
             throw new IllegalStateException("Mercado Pago não retornou uma ordem válida.");
         }
 
         pagamento.registrarOrder(order.id(), order.checkout_url());
         pagamentos.save(pagamento);
+        tentativas.save(new TentativaPagamento(reserva, pagamento, order.id()));
 
         return resposta(pagamento);
+    }
+
+
+    @Transactional
+    public void processarWebhookOrder(String orderId) {
+        var order = mercadoPago.consultarOrder(orderId);
+        if (order == null || order.id() == null || !order.id().equals(orderId)) {
+            throw new IllegalStateException("Order inválida.");
+        }
+
+        var pagamento = pagamentos.findByReferenciaExterna(orderId)
+                .orElseThrow(() -> new IllegalStateException("Pagamento da order não encontrado."));
+
+        if (order.totalAmount() != null && order.totalAmount().compareTo(pagamento.getValor()) != 0) {
+            throw new IllegalStateException("Valor da order diverge do pagamento.");
+        }
+
+        var agendamento = pagamento.getAgendamento();
+        var reserva = reservas.findByAgendamentoId(agendamento.getId()).orElse(null);
+
+        switch (order.status()) {
+            case "processed" -> processarAprovado(pagamento, agendamento, reserva, orderId);
+            case "failed" -> {
+                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.recusar(orderId);
+            }
+            case "canceled", "expired" -> {
+                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.cancelar(orderId);
+                if (reserva != null && reserva.getStatus() == ReservaStatus.ATIVA) reserva.expirar();
+                if (agendamento.getStatus() == AgendamentoStatus.AGUARDANDO_PAGAMENTO) agendamento.cancelar();
+            }
+            default -> {
+                // created/action_required: nenhuma transição final é aplicada.
+            }
+        }
+    }
+
+    private void processarAprovado(Pagamento pagamento, br.com.agendajulyana.agendamento.domain.Agendamento agendamento,
+                                   ReservaTemporaria reserva, String orderId) {
+        if (pagamento.getStatus() != PagamentoStatus.PENDENTE) return;
+
+        pagamento.aprovar(orderId);
+
+        var reservaValida = reserva != null
+                && reserva.getStatus() == ReservaStatus.ATIVA
+                && !reserva.estaExpirada(OffsetDateTime.now());
+
+        if (reservaValida) {
+            agendamento.confirmar();
+            return;
+        }
+
+        if (agendamento.getStatus() == AgendamentoStatus.AGUARDANDO_PAGAMENTO) {
+            agendamento.cancelar();
+        }
+
+        reembolsos.save(new Reembolso(
+                pagamento,
+                null,
+                pagamento.getValor(),
+                "Pagamento aprovado após expiração da reserva temporária."
+        ));
     }
 
     private CheckoutPagamentoResponse resposta(Pagamento pagamento) {

@@ -25,6 +25,8 @@ public class AgendamentoService {
  public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;}
  @Transactional public AgendamentoResponse criar(UUID usuarioId,CriarAgendamentoRequest req){
   Cliente cliente=clientes.findByUsuarioId(usuarioId).orElseThrow(()->new IllegalStateException("Perfil de cliente não encontrado."));
+  var usuario=cliente.getUsuario();
+  if(usuario.getTelefone()==null || usuario.getTelefone().isBlank() || !usuario.isTelefoneVerificado())throw new IllegalStateException("Telefone informado e verificado é obrigatório para agendar.");
   var servico=servicos.findById(req.servicoId()).orElseThrow(()->new IllegalArgumentException("Serviço não encontrado."));
   if(servico.getStatus()!=ServicoStatus.ATIVO)throw new IllegalStateException("Serviço indisponível.");
   var inicio=req.inicio(); var fim=inicio.plusMinutes(servico.getDuracaoMinutos()); var agora=OffsetDateTime.now();

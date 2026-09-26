@@ -21,6 +21,7 @@ public class Agendamento {
  @Column(name="duracao_minutos",nullable=false) private int duracaoMinutos;
  @Column(name="valor_servico",nullable=false,precision=10,scale=2) private BigDecimal valorServico;
  @Column(name="valor_entrada",nullable=false,precision=10,scale=2) private BigDecimal valorEntrada;
+ @Column(name="google_event_id",length=255) private String googleEventId;
  @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.NAMED_ENUM) @Column(nullable=false,columnDefinition="agendamento_status") private AgendamentoStatus status;
  @Column(name="criado_em",nullable=false) private OffsetDateTime criadoEm;
  @Column(name="atualizado_em",nullable=false) private OffsetDateTime atualizadoEm;
@@ -36,11 +37,14 @@ public class Agendamento {
  public UUID getId(){return id;} public Cliente getCliente(){return cliente;} public Servico getServico(){return servico;}
  public OffsetDateTime getInicio(){return inicio;} public OffsetDateTime getFim(){return fim;} public int getDuracaoMinutos(){return duracaoMinutos;}
  public BigDecimal getValorServico(){return valorServico;} public BigDecimal getValorEntrada(){return valorEntrada;} public AgendamentoStatus getStatus(){return status;}
+ public String getGoogleEventId(){return googleEventId;}
+ public void registrarGoogleEventId(String googleEventId){if(googleEventId==null||googleEventId.isBlank())throw new IllegalArgumentException("O ID do evento Google é obrigatório.");this.googleEventId=googleEventId;}
+ public void removerGoogleEventId(){this.googleEventId=null;}
  public BigDecimal valorParaPagamento(PagamentoModalidade modalidade){return modalidade==PagamentoModalidade.ENTRADA?valorEntrada:valorServico;}
  public void confirmar(){exigir(AgendamentoStatus.AGUARDANDO_PAGAMENTO);status=AgendamentoStatus.CONFIRMADO;}
  public void cancelar(){if(status==AgendamentoStatus.REALIZADO||status==AgendamentoStatus.CANCELADO)throw new IllegalStateException("Agendamento não pode ser cancelado.");status=AgendamentoStatus.CANCELADO;}
  public void realizar(){exigir(AgendamentoStatus.CONFIRMADO);status=AgendamentoStatus.REALIZADO;}
  public void marcarNaoComparecimento(){exigir(AgendamentoStatus.CONFIRMADO);status=AgendamentoStatus.NAO_COMPARECEU;}
- private void exigir(AgendamentoStatus esperado){if(status!=esperado)throw new IllegalStateException("Transição de status inválida.");}
  public void reagendar(OffsetDateTime novoInicio){if(status!=AgendamentoStatus.CONFIRMADO)throw new IllegalStateException("Apenas agendamento confirmado pode ser reagendado.");this.inicio=novoInicio;this.fim=novoInicio.plusMinutes(duracaoMinutos);}
+ private void exigir(AgendamentoStatus esperado){if(status!=esperado)throw new IllegalStateException("Transição de status inválida.");}
 }

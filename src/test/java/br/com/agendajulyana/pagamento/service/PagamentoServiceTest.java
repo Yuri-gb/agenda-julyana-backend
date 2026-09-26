@@ -9,6 +9,8 @@ import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import br.com.agendajulyana.agendamento.repository.AgendamentoRepository;
 import br.com.agendajulyana.agendamento.repository.ReservaTemporariaRepository;
 import br.com.agendajulyana.servico.domain.Servico;
@@ -33,6 +35,8 @@ class PagamentoServiceTest {
     @Mock ReservaTemporariaRepository reservas;
     @Mock PagamentoRepository pagamentos;
     @Mock MercadoPagoClient mercadoPago;
+    @Mock TentativaPagamentoRepository tentativas;
+    @Mock ReembolsoRepository reembolsos;
 
     @Test
     void deveCriarCheckoutComValorDaEntrada() {
@@ -50,10 +54,10 @@ class PagamentoServiceTest {
         when(agendamentos.findById(any())).thenReturn(Optional.of(agendamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
         when(pagamentos.findByAgendamentoId(any())).thenReturn(Optional.of(pagamento));
-        when(mercadoPago.criarOrder(agendamento, new BigDecimal("100.00")))
+        when(mercadoPago.criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class)))
                 .thenReturn(new MercadoPagoOrderResponse("ORDER-123", "https://mercadopago.test/checkout/123", "created", "created"));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         var response = service.criarCheckout(usuarioId, UUID.randomUUID());
 
         assertEquals(new BigDecimal("100.00"), response.valor());
@@ -62,7 +66,7 @@ class PagamentoServiceTest {
         assertEquals("https://mercadopago.test/checkout/123", response.checkoutUrl());
         assertEquals("ORDER-123", pagamento.getReferenciaExterna());
         assertEquals("https://mercadopago.test/checkout/123", pagamento.getCheckoutUrl());
-        verify(pagamentos).save(pagamento);
+        verify(pagamentos, times(2)).save(pagamento);
     }
 
     @Test
@@ -84,7 +88,7 @@ class PagamentoServiceTest {
         when(reservas.findByAgendamentoId(id)).thenReturn(Optional.of(reserva));
         when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         var response = service.criarCheckout(usuarioId, id);
 
         assertEquals(new BigDecimal("200.00"), response.valor());
@@ -108,7 +112,7 @@ class PagamentoServiceTest {
         var id = UUID.randomUUID();
         when(agendamentos.findById(id)).thenReturn(Optional.of(agendamento));
 
-        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago);
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
 
         assertThrows(IllegalStateException.class, () -> service.criarCheckout(outroId, id));
         verifyNoInteractions(mercadoPago);
