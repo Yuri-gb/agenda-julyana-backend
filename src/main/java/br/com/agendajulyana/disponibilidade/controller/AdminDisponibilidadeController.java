@@ -14,11 +14,11 @@ import java.util.UUID;
 public class AdminDisponibilidadeController {
     private final DisponibilidadeService disponibilidade; private final BloqueioService bloqueio; private final IndisponibilidadeServicoService indisponibilidade;
     public AdminDisponibilidadeController(DisponibilidadeService d,BloqueioService b,IndisponibilidadeServicoService i){disponibilidade=d;bloqueio=b;indisponibilidade=i;}
-    @PostMapping @ResponseStatus(HttpStatus.CREATED) public DisponibilidadeResponse criar(@Valid @RequestBody DisponibilidadeRequest r){return disponibilidade.criar(r);}
+    @PostMapping @ResponseStatus(HttpStatus.CREATED) public DisponibilidadeResponse criar(@Valid @RequestBody DisponibilidadeRequest r, Authentication a){return disponibilidade.criar(r, UUID.fromString(a.getName()));}
     @GetMapping public List<DisponibilidadeResponse> listar(){return disponibilidade.listar();}
     @GetMapping("/{id}") public DisponibilidadeResponse buscar(@PathVariable UUID id){return disponibilidade.buscar(id);}
-    @PutMapping("/{id}") public DisponibilidadeResponse atualizar(@PathVariable UUID id,@Valid @RequestBody DisponibilidadeRequest r){return disponibilidade.atualizar(id,r);}
-    @PatchMapping("/{id}/status") public DisponibilidadeResponse status(@PathVariable UUID id,@Valid @RequestBody DisponibilidadeStatusRequest r){return disponibilidade.alterarStatus(id,r);}
+    @PutMapping("/{id}") public DisponibilidadeResponse atualizar(@PathVariable UUID id,@Valid @RequestBody DisponibilidadeRequest r, Authentication a){return disponibilidade.atualizar(id,r, UUID.fromString(a.getName()));}
+    @PatchMapping("/{id}/status") public DisponibilidadeResponse status(@PathVariable UUID id,@Valid @RequestBody DisponibilidadeStatusRequest r, Authentication a){return disponibilidade.alterarStatus(id,r, UUID.fromString(a.getName()));}
 
     @PostMapping("/bloqueios") @ResponseStatus(HttpStatus.CREATED) public BloqueioResponse criarBloqueio(@Valid @RequestBody BloqueioRequest r,Authentication a){return bloqueio.criar(r,UUID.fromString(a.getName()));}
     @GetMapping("/bloqueios") public List<BloqueioResponse> listarBloqueios(){return bloqueio.listar();}
