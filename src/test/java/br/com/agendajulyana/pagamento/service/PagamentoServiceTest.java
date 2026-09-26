@@ -39,7 +39,6 @@ class PagamentoServiceTest {
         var usuarioId = UUID.randomUUID();
         var usuario = mock(Usuario.class);
         when(usuario.getId()).thenReturn(usuarioId);
-        when(usuario.getEmail()).thenReturn("cliente@example.com");
 
         var cliente = new Cliente(usuario);
         var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
@@ -99,9 +98,7 @@ class PagamentoServiceTest {
         var donoId = UUID.randomUUID();
         var outroId = UUID.randomUUID();
         var dono = mock(Usuario.class);
-        var outro = mock(Usuario.class);
         when(dono.getId()).thenReturn(donoId);
-        when(outro.getId()).thenReturn(outroId);
 
         var cliente = new Cliente(dono);
         var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
