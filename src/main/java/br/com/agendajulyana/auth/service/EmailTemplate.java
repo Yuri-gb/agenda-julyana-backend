@@ -59,7 +59,7 @@ public class EmailTemplate {
                 </div>
                 """.formatted(
                     VERDE_ESCURO, escape(nome), VERDE_OLIVA, DOURADO, CREME, DOURADO, escape(codigo),
-                    VERDE_ESCURO, VERDE_ESCURO, VERDE_OLIVA, DOURADO
+                    VERDE_ESCURO, VERDE_ESCURO, VERDE_OLIVA, DOURADO, VERDE_ESCURO
                 ));
     }
 
