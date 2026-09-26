@@ -14,12 +14,8 @@ public class MercadoPagoClient {
     private final RestClient client;
     private final MercadoPagoProperties properties;
 
-    public MercadoPagoClient(RestClient.Builder builder, MercadoPagoProperties properties) {
-        this.client = builder
-                .baseUrl(properties.baseUrl())
-                .defaultHeader("Authorization", "Bearer " + properties.accessToken())
-                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .build();
+    public MercadoPagoClient(RestClient mercadoPagoRestClient, MercadoPagoProperties properties) {
+        this.client = mercadoPagoRestClient;
         this.properties = properties;
     }
 
@@ -47,6 +43,7 @@ public class MercadoPagoClient {
         return client.post()
                 .uri("/v1/orders")
                 .header("X-Idempotency-Key", UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
                 .body(MercadoPagoOrderResponse.class);
