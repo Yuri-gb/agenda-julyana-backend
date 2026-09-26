@@ -78,7 +78,8 @@ public class PagamentoService {
             return resposta(pagamento);
         }
 
-        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor(), pagamento.getId() != null ? pagamento.getId() : agendamento.getId());
+        pagamento = pagamentos.save(pagamento);
+        var order = mercadoPago.criarOrder(agendamento, pagamento.getValor(), pagamento.getId());
         if (order == null || order.id() == null || order.checkout_url() == null) {
             throw new IllegalStateException("Mercado Pago não retornou uma ordem válida.");
         }
