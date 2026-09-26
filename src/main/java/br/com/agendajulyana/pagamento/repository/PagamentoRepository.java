@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface PagamentoRepository extends JpaRepository<Pagamento, UUID> {
 
     Optional<Pagamento> findByAgendamentoId(UUID agendamentoId);
+
+    Optional<Pagamento> findByReferenciaExterna(String referenciaExterna);
 }
