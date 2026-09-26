@@ -46,8 +46,8 @@ class EmailTemplateTest {
 
         assertAll(
                 () -> assertTrue(html.contains("COPIAR<br>CÓDIGO")),
-                () -> assertTrue(html.contains("<svg width="28" height="28"")),
-                () -> assertTrue(html.contains("aria-hidden="true""))
+                () -> assertTrue(html.contains("<svg width=\"28\" height=\"28\"")),
+                () -> assertTrue(html.contains("aria-hidden=\"true\""))
         );
     }
 
