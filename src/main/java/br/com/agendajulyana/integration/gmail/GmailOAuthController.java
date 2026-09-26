@@ -51,7 +51,7 @@ public class GmailOAuthController {
                 "Autorização concluída",
                 "<p>O Google autorizou o envio.</p>"
                         + "<p><strong>Salve o refresh token abaixo como segredo no Render.</strong></p>"
-                        + "<textarea style="width:100%;height:180px">"
+                        + "<textarea style=\"width:100%;height:180px\">"
                         + escape(refreshToken)
                         + "</textarea>"
                         + "<p>Depois disso, desative <code>app.gmail.authorization.enabled</code>.</p>"
@@ -77,7 +77,7 @@ public class GmailOAuthController {
         return value.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
-                .replace(""", "&quot;")
+                .replace("\"", "&quot;")
                 .replace("'", "&#39;");
     }
 }
