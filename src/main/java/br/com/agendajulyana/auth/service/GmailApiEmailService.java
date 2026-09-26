@@ -1,6 +1,5 @@
 package br.com.agendajulyana.auth.service;
 
-import br.com.agendajulyana.integration.gmail.GmailApiProperties;
 import br.com.agendajulyana.integration.gmail.GmailApiService;
 import org.springframework.stereotype.Service;
 
@@ -9,16 +8,10 @@ public class GmailApiEmailService implements EmailService {
 
     private final GmailApiService gmailApiService;
     private final EmailTemplate template;
-    private final GmailApiProperties properties;
 
-    public GmailApiEmailService(
-            GmailApiService gmailApiService,
-            EmailTemplate template,
-            GmailApiProperties properties
-    ) {
+    public GmailApiEmailService(GmailApiService gmailApiService, EmailTemplate template) {
         this.gmailApiService = gmailApiService;
         this.template = template;
-        this.properties = properties;
     }
 
     @Override
