@@ -15,8 +15,8 @@ public class Agendamento {
  @Id @GeneratedValue private UUID id;
  @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="cliente_id",nullable=false) private Cliente cliente;
  @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="servico_id",nullable=false) private Servico servico;
- @Column(nullable=false) private OffsetDateTime inicio;
- @Column(nullable=false) private OffsetDateTime fim;
+ @Column(name="inicio",nullable=false) private OffsetDateTime inicio;
+ @Column(name="fim",nullable=false) private OffsetDateTime fim;
  @Column(name="duracao_minutos",nullable=false) private int duracaoMinutos;
  @Column(name="valor_servico",nullable=false,precision=10,scale=2) private BigDecimal valorServico;
  @Column(name="valor_entrada",nullable=false,precision=10,scale=2) private BigDecimal valorEntrada;
