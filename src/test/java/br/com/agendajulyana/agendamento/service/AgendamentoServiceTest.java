@@ -45,7 +45,7 @@ class AgendamentoServiceTest {
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
   when(agendamentos.existeConflito(any(),any(),any())).thenReturn(true);
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos);
   assertThrows(IllegalStateException.class,()->s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL)));
  }
  @Test void deveCobrarValorTotalQuandoModalidadeForPagamentoTotal(){
