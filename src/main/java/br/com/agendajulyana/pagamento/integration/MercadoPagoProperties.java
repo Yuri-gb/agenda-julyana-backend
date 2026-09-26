@@ -6,6 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record MercadoPagoProperties(
         String accessToken,
         String baseUrl,
-        String testPayerEmail
-) {
-}
+        String testPayerEmail,
+        String webhookSecret
+) {}
