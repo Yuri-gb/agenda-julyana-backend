@@ -49,6 +49,13 @@ public class MercadoPagoClient {
                 .body(MercadoPagoOrderResponse.class);
     }
 
+    public MercadoPagoOrderStatus consultarOrder(String orderId) {
+        return client.get()
+                .uri("/v1/orders/{id}", orderId)
+                .retrieve()
+                .body(MercadoPagoOrderStatus.class);
+    }
+
     record MercadoPagoOrderRequest(
             String type,
             String total_amount,
