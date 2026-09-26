@@ -45,7 +45,7 @@ class AuthServiceTest {
 
     @Test
     void deveRecusarCadastroComEmailExistente() {
-        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt);
+        var service = new AuthService(usuarios, papeis, identidades, encoder, jwt, clientes);
         when(usuarios.existsByEmailIgnoreCase("cliente@email.com")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () ->
