@@ -31,7 +31,10 @@ class AgendamentoServiceTest {
   var r=new ReservaTemporaria(a,OffsetDateTime.now()); when(reservas.save(any())).thenReturn(r);
   var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),agora));
-  assertEquals("AGUARDANDO_PAGAMENTO",out.status()); assertNotNull(out.reservaExpiraEm()); assertTrue(out.reservaExpiraEm().isAfter(out.inicio()));
+  assertEquals("AGUARDANDO_PAGAMENTO",out.status()); assertNotNull(out.reservaExpiraEm());
+  var reservaSalva=org.mockito.ArgumentCaptor.forClass(ReservaTemporaria.class);
+  verify(reservas).save(reservaSalva.capture());
+  assertEquals(Duration.ofMinutes(30),Duration.between(reservaSalva.getValue().getInicio(),reservaSalva.getValue().getExpiraEm()));
  }
  @Test void deveRecusarConflito(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
