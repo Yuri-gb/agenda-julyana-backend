@@ -66,7 +66,7 @@ class PagamentoServiceTest {
         assertEquals("https://mercadopago.test/checkout/123", response.checkoutUrl());
         assertEquals("ORDER-123", pagamento.getReferenciaExterna());
         assertEquals("https://mercadopago.test/checkout/123", pagamento.getCheckoutUrl());
-        verify(pagamentos).save(pagamento);
+        verify(pagamentos, times(2)).save(pagamento);
     }
 
     @Test
