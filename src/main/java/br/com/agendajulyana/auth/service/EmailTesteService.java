@@ -17,6 +17,9 @@ import java.util.List;
 
 @Service
 public class EmailTesteService {
+    private static final String CODIGO_TESTE = "483921";
+    private static final String CODIGO_AGENDAMENTO_TESTE = "AGD-TESTE-001";
+
     private final GmailApiService gmailApiService;
     private final AgendaEmailRenderer renderer;
 
@@ -25,19 +28,19 @@ public class EmailTesteService {
         this.renderer = renderer;
     }
 
-    public void enviar(EmailTesteTipo tipo, String email, String nome, String codigo) {
+    public void enviar(EmailTesteTipo tipo, String email, String nome) {
         if (tipo == EmailTesteTipo.RECUPERACAO_SENHA) {
             gmailApiService.enviar(
                     email, nome,
                     "Agenda Julyana — recuperação de senha",
-                    renderer.recuperarSenha(nome, codigo),
+                    renderer.recuperarSenha(nome, CODIGO_TESTE),
                     "Olá, %s! Seu código para redefinir a senha da Agenda Julyana é: %s"
-                            .formatted(nome, codigo)
+                            .formatted(nome, CODIGO_TESTE)
             );
             return;
         }
 
-        var atendimento = atendimento(nome, codigo);
+        var atendimento = atendimento(nome);
 
         switch (tipo) {
             case LEMBRETE -> enviar(email, nome, "Agenda Julyana — seu atendimento está chegando", renderer.lembrete(atendimento));
@@ -55,10 +58,10 @@ public class EmailTesteService {
         gmailApiService.enviar(email, nome, assunto, html, "E-mail de teste da Agenda Julyana.");
     }
 
-    private EmailAppointmentData atendimento(String nome, String codigo) {
+    private EmailAppointmentData atendimento(String nome) {
         return new EmailAppointmentData(
                 nome, "Massagem relaxante", "Um momento de cuidado, relaxamento e bem-estar.",
-                LocalDate.now().plusDays(1), LocalTime.of(10, 0), 60, codigo,
+                LocalDate.now().plusDays(1), LocalTime.of(10, 0), 60, CODIGO_AGENDAMENTO_TESTE,
                 new BigDecimal("180.00"), new BigDecimal("90.00"), new BigDecimal("90.00"),
                 PaymentType.ENTRADA
         );
