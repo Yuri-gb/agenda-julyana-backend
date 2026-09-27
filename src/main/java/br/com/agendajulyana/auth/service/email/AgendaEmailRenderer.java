@@ -19,7 +19,7 @@ public final class AgendaEmailRenderer {
     private static final String VERDE_FUNDO = "#17351c";
     private static final String CREME = "#f7f1e5";
     private static final String CARD = "#efeedf";
-    private static final String ICONE = CARD;
+    private static final String ICONE = "#ECEBD9";
     private static final String DOURADO = "#b38a32";
 
     private final DateTimeFormatter data = DateTimeFormatter.ofPattern("dd 'de' MMM 'de' yyyy", PT_BR);
@@ -30,7 +30,7 @@ public final class AgendaEmailRenderer {
                 "<h1 style=\"margin:0 0 18px;color:" + VERDE + ";font:400 48px/1.05 Georgia,serif;\">Olá, " + esc(primeirosNomes(nome)) + "!</h1>"
                 + "<p style=\"margin:0 0 26px;color:" + VERDE + ";font:18px/1.55 Georgia,serif;\">Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.</p>"
                 + "<p style=\"margin:0 0 12px;color:#687151;font:18px/1.5 Georgia,serif;\">Use o código abaixo para continuar:</p>"
-                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:22px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 48px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"118\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 46) + "<div style=\"font:15px/1.2 Arial,sans-serif;color:" + DOURADO + ";font-weight:700;letter-spacing:.2px;\">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>"
+                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:22px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 48px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"118\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 58) + "<div style=\"font:12px/1.15 Arial,sans-serif;color:" + DOURADO + ";font-weight:400;letter-spacing:.15px;\">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>"
                 + twoInfo("icon-horario", "Este código é válido por", "15 minutos.", "icon-seguranca", "Pode ser utilizado", "apenas uma única vez.")
                 + block("icon-lock", "Não solicitou a recuperação de senha?", "Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.")
                 + closing());
