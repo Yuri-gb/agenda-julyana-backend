@@ -100,20 +100,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ApiErrorResponse> handleMethodValidation(
             HandlerMethodValidationException ex, HttpServletRequest request) {
-        Map<String, String> fields = new LinkedHashMap<>();
-        ex.getAllValidationResults().forEach(result -> {
-            var name = result.getMethodParameter().getParameterName();
-            result.getResolvableErrors().forEach(error ->
-                    fields.putIfAbsent(
-                            name == null ? "request" : name,
-                            error.getDefaultMessage() == null
-                                    ? "Valor inválido."
-                                    : error.getDefaultMessage()
-                    )
-            );
-        });
         return response(400, "Bad Request", "VALIDATION_ERROR",
-                "Um ou mais parâmetros são inválidos.", request, fields);
+                "Um ou mais parâmetros são inválidos.", request);
     }
 
     @ExceptionHandler({
