@@ -60,36 +60,40 @@ public class EmailTemplate {
                         </tr>
                       </table>
 
-                      <!-- Informações: círculos reservados para os assets -->
+                      <!-- Informações: ícones centralizados acima dos textos -->
                       <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 31px;">
                         <tr>
-                          <td class="info-column" width="50%%" valign="middle" style="padding:0 13px 0 0;">
+                          <td class="info-column" width="50%%" valign="top" align="center" style="padding:0 18px;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td width="58" valign="middle">
-                                  <div style="width:48px;height:48px;border-radius:50%%;background:%s;">
+                                <td align="center" valign="top">
+                                  <div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%%;background:%s;">
                                     <!-- ASSET: icon-validade -->
                                   </div>
                                 </td>
-                                <td valign="middle" style="padding-left:9px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                              </tr>
+                              <tr>
+                                <td align="center" valign="top" style="color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
                                   Este código é válido por<br>
-                                  <strong>15 minutos.</strong>
+                                  <strong style="color:#2f3028;">15 minutos.</strong>
                                 </td>
                               </tr>
                             </table>
                           </td>
 
-                          <td class="info-column" width="50%%" valign="middle" style="padding:0 0 0 13px;border-left:1px solid #d9d0b7;">
+                          <td class="info-column" width="50%%" valign="top" align="center" style="padding:0 18px;border-left:1px solid #d9d0b7;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td width="58" valign="middle">
-                                  <div style="width:48px;height:48px;border-radius:50%%;background:%s;">
+                                <td align="center" valign="top">
+                                  <div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%%;background:%s;">
                                     <!-- ASSET: icon-uso-unico -->
                                   </div>
                                 </td>
-                                <td valign="middle" style="padding-left:9px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                              </tr>
+                              <tr>
+                                <td align="center" valign="top" style="color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
                                   Pode ser utilizado<br>
-                                  apenas <strong>uma única vez.</strong>
+                                  apenas <strong style="color:#2f3028;">uma única vez.</strong>
                                 </td>
                               </tr>
                             </table>
@@ -243,7 +247,7 @@ public class EmailTemplate {
                       .info-column {
                         display:block !important;
                         width:100%% !important;
-                        padding:0 0 16px !important;
+                        padding:0 0 22px !important;
                         border-left:0 !important;
                       }
                       .service-column {
@@ -277,12 +281,12 @@ public class EmailTemplate {
                             </td>
                           </tr>
 
-                          <!-- Footer -->
+                          <!-- Footer full-bleed: ocupa toda a largura do card -->
                           <tr>
-                            <td style="padding:0;background:%s;">
+                            <td width="100%%" style="padding:0;background:%s;border-radius:0 0 18px 18px;">
                               <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                  <td class="footer-column" width="50%%" valign="middle" style="padding:24px 18px 25px 28px;border-right:1px solid rgba(247,241,229,.55);">
+                                  <td class="footer-column" width="50%%" valign="middle" style="padding:28px 22px 30px 34px;border-right:1px solid rgba(247,241,229,.55);">
                                     <p style="margin:0 0 11px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.35;">
                                       Siga nossas redes
                                     </p>
@@ -307,7 +311,7 @@ public class EmailTemplate {
                                     </table>
                                   </td>
 
-                                  <td class="footer-column" width="50%%" valign="middle" style="padding:24px 28px 25px 18px;">
+                                  <td class="footer-column" width="50%%" valign="middle" style="padding:28px 34px 30px 22px;">
                                     <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                                       <tr>
                                         <td width="38" valign="middle" style="padding-right:10px;">
