@@ -135,6 +135,11 @@ public final class AgendaEmailRenderer {
     private String duracao(int m){if(m<=0)return "—";int h=m/60,r=m%60;return h==0?r+"min":r==0?h+"h":h+"h"+r;}
     private String circle(String asset,int size){return "<div data-asset='"+esc(asset)+"' style='width:"+size+"px;height:"+size+"px;border-radius:50%%;background:"+ICONE+";display:inline-flex;align-items:center;justify-content:center;overflow:hidden;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:78%%;height:78%%;object-fit:contain;border:0;'></div>";}
     private String icon(String asset,int size){return "<span data-asset='"+esc(asset)+"' style='display:inline-block;width:"+size+"px;height:"+size+"px;vertical-align:middle;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:100%%;height:100%%;object-fit:contain;border:0;'></span>";}
-    private String primeirosNomes(String nome){\n        if(nome==null || nome.isBlank()) return "";\n        var partes=nome.trim().split("\\s+");\n        if(partes.length<=2) return nome.trim();\n        return partes[0]+" "+partes[1];\n    }\n    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
+    private String primeirosNomes(String nome){
+        if(nome==null || nome.isBlank()) return "";
+        var partes=nome.trim().split("\\s+");
+        if(partes.length<=2) return nome.trim();
+        return partes[0]+" "+partes[1];
+    }\n    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
     private String esc(String s){if(s==null)return "";return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");}
 }
