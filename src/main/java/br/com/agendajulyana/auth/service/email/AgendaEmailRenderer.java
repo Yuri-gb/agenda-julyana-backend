@@ -140,6 +140,7 @@ public final class AgendaEmailRenderer {
         var partes=nome.trim().split("\\s+");
         if(partes.length<=2) return nome.trim();
         return partes[0]+" "+partes[1];
-    }\n    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
+    }
+    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
     private String esc(String s){if(s==null)return "";return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");}
 }
