@@ -20,21 +20,21 @@ public class EmailTemplate {
                   <tr>
                     <td style="padding:0;">
 
-                      <h1 style="margin:0 0 12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1.1;font-weight:400;">
+                      <h1 style="margin:0 0 12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:48px;line-height:1.1;font-weight:400;">
                         Olá, %s!
                       </h1>
 
-                      <p style="margin:0 0 25px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.55;">
+                      <p style="margin:0 0 25px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.55;">
                         Recebemos uma solicitação para redefinir<br class="desktop-only">
                         a senha da sua conta na Agenda Julyana.
                       </p>
 
-                      <p style="margin:0 0 12px;color:#697153;font-family:Arial,sans-serif;font-size:16px;line-height:1.5;">
+                      <p style="margin:0 0 12px;color:#697153;font-family:Arial,sans-serif;font-size:18px;line-height:1.5;">
                         Use o código abaixo para continuar:
                       </p>
 
                       <!-- Código + ação visual de copiar -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
                         <tr>
                           <td style="padding:24px 24px;border:2px solid %s;border-radius:18px;background:%s;min-height:76px;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
@@ -44,7 +44,7 @@ public class EmailTemplate {
                                     %s
                                   </span>
                                 </td>
-                                <td width="92" align="center" valign="middle" style="border-left:1px solid #d7c796;padding-left:12px;">
+                                <td width="112" align="center" valign="middle" style="border-left:1px solid #d7c796;padding-left:12px;">
                                   <!-- Ícone SVG preparado para a ação de copiar -->
                                   <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:0 auto 5px;">
                                     <rect x="8" y="4" width="14" height="17" rx="2" fill="none" stroke="%s" stroke-width="1.8"/>
@@ -61,7 +61,7 @@ public class EmailTemplate {
                       </table>
 
                       <!-- Informações: ícone à esquerda + texto alinhado à esquerda -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
                         <tr>
                           <td class="info-column" width="50%%" valign="middle" style="padding:0 18px 0 0;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
@@ -71,7 +71,7 @@ public class EmailTemplate {
                                     <!-- ASSET: icon-validade -->
                                   </div>
                                 </td>
-                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;text-align:left;">
+                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.45;text-align:left;">
                                   Este código é válido por<br>
                                   <strong style="color:#20351f;">15 minutos.</strong>
                                 </td>
@@ -87,7 +87,7 @@ public class EmailTemplate {
                                     <!-- ASSET: icon-uso-unico -->
                                   </div>
                                 </td>
-                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;text-align:left;">
+                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.45;text-align:left;">
                                   Pode ser utilizado<br>
                                   apenas <strong style="color:#20351f;">uma única vez.</strong>
                                 </td>
@@ -98,7 +98,7 @@ public class EmailTemplate {
                       </table>
 
                       <!-- Aviso de segurança: um único bloco, sem badge -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
                         <tr>
                           <td style="padding:28px 30px;background:%s;border-radius:16px;min-height:96px;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
@@ -109,10 +109,10 @@ public class EmailTemplate {
                                   </div>
                                 </td>
                                 <td valign="middle" style="padding-left:12px;">
-                                  <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.35;font-weight:700;">
+                                  <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.35;font-weight:700;">
                                     Não solicitou a recuperação de senha?
                                   </p>
-                                  <p style="margin:0;color:#35412e;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;">
+                                  <p style="margin:0;color:#35412e;font-family:Arial,sans-serif;font-size:15px;line-height:1.5;">
                                     Se você não fez essa solicitação, ignore este e-mail.<br class="desktop-only">
                                     Sua conta continuará segura.
                                   </p>
@@ -124,7 +124,7 @@ public class EmailTemplate {
                       </table>
 
                       <!-- Assinatura -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
                         <tr>
                           <td width="39%%" valign="middle" style="border-top:1px solid #cdbb8c;"></td>
                           <td width="22%%" align="center" valign="middle" style="padding:0 10px;">
@@ -137,46 +137,46 @@ public class EmailTemplate {
                       </table>
 
                       <div style="text-align:center;">
-                        <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.4;">
+                        <p style="margin:0 0 5px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.4;">
                           Cuidar de você é a nossa essência.
                         </p>
-                        <p style="margin:0;color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;">
+                        <p style="margin:0;color:#687151;font-family:Arial,sans-serif;font-size:15px;line-height:1.4;">
                           Julyana Lima — Estética e Bem-estar
                         </p>
                       </div>
 
                       <!-- Serviços -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin-top:30px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;">
                         <tr>
                           <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
-                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                            <div style="width:60px;height:60px;margin:0 auto 9px;border-radius:50%%;background:%s;">
                               <!-- ASSET: icon-estetica -->
                             </div>
-                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;">
                               Estética<br>Facial e Corporal
                             </div>
                           </td>
                           <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
-                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                            <div style="width:60px;height:60px;margin:0 auto 9px;border-radius:50%%;background:%s;">
                               <!-- ASSET: icon-massoterapia -->
                             </div>
-                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;">
                               Massoterapia
                             </div>
                           </td>
                           <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
-                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                            <div style="width:60px;height:60px;margin:0 auto 9px;border-radius:50%%;background:%s;">
                               <!-- ASSET: icon-relaxamento -->
                             </div>
-                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;">
                               Relaxamento
                             </div>
                           </td>
                           <td class="service-column" width="25%%" align="center" valign="top" style="padding:0 4px;">
-                            <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%%;background:%s;">
+                            <div style="width:60px;height:60px;margin:0 auto 9px;border-radius:50%%;background:%s;">
                               <!-- ASSET: icon-bem-estar -->
                             </div>
-                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:12px;line-height:1.35;">
+                            <div style="color:#687151;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;">
                               Bem-estar
                             </div>
                           </td>
