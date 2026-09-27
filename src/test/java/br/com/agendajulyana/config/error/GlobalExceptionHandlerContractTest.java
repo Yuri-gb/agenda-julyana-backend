@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -100,6 +101,26 @@ class GlobalExceptionHandlerContractTest {
                 .andExpect(jsonPath("$.fieldErrors.name").exists());
     }
 
+    @Test
+    void shouldReturn405ForUnsupportedHttpMethod() throws Exception {
+        mvc.perform(post("/test/bad-request"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.status").value(405))
+                .andExpect(jsonPath("$.code").value("METHOD_NOT_ALLOWED"))
+                .andExpect(jsonPath("$.path").value("/test/bad-request"));
+    }
+
+    @Test
+    void shouldReturn415ForUnsupportedMediaType() throws Exception {
+        mvc.perform(post("/test/media-type")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("teste"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.status").value(415))
+                .andExpect(jsonPath("$.code").value("UNSUPPORTED_MEDIA_TYPE"))
+                .andExpect(jsonPath("$.path").value("/test/media-type"));
+    }
+
     @RestController
     @RequestMapping("/test")
     static class TestController {
@@ -145,6 +166,11 @@ class GlobalExceptionHandlerContractTest {
 
         @PostMapping("/validation")
         String validation(@Valid @RequestBody Request request) {
+            return request.name();
+        }
+
+        @PostMapping(value = "/media-type", consumes = MediaType.APPLICATION_JSON_VALUE)
+        String mediaType(@RequestBody Request request) {
             return request.name();
         }
     }
