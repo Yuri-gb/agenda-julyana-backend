@@ -20,12 +20,14 @@ class EmailTesteControllerTest {
         var controller = new EmailTesteController(emailService);
         var request = new EmailTesteController.EmailTesteRequest(
                 "teste@example.com",
-                EmailTesteController.Tipo.RECUPERACAO_SENHA,
                 "Yuri",
                 "483921"
         );
 
-        var response = controller.enviar(request);
+        var response = controller.enviar(
+                EmailTesteController.Tipo.RECUPERACAO_SENHA,
+                request
+        );
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("E-mail de teste enviado com sucesso.", response.getBody().mensagem());
