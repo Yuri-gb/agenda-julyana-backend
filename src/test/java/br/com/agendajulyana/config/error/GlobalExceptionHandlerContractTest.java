@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,6 +66,30 @@ class GlobalExceptionHandlerContractTest {
     }
 
     @Test
+    void shouldReturn401ForResponseStatusException() throws Exception {
+        mvc.perform(get("/test/unauthorized"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+    }
+
+    @Test
+    void shouldReturn400ForTypeMismatch() throws Exception {
+        mvc.perform(get("/test/type-mismatch?id=abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void shouldReturn409ForDataIntegrity() throws Exception {
+        mvc.perform(get("/test/integrity"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.code").value("DATA_INTEGRITY_CONFLICT"));
+    }
+
+    @Test
     void shouldReturn400ForValidation() throws Exception {
         mvc.perform(post("/test/validation")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,6 +121,21 @@ class GlobalExceptionHandlerContractTest {
         @GetMapping("/external")
         String external() {
             throw new org.springframework.web.client.RestClientException("provider down");
+        }
+
+        @GetMapping("/unauthorized")
+        String unauthorized() {
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "não autorizado");
+        }
+
+        @GetMapping("/type-mismatch")
+        String typeMismatch(@RequestParam Integer id) {
+            return id.toString();
+        }
+
+        @GetMapping("/integrity")
+        String integrity() {
+            throw new DataIntegrityViolationException("duplicate");
         }
 
         @GetMapping("/unexpected")
