@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +47,23 @@ class GlobalExceptionHandlerContractTest {
     }
 
     @Test
+    void shouldReturn503ForExternalService() throws Exception {
+        mvc.perform(get("/test/external"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.code").value("EXTERNAL_SERVICE_UNAVAILABLE"));
+    }
+
+    @Test
+    void shouldReturn500ForUnexpectedException() throws Exception {
+        mvc.perform(get("/test/unexpected"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.code").value("INTERNAL_SERVER_ERROR"))
+                .andExpect(jsonPath("$.message").value("Ocorreu um erro interno. Tente novamente."));
+    }
+
+    @Test
     void shouldReturn400ForValidation() throws Exception {
         mvc.perform(post("/test/validation")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,6 +80,8 @@ class GlobalExceptionHandlerContractTest {
         @GetMapping("/bad-request") String badRequest() { throw new IllegalArgumentException("inválido"); }
         @GetMapping("/conflict") String conflict() { throw new IllegalStateException("conflito"); }
         @GetMapping("/not-found") String notFound() { throw new jakarta.persistence.EntityNotFoundException("não encontrado"); }
+        @GetMapping("/external") String external() { throw new org.springframework.web.client.RestClientException("provider down"); }
+        @GetMapping("/unexpected") String unexpected() { throw new RuntimeException("secret internal detail"); }
         @PostMapping("/validation") String validation(@Valid @RequestBody Request request) { return request.name(); }
     }
 
