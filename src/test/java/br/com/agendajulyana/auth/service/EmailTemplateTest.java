@@ -29,7 +29,7 @@ class EmailTemplateTest {
     void deveGerarTemplateDeRecuperacaoComEstruturaVisualBase() {
         var html = template.recuperarSenha("Maria", "483921");
         assertAll(
-                () -> assertTrue(html.contains("cid:julyana-email-header")),\n                () -> assertTrue(html.contains("Olá, Maria!")),
+                () -> assertTrue(html.contains("cid:julyana-email-header")),
                 () -> assertTrue(html.contains("Olá, Maria!")),
                 () -> assertTrue(html.contains("483921")),
                 () -> assertTrue(html.contains("15 minutos")),
