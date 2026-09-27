@@ -1,8 +1,7 @@
 package br.com.agendajulyana.auth.controller;
 
-import br.com.agendajulyana.auth.service.EmailService;
+import br.com.agendajulyana.auth.service.EmailTesteService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,42 +13,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/test/emails")
 @ConditionalOnProperty(name = "app.email.test-endpoint.enabled", havingValue = "true")
 public class EmailTesteController {
+    private final EmailTesteService emailTesteService;
 
-    private final EmailService emailService;
-
-    public EmailTesteController(EmailService emailService) {
-        this.emailService = emailService;
+    public EmailTesteController(EmailTesteService emailTesteService) {
+        this.emailTesteService = emailTesteService;
     }
 
     @PostMapping
     public ResponseEntity<EmailTesteResponse> enviar(
             @Parameter(description = "Tipo de e-mail disponível para teste.")
-            @RequestParam Tipo tipo,
+            @RequestParam EmailTesteTipo tipo,
             @Valid @RequestBody EmailTesteRequest request
     ) {
-        switch (tipo) {
-            case RECUPERACAO_SENHA -> emailService.enviarCodigoRecuperacao(
-                    request.email(),
-                    request.nome(),
-                    request.codigo()
-            );
-        }
-
+        emailTesteService.enviar(tipo, request.email(), request.nome(), request.codigo());
         return ResponseEntity.ok(new EmailTesteResponse("E-mail de teste enviado com sucesso."));
-    }
-
-    @Schema(description = "Tipo de e-mail disponível para teste.")
-    public enum Tipo {
-        RECUPERACAO_SENHA
     }
 
     public record EmailTesteRequest(
             @NotBlank @Email String email,
             @NotBlank String nome,
             @NotBlank String codigo
-    ) {
-    }
+    ) {}
 
-    public record EmailTesteResponse(String mensagem) {
-    }
+    public record EmailTesteResponse(String mensagem) {}
 }
