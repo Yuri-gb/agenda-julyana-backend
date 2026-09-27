@@ -25,14 +25,13 @@ public class EmailTesteController {
             @RequestParam EmailTesteTipo tipo,
             @Valid @RequestBody EmailTesteRequest request
     ) {
-        emailTesteService.enviar(tipo, request.email(), request.nome(), request.codigo());
+        emailTesteService.enviar(tipo, request.email(), request.nome());
         return ResponseEntity.ok(new EmailTesteResponse("E-mail de teste enviado com sucesso."));
     }
 
     public record EmailTesteRequest(
             @NotBlank @Email String email,
-            @NotBlank String nome,
-            @NotBlank String codigo
+            @NotBlank String nome
     ) {}
 
     public record EmailTesteResponse(String mensagem) {}
