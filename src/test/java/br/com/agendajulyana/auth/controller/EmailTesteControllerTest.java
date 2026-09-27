@@ -17,12 +17,12 @@ class EmailTesteControllerTest {
     @Test
     void deveDispararEmailPeloTipoSelecionado() {
         var controller = new EmailTesteController(emailTesteService);
-        var request = new EmailTesteController.EmailTesteRequest("teste@example.com", "Yuri", "483921");
+        var request = new EmailTesteController.EmailTesteRequest("teste@example.com", "Yuri");
 
         var response = controller.enviar(EmailTesteTipo.RECUPERACAO_SENHA, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("E-mail de teste enviado com sucesso.", response.getBody().mensagem());
-        verify(emailTesteService).enviar(EmailTesteTipo.RECUPERACAO_SENHA, "teste@example.com", "Yuri", "483921");
+        verify(emailTesteService).enviar(EmailTesteTipo.RECUPERACAO_SENHA, "teste@example.com", "Yuri");
     }
 }
