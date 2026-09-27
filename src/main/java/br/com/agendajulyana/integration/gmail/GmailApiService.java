@@ -95,7 +95,7 @@ public class GmailApiService {
         related.addBodyPart(content);
 
         adicionarImagemInline(related, "email/julyana-email-header.jpg", "julyana-email-header", "image/jpeg");
-        adicionarImagemInline(related, "email/footer-background.webp", "footer-background", "image/webp");
+        adicionarImagemInline(related, "email/footer-background.png", "footer-background", "image/png");
 
         adicionarImagemInline(related, "email/icon-assinatura.png", "icon-assinatura", "image/png");
         adicionarImagemInline(related, "email/icon-bem-estar.png", "icon-bem-estar", "image/png");
