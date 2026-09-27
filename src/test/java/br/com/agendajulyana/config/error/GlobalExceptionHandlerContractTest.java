@@ -1,25 +1,25 @@
 package br.com.agendajulyana.config.error;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-@WebMvcTest(controllers = GlobalExceptionHandlerContractTest.TestController.class)
-@Import(GlobalExceptionHandler.class)
-@AutoConfigureMockMvc(addFilters = false)
 class GlobalExceptionHandlerContractTest {
 
-    @Autowired MockMvc mvc;
+    private final MockMvc mvc = standaloneSetup(new TestController())
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .setValidator(new LocalValidatorFactoryBean())
+            .build();
 
     @Test
     void shouldReturn400ForIllegalArgument() throws Exception {
@@ -77,12 +77,35 @@ class GlobalExceptionHandlerContractTest {
     @RestController
     @RequestMapping("/test")
     static class TestController {
-        @GetMapping("/bad-request") String badRequest() { throw new IllegalArgumentException("inválido"); }
-        @GetMapping("/conflict") String conflict() { throw new IllegalStateException("conflito"); }
-        @GetMapping("/not-found") String notFound() { throw new jakarta.persistence.EntityNotFoundException("não encontrado"); }
-        @GetMapping("/external") String external() { throw new org.springframework.web.client.RestClientException("provider down"); }
-        @GetMapping("/unexpected") String unexpected() { throw new RuntimeException("secret internal detail"); }
-        @PostMapping("/validation") String validation(@Valid @RequestBody Request request) { return request.name(); }
+        @GetMapping("/bad-request")
+        String badRequest() {
+            throw new IllegalArgumentException("inválido");
+        }
+
+        @GetMapping("/conflict")
+        String conflict() {
+            throw new IllegalStateException("conflito");
+        }
+
+        @GetMapping("/not-found")
+        String notFound() {
+            throw new EntityNotFoundException("não encontrado");
+        }
+
+        @GetMapping("/external")
+        String external() {
+            throw new org.springframework.web.client.RestClientException("provider down");
+        }
+
+        @GetMapping("/unexpected")
+        String unexpected() {
+            throw new RuntimeException("secret internal detail");
+        }
+
+        @PostMapping("/validation")
+        String validation(@Valid @RequestBody Request request) {
+            return request.name();
+        }
     }
 
     record Request(@NotBlank(message = "Nome é obrigatório.") String name) {}
