@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 public class EmailTemplate {
 
     private static final String VERDE_ESCURO = "#20351f";
-    private static final String VERDE_FUNDO = "#46552d";
+    private static final String VERDE_FUNDO = "#464d2c";
     private static final String VERDE_ICON = "#5c6b35";
+    private static final String FUNDO_ICONE = "#ecebdc";
     private static final String DOURADO = "#b38a32";
     private static final String CREME = "#f7f1e5";
     private static final String CREME_CARD = "#efeedf";
@@ -199,16 +200,16 @@ public class EmailTemplate {
                 VERDE_ICON,
                 VERDE_ICON,
                 VERDE_ICON,
-                VERDE_ICON,
+                FUNDO_ICONE,
                 VERDE_ESCURO,
                 CREME_CARD,
                 VERDE_ESCURO,
-                VERDE_ICON,
+                FUNDO_ICONE,
                 VERDE_ESCURO,
-                VERDE_ICON,
-                VERDE_ICON,
-                VERDE_ICON,
-                VERDE_ICON,
+                FUNDO_ICONE,
+                FUNDO_ICONE,
+                FUNDO_ICONE,
+                FUNDO_ICONE,
                 VERDE_ICON
         );
 
@@ -260,18 +261,18 @@ public class EmailTemplate {
                   <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="background:%s;">
                     <tr>
                       <td align="center" style="padding:24px 12px;">
-                        <table class="email-shell" role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:600px;background:%s;border-radius:18px;overflow:hidden;">
+                        <table class="email-shell" role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:700px;background:%s;border-radius:18px;overflow:hidden;">
 
                           <!-- Header -->
                           <tr>
                             <td style="padding:0;">
-                              <img src="cid:julyana-email-header" width="600" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;max-width:600px;height:auto;border:0;">
+                              <img src="cid:julyana-email-header" width="700" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;max-width:700px;height:auto;border:0;">
                             </td>
                           </tr>
 
                           <!-- Conteúdo -->
                           <tr>
-                            <td class="email-content" style="padding:42px 36px 36px;">
+                            <td class="email-content" style="padding:52px 64px 48px;">
                               %s
                             </td>
                           </tr>
