@@ -27,10 +27,10 @@ public final class AgendaEmailRenderer {
 
     public String recuperarSenha(String nome, String codigo) {
         return layout(
-                "<h1 style=\"margin:0 0 18px;color:" + VERDE + ";font:400 48px/1.05 Georgia,serif;\">Olá!</h1>"
+                "<h1 style=\"margin:0 0 18px;color:" + VERDE + ";font:400 48px/1.05 Georgia,serif;\">Olá, " + esc(primeirosNomes(nome)) + "!</h1>"
                 + "<p style=\"margin:0 0 26px;color:" + VERDE + ";font:18px/1.55 Georgia,serif;\">Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.</p>"
                 + "<p style=\"margin:0 0 12px;color:#687151;font:18px/1.5 Georgia,serif;\">Use o código abaixo para continuar:</p>"
-                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:25px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 42px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"112\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 30) + "<div style=\"font:10px/1.25 Arial,sans-serif;color:" + VERDE + ";\">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>"
+                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:25px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 42px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"112\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 38) + "<div style=\"font:13px/1.25 Arial,sans-serif;color:" + DOURADO + ";font-weight:700;letter-spacing:.2px;\">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>"
                 + twoInfo("icon-horario", "Este código é válido por", "15 minutos.", "icon-seguranca", "Pode ser utilizado", "apenas uma única vez.")
                 + block("icon-lock", "Não solicitou a recuperação de senha?", "Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.")
                 + closing());
@@ -95,7 +95,7 @@ public final class AgendaEmailRenderer {
     private String layout(String content) {
         return """
                 <!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><style>@media only screen and (max-width:480px){.email-shell{width:100%% !important;border-radius:0!important}.email-content{padding:30px 20px!important}.stack{display:block!important;width:100%%!important;padding:0 0 18px!important;border:0!important}.hero-title{font-size:36px!important}.service{width:50%%!important;padding-bottom:20px!important}.footer-col{display:block!important;width:100%%!important;border:0!important;border-bottom:1px solid rgba(247,241,229,.5)!important}}</style></head><body style="margin:0;padding:0;background:#eee8dc;"><table role="presentation" width="100%%"><tr><td align="center" style="padding:24px 12px;"><table class="email-shell" role="presentation" width="700" style="width:100%%;max-width:700px;background:%s;border-radius:18px;overflow:hidden;"><tr><td><img src="cid:julyana-email-header" width="700" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;height:auto;border:0;"></td></tr><tr><td class="email-content" style="padding:48px 56px 42px;">%s</td></tr>%s</table></td></tr></table></body></html>
-                """.formatted(CREME, content, footer());
+                """.formatted("#ffffff", content, footer());
     }
 
     private String hero(String asset, String title, String name, String description) {
@@ -135,6 +135,6 @@ public final class AgendaEmailRenderer {
     private String duracao(int m){if(m<=0)return "—";int h=m/60,r=m%60;return h==0?r+"min":r==0?h+"h":h+"h"+r;}
     private String circle(String asset,int size){return "<div data-asset='"+esc(asset)+"' style='width:"+size+"px;height:"+size+"px;border-radius:50%%;background:"+ICONE+";display:inline-flex;align-items:center;justify-content:center;overflow:hidden;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:78%%;height:78%%;object-fit:contain;border:0;'></div>";}
     private String icon(String asset,int size){return "<span data-asset='"+esc(asset)+"' style='display:inline-block;width:"+size+"px;height:"+size+"px;vertical-align:middle;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:100%%;height:100%%;object-fit:contain;border:0;'></span>";}
-    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
+    private String primeirosNomes(String nome){\n        if(nome==null || nome.isBlank()) return "";\n        var partes=nome.trim().split("\\s+");\n        if(partes.length<=2) return nome.trim();\n        return partes[0]+" "+partes[1];\n    }\n    private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
     private String esc(String s){if(s==null)return "";return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");}
 }
