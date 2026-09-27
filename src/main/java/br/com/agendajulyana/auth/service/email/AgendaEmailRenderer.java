@@ -133,7 +133,14 @@ public final class AgendaEmailRenderer {
     private String footer(){return "<tr><td style=\"padding:0;line-height:0;background:"+VERDE_FUNDO+";\"><img src=\"cid:footer-background\" width=\"700\" alt=\"Siga nossas redes — Feira de Santana - BA\" style=\"display:block;width:100%%;height:auto;border:0;\"></td></tr>";}
     private String service(String asset,String a,String b){return "<td class='service' width='25%%' align='center'>"+circle(asset,58)+"<div style='color:#687151;font:13px/1.35 Arial,sans-serif;'>"+esc(a)+(b.isBlank()?"":"<br>"+esc(b))+"</div></td>";}
     private String duracao(int m){if(m<=0)return "—";int h=m/60,r=m%60;return h==0?r+"min":r==0?h+"h":h+"h"+r;}
-    private String circle(String asset,int size){var scale="icon-horario".equals(asset)?"88%%":"78%%";return "<div data-asset='"+esc(asset)+"' style='width:"+size+"px;height:"+size+"px;border-radius:50%%;background:"+ICONE+";display:inline-flex;align-items:center;justify-content:center;overflow:hidden;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:"+scale+";height:"+scale+";object-fit:contain;border:0;'></div>";}
+    private String circle(String asset,int size){
+        var scale = "icon-horario".equals(asset) ? 0.88 : 0.78;
+        var iconSize = Math.max(1, (int) Math.round(size * scale));
+        return "<table role='presentation' cellpadding='0' cellspacing='0' border='0' width='"+size+"' height='"+size+"' style='width:"+size+"px;height:"+size+"px;border-collapse:collapse;'>"
+                + "<tr><td width='"+size+"' height='"+size+"' align='center' valign='middle' bgcolor='"+ICONE+"' style='width:"+size+"px;height:"+size+"px;background:"+ICONE+";border-radius:50%;text-align:center;vertical-align:middle;overflow:hidden;'>"
+                + "<img src='cid:"+esc(asset)+"' width='"+iconSize+"' height='"+iconSize+"' alt='' style='display:block;width:"+iconSize+"px;height:"+iconSize+"px;margin:0 auto;object-fit:contain;border:0;'>"
+                + "</td></tr></table>";
+    }
     private String icon(String asset,int size){return "<span data-asset='"+esc(asset)+"' style='display:inline-block;width:"+size+"px;height:"+size+"px;vertical-align:middle;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:100%%;height:100%%;object-fit:contain;border:0;'></span>";}
     private String primeirosNomes(String nome){
         if(nome==null || nome.isBlank()) return "";
