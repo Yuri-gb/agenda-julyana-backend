@@ -129,6 +129,7 @@ public class GmailApiService {
         var image = new MimeBodyPart();
         image.setDataHandler(new jakarta.activation.DataHandler(resource.getURL()));
         image.setHeader("Content-ID", "<" + contentId + ">");
+        image.setHeader("X-Attachment-Id", contentId);
         image.setHeader("Content-Type", contentType);
         image.setDisposition(MimeBodyPart.INLINE);
         related.addBodyPart(image);
