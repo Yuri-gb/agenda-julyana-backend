@@ -136,7 +136,7 @@ public final class AgendaEmailRenderer {
     private String circle(String asset,int size){
         var scale = "icon-horario".equals(asset) ? 0.88 : 0.78;
         var iconSize = Math.max(1, (int) Math.round(size * scale));
-        return "<table role='presentation' cellpadding='0' cellspacing='0' border='0' width='"+size+"' height='"+size+"' style='width:"+size+"px;height:"+size+"px;border-collapse:collapse;'>"
+        return "<table data-asset='"+esc(asset)+"' role='presentation' cellpadding='0' cellspacing='0' border='0' width='"+size+"' height='"+size+"' style='width:"+size+"px;height:"+size+"px;border-collapse:collapse;'>"
                 + "<tr><td width='"+size+"' height='"+size+"' align='center' valign='middle' bgcolor='"+ICONE+"' style='width:"+size+"px;height:"+size+"px;background:"+ICONE+";border-radius:50%;text-align:center;vertical-align:middle;overflow:hidden;'>"
                 + "<img src='cid:"+esc(asset)+"' width='"+iconSize+"' height='"+iconSize+"' alt='' style='display:block;width:"+iconSize+"px;height:"+iconSize+"px;margin:0 auto;object-fit:contain;border:0;'>"
                 + "</td></tr></table>";
