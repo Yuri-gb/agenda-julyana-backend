@@ -1,6 +1,7 @@
 package br.com.agendajulyana.auth.controller;
 
 import br.com.agendajulyana.auth.service.EmailService;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,7 @@ public class EmailTesteController {
         return ResponseEntity.ok(new EmailTesteResponse("E-mail de teste enviado com sucesso."));
     }
 
+    @Schema(description = "Tipo de e-mail disponível para teste.")
     public enum Tipo {
         RECUPERACAO_SENHA
     }
