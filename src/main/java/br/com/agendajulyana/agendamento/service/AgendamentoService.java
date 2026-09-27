@@ -65,6 +65,8 @@ public class AgendamentoService {
   });
   auditar(usuarioId,"CANCELAR_ATENDENTE","AGENDAMENTO",id);
  }
+ @Transactional public void realizar(UUID usuarioId,UUID id){ var a=obter(id); a.realizar(); agendamentos.save(a); auditar(usuarioId,"REALIZAR","AGENDAMENTO",id); }
+ @Transactional public void marcarNaoComparecimento(UUID usuarioId,UUID id){ var a=obter(id); a.marcarNaoComparecimento(); agendamentos.save(a); auditar(usuarioId,"MARCAR_NAO_COMPARECIMENTO","AGENDAMENTO",id); }
  private void validarDisponibilidade(UUID servicoId,OffsetDateTime inicio,OffsetDateTime fim){
   int dow=inicio.getDayOfWeek().getValue(); short dia=(short)dow;
   boolean dentro=disponibilidades.findByDiaSemanaAndAtivoTrue(dia).stream().anyMatch(d->!inicio.toLocalTime().isBefore(d.getHoraInicio())&&!fim.toLocalTime().isAfter(d.getHoraFim()));
