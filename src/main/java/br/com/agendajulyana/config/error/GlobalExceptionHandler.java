@@ -109,14 +109,26 @@ public class GlobalExceptionHandler {
             MissingRequestHeaderException.class,
             MissingPathVariableException.class,
             MethodArgumentTypeMismatchException.class,
-            HttpMessageNotReadableException.class,
-            HttpRequestMethodNotSupportedException.class,
-            HttpMediaTypeNotSupportedException.class
+            HttpMessageNotReadableException.class
     })
     public ResponseEntity<ApiErrorResponse> handleMalformedRequest(
             Exception ex, HttpServletRequest request) {
         return response(400, "Bad Request", "BAD_REQUEST",
                 "A requisição é inválida ou está incompleta.", request);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        return response(405, "Method Not Allowed", "METHOD_NOT_ALLOWED",
+                "O método HTTP utilizado não é permitido para este recurso.", request);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMediaTypeNotSupported(
+            HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+        return response(415, "Unsupported Media Type", "UNSUPPORTED_MEDIA_TYPE",
+                "O formato de conteúdo enviado não é suportado por este recurso.", request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -177,7 +189,9 @@ public class GlobalExceptionHandler {
             case 401 -> "UNAUTHORIZED";
             case 403 -> "FORBIDDEN";
             case 404 -> "RESOURCE_NOT_FOUND";
+            case 405 -> "METHOD_NOT_ALLOWED";
             case 409 -> "BUSINESS_CONFLICT";
+            case 415 -> "UNSUPPORTED_MEDIA_TYPE";
             case 422 -> "UNPROCESSABLE_ENTITY";
             case 503 -> "SERVICE_UNAVAILABLE";
             default -> status >= 500
