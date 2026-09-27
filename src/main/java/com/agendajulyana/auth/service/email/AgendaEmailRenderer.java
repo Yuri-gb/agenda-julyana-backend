@@ -30,7 +30,92 @@ public final class AgendaEmailRenderer {
                 "<h1 style=\"margin:0 0 18px;color:" + VERDE + ";font:400 48px/1.05 Georgia,serif;\">Olá, " + esc(primeirosNomes(nome)) + "!</h1>"
                 + "<p style=\"margin:0 0 26px;color:" + VERDE + ";font:18px/1.55 Georgia,serif;\">Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.</p>"
                 + "<p style=\"margin:0 0 12px;color:#687151;font:18px/1.5 Georgia,serif;\">Use o código abaixo para continuar:</p>"
-                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:22px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 48px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"118\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 58) + "<div style=\"font:12px/1.15 Arial,sans-serif;color:" + DOURADO + ";font-weight:700;letter-spacing:.15px;\">COPIAR<br>CÓDIGO</div>":"");
+                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:22px 28px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 48px/1.05 Arial,sans-serif;letter-spacing:8px;\">" + esc(codigo) + "</strong></td><td width=\"118\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:12px;\">" + icon("icon-copy", 58) + "<div style=\"font:12px/1.15 Arial,sans-serif;color:" + DOURADO + ";font-weight:700;letter-spacing:.15px;\">COPIAR<br>CÓDIGO</div>"</div></td></tr></table></td></tr></table>"
+                + twoInfo("icon-horario", "Este código é válido por", "15 minutos.", "icon-seguranca", "Pode ser utilizado", "apenas uma única vez.")
+                + block("icon-lock", "Não solicitou a recuperação de senha?", "Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.")
+                + closing());
+    }
+
+    public String lembrete(EmailAppointmentData d) {
+        return layout(hero("icon-horario", "Seu atendimento está chegando!", d.nomeCliente(),
+                "Passando para lembrar do seu atendimento. Estamos te esperando para proporcionar esse momento de bem-estar!")
+                + appointment(d, "Seu atendimento")
+                + info("Informações importantes", "icon-seguranca", new EmailInfoItem("icon-horario", "Chegue com 10 minutos de antecedência."), new EmailInfoItem("icon-calendar", "Em caso de imprevistos, você pode reagendar até 2 vezes."), new EmailInfoItem("icon-whatsapp", "Em caso de dúvidas, entre em contato conosco."))
+                + cta("VER ENDEREÇO DO ATENDIMENTO", d.codigoAgendamento(), "icon-localizacao") + closing());
+    }
+
+    public String agendamentoConfirmado(EmailAppointmentData d) {
+        return layout(hero("icon-confirmado", "Agendamento confirmado!", d.nomeCliente(),
+                "Seu atendimento foi confirmado com sucesso. Abaixo estão os detalhes do seu agendamento.")
+                + appointment(d, "Seu atendimento") + payment(d)
+                + block("icon-seguranca", "Está tudo certo!", "Seu horário está reservado e seu agendamento foi confirmado. Guarde este e-mail para consultar os detalhes do seu atendimento.")
+                + cta("VER MEU AGENDAMENTO", d.codigoAgendamento(), "icon-calendar") + closing());
+    }
+
+    public String pagamentoAprovado(EmailAppointmentData d) {
+        var descricao = d.tipoPagamento() == PaymentType.ENTRADA
+                ? "Recebemos e aprovamos o pagamento da sua entrada. Seu agendamento está confirmado e o valor restante será pago no dia do atendimento."
+                : "Recebemos e aprovamos o pagamento do seu atendimento. Seu agendamento está confirmado.";
+        return layout(hero("icon-pagamento", "Pagamento aprovado!", d.nomeCliente(), descricao)
+                + appointment(d, "Seu atendimento") + payment(d)
+                + info("Informações importantes", "icon-seguranca", new EmailInfoItem("icon-confirmado", "Seu agendamento continua confirmado."), new EmailInfoItem("icon-copy", d.tipoPagamento() == PaymentType.ENTRADA ? "O valor restante será pago no dia do atendimento." : "O pagamento foi aprovado com sucesso."), new EmailInfoItem("icon-whatsapp", "Em caso de dúvidas, entre em contato conosco."))
+                + cta("VER MEU AGENDAMENTO", d.codigoAgendamento(), "icon-calendar") + closing());
+    }
+
+    public String reagendamento(EmailAppointmentData d) {
+        return layout(hero("icon-reagendamento", "Seu atendimento foi reagendado!", d.nomeCliente(), "Seu atendimento foi reagendado com sucesso. Abaixo estão os novos detalhes do seu horário. Qualquer alteração, estamos à disposição!")
+                + appointment(d, "Seu atendimento")
+                + info("Informações importantes", "icon-seguranca", new EmailInfoItem("icon-horario", "Chegue com 10 minutos de antecedência."), new EmailInfoItem("icon-reagendamento", "Você pode reagendar mais uma vez."), new EmailInfoItem("icon-calendar", "Em caso de falta na sessão sem justificativa prévia ela é considerada como realizada."))
+                + cta("VER MEU AGENDAMENTO", d.codigoAgendamento(), "icon-calendar") + closing());
+    }
+
+    public String cancelamento(EmailAppointmentData d) {
+        return layout(hero("icon-cancelamento", "Seu atendimento foi cancelado", d.nomeCliente(), "Seu atendimento foi cancelado conforme solicitado. Se precisar, você pode agendar um novo horário quando quiser.")
+                + appointment(d, "Atendimento cancelado")
+                + info("O que fazer agora?", "icon-seguranca", new EmailInfoItem("icon-calendar", "Agende um novo horário quando quiser."), new EmailInfoItem("icon-whatsapp", "Em caso de dúvidas, entre em contato conosco."), new EmailInfoItem("icon-bem-estar", "Estamos à disposição para te atender novamente."))
+                + cta("AGENDAR NOVO HORÁRIO", d.codigoAgendamento(), "icon-calendar") + closing());
+    }
+
+    public String reembolsoIniciado(EmailRefundData d) {
+        var a = d.atendimento();
+        return layout(hero("icon-reembolso-iniciado", "Seu reembolso foi iniciado!", a.nomeCliente(), "Seu cancelamento foi processado e o reembolso já foi solicitado na forma de pagamento utilizada. O prazo pode variar conforme a operadora.")
+                + appointment(a, "Atendimento cancelado") + timeline(d)
+                + refund("Forma de estorno", "O valor será estornado para o mesmo meio de pagamento utilizado na compra, conforme as regras da operadora.")
+                + cta("ACOMPANHAR REEMBOLSO", a.codigoAgendamento(), "icon-copy") + closing());
+    }
+
+    public String reembolsoConcluido(EmailRefundData d) {
+        var a = d.atendimento();
+        return layout(hero("icon-reembolso-concluido", "Seu reembolso foi concluído!", a.nomeCliente(), "O reembolso do seu atendimento foi processado com sucesso e o valor já foi estornado para o mesmo meio de pagamento utilizado na compra.")
+                + appointment(a, "Atendimento cancelado") + timeline(d)
+                + refund("Forma de estorno", "O valor foi estornado para o mesmo meio de pagamento utilizado na compra, conforme as regras da operadora.")
+                + cta("VER DETALHES DO REEMBOLSO", a.codigoAgendamento(), "icon-copy") + closing());
+    }
+
+    private String layout(String content) {
+        return """
+                <!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><style>@media only screen and (max-width:480px){.email-shell{width:100%% !important;border-radius:0!important}.email-content{padding:30px 20px!important}.stack{display:block!important;width:100%%!important;padding:0 0 18px!important;border:0!important}.hero-title{font-size:36px!important}.service{width:50%%!important;padding-bottom:20px!important}.footer-col{display:block!important;width:100%%!important;border:0!important;border-bottom:1px solid rgba(247,241,229,.5)!important}}</style></head><body style="margin:0;padding:0;background:#eee8dc;"><table role="presentation" width="100%%"><tr><td align="center" style="padding:24px 12px;"><table class="email-shell" role="presentation" width="700" style="width:100%%;max-width:700px;background:%s;border-radius:18px;overflow:hidden;"><tr><td><img src="cid:julyana-email-header" width="700" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;height:auto;border:0;"></td></tr><tr><td class="email-content" style="padding:48px 56px 42px;">%s</td></tr>%s</table></td></tr></table></body></html>
+                """.formatted("#ffffff", content, footer());
+    }
+
+    private String hero(String asset, String title, String name, String description) {
+        return """
+                <table role="presentation" width="100%%" style="margin:0 0 24px;"><tr><td width="180" valign="top" align="center">%s</td><td valign="middle"><h1 class="hero-title" style="margin:0 0 8px;color:%s;font:700 46px/1.08 Georgia,serif;">%s</h1><p style="margin:0 0 5px;color:%s;font:700 22px/1.25 Georgia,serif;">Olá, %s!</p><p style="margin:0;color:%s;font:18px/1.4 Georgia,serif;">%s</p></td></tr></table>
+                """.formatted(circle(asset, 150), VERDE, esc(title), VERDE, esc(name), VERDE, esc(description));
+    }
+
+    private String appointment(EmailAppointmentData d, String label) {
+        var code = d.codigoAgendamento() == null || d.codigoAgendamento().isBlank() ? "" : "<td width=\"145\" style=\"padding-left:16px;border-left:1px solid #cdbb8c;\"><small>Código do agendamento</small><strong style=\"display:block;margin-top:8px;padding:8px;background:#efe3c7;border-radius:10px;text-align:center;color:" + VERDE + ";\">" + esc(d.codigoAgendamento()) + "</strong></td>";
+        return """
+                <table role="presentation" width="100%%" style="margin:0 0 22px;border:2px solid %s;border-radius:16px;background:%s;"><tr><td style="padding:18px;"><table width="100%%"><tr><td class="stack" width="150" style="padding-right:18px;"><div style="width:150px;height:105px;border-radius:12px;background:#e7dfcc;text-align:center;line-height:105px;color:#687151;font:11px Arial,sans-serif;">IMAGEM DO SERVIÇO</div></td><td class="stack" valign="top"><small style="color:#687151;text-transform:uppercase;letter-spacing:1px;">%s</small><h2 style="margin:5px 0;color:%s;font:700 27px/1.15 Georgia,serif;">%s</h2><p style="margin:0;color:%s;font:15px/1.4 Georgia,serif;">%s</p></td>%s</tr></table><table width="100%%" style="margin-top:18px;"><tr><td class="stack" width="33%%">%s<small>DATA</small><strong>%s</strong><span>(%s)</span></td><td class="stack" width="33%%" style="border-left:1px solid #cdbb8c;padding-left:14px;">%s<small>HORÁRIO</small><strong>%s</strong></td><td class="stack" width="33%%" style="border-left:1px solid #cdbb8c;padding-left:14px;">%s<small>DURAÇÃO</small><strong>%s</strong></td></tr></table></td></tr></table>
+                """.formatted(DOURADO, CREME, label, VERDE, esc(d.nomeServico()), VERDE, esc(d.descricaoServico()), code, circle("icon-calendar",50), data.format(d.data()), esc(d.data().getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, PT_BR)), circle("icon-horario",50), hora.format(d.horario()), circle("icon-duracao",50), duracao(d.duracaoMinutos()));
+    }
+
+    private String payment(EmailAppointmentData d) {
+        boolean entrada=d.tipoPagamento()==PaymentType.ENTRADA;
+        return """
+                <table role="presentation" width="100%%" style="margin:0 0 22px;background:%s;border-radius:16px;"><tr><td style="padding:18px 22px;"><small>DETALHES DO PAGAMENTO</small><table width="100%%"><tr><td class="stack" width="50%%">%s<div style="color:%s;font:14px Arial,sans-serif;">%s</div><strong style="color:%s;font:700 27px Georgia,serif;">%s</strong><div style="font:14px Georgia,serif;">%s</div></td><td class="stack" width="50%%" style="border-left:1px solid #d6cfba;padding-left:18px;">%s</td></tr></table></td></tr></table>
+                """.formatted(CARD,circle("icon-pagamento",50),VERDE,entrada?"Entrada paga":"Pagamento realizado",VERDE,money(d.valorPago()),entrada?((d.valorPago()!=null&&d.valorServico()!=null&&d.valorServico().signum()!=0)?d.valorPago().multiply(java.math.BigDecimal.valueOf(100)).divide(d.valorServico(),0,java.math.RoundingMode.HALF_UP)+"% do valor do serviço":"Entrada do serviço"):"Valor total do serviço",entrada?"<div>"+circle("icon-copy",50)+"<div style='color:"+VERDE+";font:14px Arial,sans-serif;'>Restante no atendimento</div><strong style='color:"+VERDE+";font:700 27px Georgia,serif;'>"+money(d.valorRestante())+"</strong><div style='font:14px Georgia,serif;'>A ser pago presencialmente</div></div>":"");
     }
 
     private String info(String title,String main,EmailInfoItem... items){
