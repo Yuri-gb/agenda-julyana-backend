@@ -1,5 +1,7 @@
 package br.com.agendajulyana.auth.service.email;
 
+import org.springframework.stereotype.Component;
+
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -10,6 +12,7 @@ import br.com.agendajulyana.auth.service.email.EmailData.EmailInfoItem;
 import br.com.agendajulyana.auth.service.email.EmailData.EmailRefundData;
 import br.com.agendajulyana.auth.service.email.EmailData.PaymentType;
 
+@Component
 public final class AgendaEmailRenderer {
     private static final Locale PT_BR = Locale.forLanguageTag("pt-BR");
     private static final String VERDE = "#20351f";
