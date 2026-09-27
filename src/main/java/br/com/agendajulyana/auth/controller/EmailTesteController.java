@@ -1,11 +1,11 @@
 package br.com.agendajulyana.auth.controller;
 
 import br.com.agendajulyana.auth.service.EmailService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +22,12 @@ public class EmailTesteController {
     }
 
     @PostMapping
-    public ResponseEntity<EmailTesteResponse> enviar(@Valid @RequestBody EmailTesteRequest request) {
-        switch (request.tipo()) {
+    public ResponseEntity<EmailTesteResponse> enviar(
+            @Parameter(description = "Tipo de e-mail disponível para teste.")
+            @RequestParam Tipo tipo,
+            @Valid @RequestBody EmailTesteRequest request
+    ) {
+        switch (tipo) {
             case RECUPERACAO_SENHA -> emailService.enviarCodigoRecuperacao(
                     request.email(),
                     request.nome(),
@@ -41,7 +45,6 @@ public class EmailTesteController {
 
     public record EmailTesteRequest(
             @NotBlank @Email String email,
-            @NotNull Tipo tipo,
             @NotBlank String nome,
             @NotBlank String codigo
     ) {
