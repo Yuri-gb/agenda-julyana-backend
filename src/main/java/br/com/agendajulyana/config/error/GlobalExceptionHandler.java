@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ApiErrorResponse> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
         var status = ex.getStatusCode();
-        return response(status.value(), status.getReasonPhrase(), codeFor(status.value()),
+        return response(status.value(), reasonPhrase(status.value()), codeFor(status.value()),
                 ex.getReason() != null ? ex.getReason() : "A requisição não pôde ser processada.", request);
     }
     @ExceptionHandler(BadCredentialsException.class)
@@ -77,6 +78,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(new ApiErrorResponse(status, error, code, message, request.getRequestURI(), fields));
     }
     private String message(Exception ex, String fallback) { return ex.getMessage() == null || ex.getMessage().isBlank() ? fallback : ex.getMessage(); }
+    private String reasonPhrase(int status) {
+        var resolved = HttpStatus.resolve(status);
+        return resolved != null ? resolved.getReasonPhrase() : "HTTP Error";
+    }
     private String codeFor(int status) {
         return switch (status) {
             case 400 -> "BAD_REQUEST"; case 401 -> "UNAUTHORIZED"; case 403 -> "FORBIDDEN";
