@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 public class EmailTemplate {
 
     private static final String VERDE_ESCURO = "#20351f";
-    private static final String VERDE_FUNDO = "#464d2c";
+    private static final String VERDE_FUNDO = "#46522f";
     private static final String VERDE_ICON = "#5c6b35";
-    private static final String FUNDO_ICONE = "#ecebdc";
+    private static final String FUNDO_ICONE = "#eeeddf";
     private static final String DOURADO = "#b38a32";
     private static final String CREME = "#f7f1e5";
     private static final String CREME_CARD = "#efeedf";
@@ -34,13 +34,13 @@ public class EmailTemplate {
                       </p>
 
                       <!-- Código + ação visual de copiar -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 30px;">
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
                         <tr>
-                          <td style="padding:17px 20px;border:2px solid %s;border-radius:18px;background:%s;">
+                          <td style="padding:24px 24px;border:2px solid %s;border-radius:18px;background:%s;min-height:76px;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
                                 <td align="center" valign="middle">
-                                  <span style="color:%s;font-family:Arial,sans-serif;font-size:38px;line-height:1;font-weight:700;letter-spacing:8px;">
+                                  <span style="color:%s;font-family:Arial,sans-serif;font-size:42px;line-height:1.05;font-weight:700;letter-spacing:8px;">
                                     %s
                                   </span>
                                 </td>
@@ -60,40 +60,36 @@ public class EmailTemplate {
                         </tr>
                       </table>
 
-                      <!-- Informações: ícones centralizados acima dos textos -->
-                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 31px;">
+                      <!-- Informações: ícone à esquerda + texto alinhado à esquerda -->
+                      <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
                         <tr>
-                          <td class="info-column" width="50%%" valign="top" align="center" style="padding:0 18px;">
+                          <td class="info-column" width="50%%" valign="middle" style="padding:0 18px 0 0;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td align="center" valign="top">
-                                  <div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%%;background:%s;">
+                                <td width="58" valign="middle" style="padding:0;">
+                                  <div style="width:48px;height:48px;margin:0;border-radius:50%%;background:%s;">
                                     <!-- ASSET: icon-validade -->
                                   </div>
                                 </td>
-                              </tr>
-                              <tr>
-                                <td align="center" valign="top" style="color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;text-align:left;">
                                   Este código é válido por<br>
-                                  <strong style="color:#2f3028;">15 minutos.</strong>
+                                  <strong style="color:#20351f;">15 minutos.</strong>
                                 </td>
                               </tr>
                             </table>
                           </td>
 
-                          <td class="info-column" width="50%%" valign="top" align="center" style="padding:0 18px;border-left:1px solid #d9d0b7;">
+                          <td class="info-column" width="50%%" valign="middle" style="padding:0 0 0 18px;border-left:1px solid #d9d0b7;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td align="center" valign="top">
-                                  <div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%%;background:%s;">
+                                <td width="58" valign="middle" style="padding:0;">
+                                  <div style="width:48px;height:48px;margin:0;border-radius:50%%;background:%s;">
                                     <!-- ASSET: icon-uso-unico -->
                                   </div>
                                 </td>
-                              </tr>
-                              <tr>
-                                <td align="center" valign="top" style="color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;">
+                                <td valign="middle" align="left" style="padding-left:12px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.45;text-align:left;">
                                   Pode ser utilizado<br>
-                                  apenas <strong style="color:#2f3028;">uma única vez.</strong>
+                                  apenas <strong style="color:#20351f;">uma única vez.</strong>
                                 </td>
                               </tr>
                             </table>
@@ -104,11 +100,11 @@ public class EmailTemplate {
                       <!-- Aviso de segurança: um único bloco, sem badge -->
                       <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 34px;">
                         <tr>
-                          <td style="padding:18px 22px;background:%s;border-radius:15px;">
+                          <td style="padding:28px 30px;background:%s;border-radius:16px;min-height:96px;">
                             <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td width="68" valign="middle" align="center">
-                                  <div style="width:50px;height:50px;border-radius:50%%;background:#f5f2e4;">
+                                <td width="76" valign="middle" align="center">
+                                  <div style="width:58px;height:58px;border-radius:50%%;background:#eeeddf;">
                                     <!-- ASSET: icon-seguranca -->
                                   </div>
                                 </td>
@@ -130,13 +126,13 @@ public class EmailTemplate {
                       <!-- Assinatura -->
                       <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
                         <tr>
-                          <td width="39%%" style="border-top:1px solid #cdbb8c;"></td>
-                          <td width="22%%" align="center" style="padding:0 10px;">
-                            <div style="width:34px;height:34px;margin:0 auto;border-radius:50%%;background:%s;">
+                          <td width="39%%" valign="middle" style="border-top:1px solid #cdbb8c;"></td>
+                          <td width="22%%" align="center" valign="middle" style="padding:0 10px;">
+                            <div style="width:38px;height:38px;margin:0 auto;border-radius:50%%;background:%s;line-height:38px;text-align:center;">
                               <!-- ASSET: icon-assinatura -->
                             </div>
                           </td>
-                          <td width="39%%" style="border-top:1px solid #cdbb8c;"></td>
+                          <td width="39%%" valign="middle" style="border-top:1px solid #cdbb8c;"></td>
                         </tr>
                       </table>
 
@@ -254,6 +250,13 @@ public class EmailTemplate {
                         width:50%% !important;
                         padding-bottom:22px !important;
                       }
+                      .footer-column {
+                        display:block !important;
+                        width:100%% !important;
+                        box-sizing:border-box !important;
+                        border-right:0 !important;
+                        border-bottom:1px solid rgba(247,241,229,.55) !important;
+                      }
                     }
                   </style>
                 </head>
@@ -281,51 +284,64 @@ public class EmailTemplate {
                             </td>
                           </tr>
 
-                          <!-- Footer full-bleed: ocupa toda a largura do card -->
+                          <!-- Footer full-bleed com topo orgânico -->
                           <tr>
-                            <td width="100%%" style="padding:0;background:%s;border-radius:0 0 18px 18px;">
+                            <td width="100%%" style="padding:0;background:%s;border-radius:0 0 18px 18px;overflow:hidden;">
                               <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                  <td class="footer-column" width="50%%" valign="middle" style="padding:28px 22px 30px 34px;border-right:1px solid rgba(247,241,229,.55);">
-                                    <p style="margin:0 0 11px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.35;">
-                                      Siga nossas redes
-                                    </p>
-                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                                      <tr>
-                                        <td style="padding-right:10px;">
-                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
-                                            <!-- ASSET: icon-instagram -->
-                                          </div>
-                                        </td>
-                                        <td style="padding-right:10px;">
-                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
-                                            <!-- ASSET: icon-whatsapp -->
-                                          </div>
-                                        </td>
-                                        <td>
-                                          <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
-                                            <!-- ASSET: icon-localizacao -->
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    </table>
+                                  <td style="padding:0;background:%s;height:34px;line-height:0;font-size:0;">
+                                    <svg width="100%%" height="34" viewBox="0 0 700 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%%;height:34px;">
+                                      <path d="M0,0 C145,22 220,31 350,30 C480,29 555,20 700,0 L700,34 L0,34 Z" fill="#46522f"/>
+                                    </svg>
                                   </td>
-
-                                  <td class="footer-column" width="50%%" valign="middle" style="padding:28px 34px 30px 22px;">
+                                </tr>
+                                <tr>
+                                  <td style="padding:0;background:%s;">
                                     <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                                       <tr>
-                                        <td width="38" valign="middle" style="padding-right:10px;">
-                                          <div style="width:32px;height:32px;border-radius:50%%;border:1px solid %s;text-align:center;">
-                                            <!-- ASSET: icon-localizacao-footer -->
-                                          </div>
+                                        <td class="footer-column" width="50%%" valign="middle" style="padding:10px 22px 28px 34px;border-right:1px solid rgba(247,241,229,.55);">
+                                          <p style="margin:0 0 11px;color:%s;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.35;">
+                                            Siga nossas redes
+                                          </p>
+                                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                              <td style="padding-right:10px;">
+                                                <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                                  <!-- ASSET: icon-instagram -->
+                                                </div>
+                                              </td>
+                                              <td style="padding-right:10px;">
+                                                <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                                  <!-- ASSET: icon-whatsapp -->
+                                                </div>
+                                              </td>
+                                              <td>
+                                                <div style="width:34px;height:34px;border:1px solid %s;border-radius:50%%;text-align:center;">
+                                                  <!-- ASSET: icon-localizacao -->
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          </table>
                                         </td>
-                                        <td valign="middle">
-                                          <p style="margin:0 0 3px;color:%s;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;font-weight:700;">
-                                            Feira de Santana - BA
-                                          </p>
-                                          <p style="margin:0;color:%s;font-family:Arial,sans-serif;font-size:11px;line-height:1.4;">
-                                            Beleza, saúde e bem-estar em um só lugar.
-                                          </p>
+
+                                        <td class="footer-column" width="50%%" valign="middle" style="padding:10px 34px 28px 22px;">
+                                          <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                              <td width="42" valign="middle" style="padding-right:10px;">
+                                                <div style="width:34px;height:34px;border-radius:50%%;border:1px solid %s;text-align:center;">
+                                                  <!-- ASSET: icon-localizacao-footer -->
+                                                </div>
+                                              </td>
+                                              <td valign="middle">
+                                                <p style="margin:0 0 3px;color:%s;font-family:Arial,sans-serif;font-size:14px;line-height:1.35;font-weight:700;">
+                                                  Feira de Santana - BA
+                                                </p>
+                                                <p style="margin:0;color:%s;font-family:Arial,sans-serif;font-size:11px;line-height:1.4;">
+                                                  Beleza, saúde e bem-estar em um só lugar.
+                                                </p>
+                                              </td>
+                                            </tr>
+                                          </table>
                                         </td>
                                       </tr>
                                     </table>
@@ -346,6 +362,7 @@ public class EmailTemplate {
                 FUNDO,
                 CREME,
                 content,
+                VERDE_FUNDO,
                 VERDE_FUNDO,
                 CREME,
                 DOURADO,
