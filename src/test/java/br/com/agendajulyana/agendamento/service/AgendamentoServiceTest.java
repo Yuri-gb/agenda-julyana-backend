@@ -11,6 +11,7 @@ import br.com.agendajulyana.servico.domain.*;
 import br.com.agendajulyana.servico.repository.ServicoRepository;
 import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.*;
 import java.math.BigDecimal; import java.time.*; import java.util.*;
 import static org.junit.jupiter.api.Assertions.*; import static org.mockito.Mockito.*;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*; import static org.mockito.Mock
 class AgendamentoServiceTest {
  @Mock AgendamentoRepository agendamentos; @Mock ReservaTemporariaRepository reservas; @Mock ClienteRepository clientes; @Mock ServicoRepository servicos;
  @Mock DisponibilidadeRepository disponibilidades; @Mock BloqueioRepository bloqueios; @Mock IndisponibilidadeServicoRepository indisponibilidades; @Mock AuditoriaRepository auditorias;
- @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos;
+ @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos; @Mock ReembolsoRepository reembolsos;
  @Test void deveCriarReservaDe30Minutos(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
   var agora=OffsetDateTime.now().plusHours(1).withNano(0);
@@ -31,7 +32,7 @@ class AgendamentoServiceTest {
   when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
   var a=new Agendamento(cliente,servico,agora,agora.plusHours(1)); when(agendamentos.save(any())).thenReturn(a);
   var r=new ReservaTemporaria(a,OffsetDateTime.now()); when(reservas.save(any())).thenReturn(r);
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),agora,PagamentoModalidade.ENTRADA));
   assertEquals("AGUARDANDO_PAGAMENTO",out.status()); assertNotNull(out.reservaExpiraEm()); assertEquals(PagamentoModalidade.ENTRADA,out.modalidadePagamento()); assertEquals(new BigDecimal("50.00"),out.valorPagamento()); verify(pagamentos).save(any());
   var reservaSalva=org.mockito.ArgumentCaptor.forClass(ReservaTemporaria.class);
