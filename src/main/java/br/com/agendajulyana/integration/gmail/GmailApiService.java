@@ -94,16 +94,18 @@ public class GmailApiService {
         content.setContent(alternative);
         related.addBodyPart(content);
 
-        var header = new ClassPathResource("email/julyana-email-header.jpg");
-        if (!header.exists()) {
-            throw new IllegalStateException("Cabeçalho de e-mail não encontrado no classpath.");
-        }
+        adicionarImagemInline(related, "email/julyana-email-header.jpg", "julyana-email-header", "image/jpeg");
+        adicionarImagemInline(related, "email/footer-background.webp", "footer-background", "image/webp");
 
-        var image = new MimeBodyPart();
-        image.setDataHandler(new jakarta.activation.DataHandler(header.getURL()));
-        image.setHeader("Content-ID", "<julyana-email-header>");
-        image.setDisposition(MimeBodyPart.INLINE);
-        related.addBodyPart(image);
+        adicionarImagemInline(related, "email/icon-assinatura.png", "icon-assinatura", "image/png");
+        adicionarImagemInline(related, "email/icon-bem-estar.png", "icon-bem-estar", "image/png");
+        adicionarImagemInline(related, "email/icon-copy.png", "icon-copy", "image/png");
+        adicionarImagemInline(related, "email/icon-estetica.png", "icon-estetica", "image/png");
+        adicionarImagemInline(related, "email/icon-horario.png", "icon-horario", "image/png");
+        adicionarImagemInline(related, "email/icon-lock.png", "icon-lock", "image/png");
+        adicionarImagemInline(related, "email/icon-massoterapia.png", "icon-massoterapia", "image/png");
+        adicionarImagemInline(related, "email/icon-relaxamento.png", "icon-relaxamento", "image/png");
+        adicionarImagemInline(related, "email/icon-seguranca.png", "icon-seguranca", "image/png");
 
         message.setContent(related);
 
@@ -111,6 +113,25 @@ public class GmailApiService {
         message.writeTo(output);
 
         return Base64.getUrlEncoder().withoutPadding().encodeToString(output.toByteArray());
+    }
+
+    private void adicionarImagemInline(
+            MimeMultipart related,
+            String caminho,
+            String contentId,
+            String contentType
+    ) throws Exception {
+        var resource = new ClassPathResource(caminho);
+        if (!resource.exists()) {
+            throw new IllegalStateException("Asset de e-mail não encontrado no classpath: " + caminho);
+        }
+
+        var image = new MimeBodyPart();
+        image.setDataHandler(new jakarta.activation.DataHandler(resource.getURL()));
+        image.setHeader("Content-ID", "<" + contentId + ">");
+        image.setHeader("Content-Type", contentType);
+        image.setDisposition(MimeBodyPart.INLINE);
+        related.addBodyPart(image);
     }
 
     private record TokenResponse(String access_token, String expires_in, String token_type) {
