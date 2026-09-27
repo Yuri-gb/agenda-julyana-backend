@@ -1,6 +1,6 @@
 package br.com.agendajulyana.auth.controller;
 
-import br.com.agendajulyana.auth.service.EmailService;
+import br.com.agendajulyana.auth.service.EmailTesteService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -11,26 +11,18 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class EmailTesteControllerTest {
-
     @Mock
-    private EmailService emailService;
+    private EmailTesteService emailTesteService;
 
     @Test
-    void deveDispararEmailDeRecuperacaoPeloTipoSelecionado() {
-        var controller = new EmailTesteController(emailService);
-        var request = new EmailTesteController.EmailTesteRequest(
-                "teste@example.com",
-                "Yuri",
-                "483921"
-        );
+    void deveDispararEmailPeloTipoSelecionado() {
+        var controller = new EmailTesteController(emailTesteService);
+        var request = new EmailTesteController.EmailTesteRequest("teste@example.com", "Yuri", "483921");
 
-        var response = controller.enviar(
-                EmailTesteController.Tipo.RECUPERACAO_SENHA,
-                request
-        );
+        var response = controller.enviar(EmailTesteTipo.RECUPERACAO_SENHA, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("E-mail de teste enviado com sucesso.", response.getBody().mensagem());
-        verify(emailService).enviarCodigoRecuperacao("teste@example.com", "Yuri", "483921");
+        verify(emailTesteService).enviar(EmailTesteTipo.RECUPERACAO_SENHA, "teste@example.com", "Yuri", "483921");
     }
 }
