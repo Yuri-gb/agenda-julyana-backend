@@ -179,8 +179,8 @@ class PagamentoServiceTest {
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
         when(reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(any(), any())).thenReturn(Optional.empty());
         when(reembolsos.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(mercadoPago.reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class)))
-                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse("REF-1", "processed", "processed"));
+        when(mercadoPago.reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class)))
+                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse("ORDER-TARDIA", "processed", "refunded", new MercadoPagoClient.MercadoPagoRefundResponse.Transactions(java.util.List.of(new MercadoPagoClient.MercadoPagoRefundResponse.Refund("REF-1", null, new BigDecimal("100.00"), "processed")))));
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         service.processarWebhookOrder("ORDER-APROVADA");
