@@ -41,7 +41,7 @@ class AgendamentoServiceTest {
  }
  @Test void deveRecusarConflito(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var inicio=OffsetDateTime.now().plusHours(2);
+  var inicio=OffsetDateTime.of(2026,10,5,10,0,0,0,ZoneOffset.of("-03:00"));
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
