@@ -1,4 +1,4 @@
-package br.com.agendajulyana.pagamento.integration;
+import com.fasterxml.jackson.annotation.JsonProperty;\npackage br.com.agendajulyana.pagamento.integration;
 
 import br.com.agendajulyana.agendamento.domain.Agendamento;
 import org.springframework.http.MediaType;
@@ -80,10 +80,28 @@ public class MercadoPagoClient {
 
     record Payer(String email) {}
 
+    public MercadoPagoRefundResponse reembolsarOrder(String orderId, BigDecimal amount, UUID idempotencyKey) {
+        return client.post()
+                .uri("/v1/orders/{id}/refund", orderId)
+                .header("X-Idempotency-Key", idempotencyKey.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new MercadoPagoRefundRequest(amount.toPlainString()))
+                .retrieve()
+                .body(MercadoPagoRefundResponse.class);
+    }
+
     record Item(
             String title,
             String unit_price,
             int quantity,
             String total_amount
+    ) {}
+
+    record MercadoPagoRefundRequest(String amount) {}
+
+    public record MercadoPagoRefundResponse(
+            String id,
+            String status,
+            @JsonProperty("status_detail") String statusDetail
     ) {}
 }
