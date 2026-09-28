@@ -1,5 +1,7 @@
 package br.com.agendajulyana.auth.security;
 
+import br.com.agendajulyana.config.error.ApiAccessDeniedHandler;
+import br.com.agendajulyana.config.error.ApiAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,13 +18,19 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         JwtAuthenticationFilter jwtAuthenticationFilter,
-        GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler
+        GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler,
+        ApiAuthenticationEntryPoint authenticationEntryPoint,
+        ApiAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
             .oauth2Login(oauth -> oauth.successHandler(googleAuthenticationSuccessHandler))
             .httpBasic(basic -> basic.disable())
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
+            )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(

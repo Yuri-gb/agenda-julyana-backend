@@ -19,20 +19,21 @@ public final class AgendaEmailRenderer {
     private static final String VERDE_FUNDO = "#17351c";
     private static final String CREME = "#f7f1e5";
     private static final String CARD = "#efeedf";
-    private static final String ICONE = "#ECEBD9";
+    private static final String ICONE = "#eeeddf";
     private static final String DOURADO = "#b38a32";
 
     private final DateTimeFormatter data = DateTimeFormatter.ofPattern("dd 'de' MMM 'de' yyyy", PT_BR);
     private final DateTimeFormatter hora = DateTimeFormatter.ofPattern("HH:mm");
 
     public String recuperarSenha(String nome, String codigo) {
-        return layout(
-                "<h1 style=\"margin:0 0 18px;color:" + VERDE + ";font:400 48px/1.05 Georgia,serif;\">Olá, " + esc(primeirosNomes(nome)) + "!</h1>"
-                + "<p style=\"margin:0 0 26px;color:" + VERDE + ";font:18px/1.55 Georgia,serif;\">Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.</p>"
-                + "<p style=\"margin:0 0 12px;color:#687151;font:18px/1.5 Georgia,serif;\">Use o código abaixo para continuar:</p>"
-                + "<table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:0 0 28px;\"><tr><td style=\"padding:16px 24px;border:2px solid " + DOURADO + ";border-radius:18px;background:" + CREME + ";\"><table role=\"presentation\" width=\"100%%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td align=\"center\"><strong style=\"color:" + VERDE + ";font:700 46px/1 Arial,sans-serif;letter-spacing:7px;\">" + esc(codigo) + "</strong></td><td width=\"102\" align=\"center\" style=\"border-left:1px solid #d7c796;padding-left:10px;\">" + icon("icon-copy", 54) + "<div style=\"font:12px/1.1 Arial,sans-serif;color:" + DOURADO + ";font-weight:400;letter-spacing:.1px;\">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>"
-                + twoInfo("icon-horario", "Este código é válido por", "15 minutos.", "icon-seguranca", "Pode ser utilizado", "apenas uma única vez.")
-                + block("icon-lock", "Não solicitou a recuperação de senha?", "Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.")
+        return layout(hero("icon-lock", "Recuperação de senha", nome,
+                "Recebemos uma solicitação para redefinir a senha da sua conta na Agenda Julyana.")
+                + """
+                <p style="margin:0 0 12px;color:#697153;font:18px/1.5 Arial,sans-serif;">Use o código abaixo para continuar:</p>
+                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td style="padding:24px;border:2px solid %s;border-radius:18px;background:%s;"><table role="presentation" width="100%%"><tr><td align="center"><strong style="color:%s;font:700 42px/1.05 Arial,sans-serif;letter-spacing:8px;">%s</strong></td><td width="112" align="center" style="border-left:1px solid #d7c796;padding-left:12px;">%s<div style="font:10px/1.25 Arial,sans-serif;color:%s;">COPIAR<br>CÓDIGO</div></td></tr></table></td></tr></table>
+                """.formatted(DOURADO, CREME, VERDE, esc(codigo), icon("icon-copy", 28), VERDE)
+                + twoInfo("icon-horario", "Este código é válido por", "15 minutos.", "icon-copy", "Pode ser utilizado", "apenas uma única vez.")
+                + block("icon-seguranca", "Não solicitou a recuperação de senha?", "Se você não fez essa solicitação, ignore este e-mail. Sua conta continuará segura.")
                 + closing());
     }
 
@@ -95,7 +96,7 @@ public final class AgendaEmailRenderer {
     private String layout(String content) {
         return """
                 <!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><style>@media only screen and (max-width:480px){.email-shell{width:100%% !important;border-radius:0!important}.email-content{padding:30px 20px!important}.stack{display:block!important;width:100%%!important;padding:0 0 18px!important;border:0!important}.hero-title{font-size:36px!important}.service{width:50%%!important;padding-bottom:20px!important}.footer-col{display:block!important;width:100%%!important;border:0!important;border-bottom:1px solid rgba(247,241,229,.5)!important}}</style></head><body style="margin:0;padding:0;background:#eee8dc;"><table role="presentation" width="100%%"><tr><td align="center" style="padding:24px 12px;"><table class="email-shell" role="presentation" width="700" style="width:100%%;max-width:700px;background:%s;border-radius:18px;overflow:hidden;"><tr><td><img src="cid:julyana-email-header" width="700" alt="Julyana Lima — estética e bem-estar" style="display:block;width:100%%;height:auto;border:0;"></td></tr><tr><td class="email-content" style="padding:48px 56px 42px;">%s</td></tr>%s</table></td></tr></table></body></html>
-                """.formatted("#ffffff", content, footer());
+                """.formatted(CREME, content, footer());
     }
 
     private String hero(String asset, String title, String name, String description) {
@@ -124,30 +125,17 @@ public final class AgendaEmailRenderer {
     }
 
     private String twoInfo(String a,String b,String c,String d,String e,String f){return "<table width='100%%' style='margin:0 0 24px;'><tr><td class='stack' width='50%%' style='padding-right:18px;'>"+infoItem(a,b,c)+"</td><td class='stack' width='50%%' style='padding-left:18px;border-left:1px solid #d9d0b7;'>"+infoItem(d,e,f)+"</td></tr></table>";}
-    private String infoItem(String asset,String a,String b){return "<table width='100%%'><tr><td width='62'>"+circle(asset,58)+"</td><td style='padding-left:8px;color:"+VERDE+";font:15px/1.35 Georgia,serif;'>"+esc(a)+"<br><strong>"+esc(b)+"</strong></td></tr></table>";}
-    private String block(String asset,String title,String text){return "<table width='100%%' style='margin:0 0 22px;background:"+CARD+";border-radius:16px;'><tr><td style='padding:22px;'><table width='100%%'><tr><td width='68'>"+circle(asset,58)+"</td><td><strong style='color:"+VERDE+";font:700 19px/1.35 Georgia,serif;'>"+esc(title)+"</strong><p style='margin:5px 0 0;color:#35412e;font:15px/1.5 Arial,sans-serif;'>"+esc(text)+"</p></td></tr></table></td></tr></table>";}
+    private String infoItem(String asset,String a,String b){return "<table width='100%%'><tr><td width='58'>"+circle(asset,48)+"</td><td style='padding-left:12px;color:"+VERDE+";font:18px/1.45 Georgia,serif;'>"+esc(a)+"<br><strong>"+esc(b)+"</strong></td></tr></table>";}
+    private String block(String asset,String title,String text){return "<table width='100%%' style='margin:0 0 22px;background:"+CARD+";border-radius:16px;'><tr><td style='padding:22px;'><table width='100%%'><tr><td width='76'>"+circle(asset,58)+"</td><td><strong style='color:"+VERDE+";font:700 19px/1.35 Georgia,serif;'>"+esc(title)+"</strong><p style='margin:5px 0 0;color:#35412e;font:15px/1.5 Arial,sans-serif;'>"+esc(text)+"</p></td></tr></table></td></tr></table>";}
     private String timeline(EmailRefundData d){var cells=d.etapas().stream().map(s->"<td class='stack' align='center' style='padding:0 7px;'><div style='margin:auto;width:42px;height:42px;border-radius:50%%;background:"+(s.concluida()?VERDE_FUNDO:"#e5e6d7")+";color:"+(s.concluida()?CREME:"#687151")+";font:700 22px/42px Arial;text-align:center;'>"+(s.concluida()?"✓":"")+"</div><strong style='display:block;margin-top:8px;color:"+VERDE+";font:700 15px/1.25 Georgia,serif;'>"+esc(s.titulo())+"</strong><span style='display:block;margin-top:5px;font:13px/1.35 Georgia,serif;'>"+esc(s.descricao())+"</span></td>").collect(Collectors.joining());return "<table width='100%%' style='margin:0 0 18px;background:"+CARD+";border-radius:16px;'><tr><td style='padding:18px 10px 22px;'><div style='color:"+VERDE+";font:15px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;'>Status do reembolso</div><table width='100%%'><tr>"+cells+"</tr></table></td></tr></table>";}
     private String refund(String title,String text){return "<table width='100%%' style='margin:0 0 18px;background:#f7e8e4;border-radius:14px;'><tr><td width='70' align='center'>"+circle("icon-horario",48)+"</td><td style='border-left:1px solid #cdbb8c;padding:14px 18px;'><strong style='color:"+VERDE+";font:14px Arial,sans-serif;letter-spacing:1px;'>"+esc(title)+"</strong><div style='margin-top:4px;font:15px/1.4 Georgia,serif;'>"+esc(text)+"</div></td></tr></table>";}
     private String cta(String text,String href,String asset){return "<table width='100%%' style='margin:4px 0 26px;'><tr><td align='center'><a href='"+(href==null?"#":esc(href))+"' style='display:inline-block;min-width:300px;padding:15px 24px;background:"+VERDE_FUNDO+";border:1px solid "+DOURADO+";border-radius:32px;color:"+CREME+";font:15px Arial,sans-serif;letter-spacing:1px;text-decoration:none;'>"+icon(asset,22)+"&nbsp;&nbsp;"+esc(text)+" →</a></td></tr></table>";}
-    private String closing(){return "<table width='100%%' style='margin:0 0 12px;'><tr><td width='42%%' valign='middle'><table width='100%%' role='presentation' cellpadding='0' cellspacing='0' border='0'><tr><td style='border-top:1px solid #cdbb8c;font-size:0;line-height:0;height:1px;'>&nbsp;</td></tr></table></td><td width='16%%' align='center' valign='middle'>"+circle("icon-assinatura",44)+"</td><td width='42%%' valign='middle'><table width='100%%' role='presentation' cellpadding='0' cellspacing='0' border='0'><tr><td style='border-top:1px solid #cdbb8c;font-size:0;line-height:0;height:1px;'>&nbsp;</td></tr></table></td></tr></table><div style='text-align:center;'><p style='margin:0 0 4px;color:"+VERDE+";font:22px/1.35 Georgia,serif;'>Cuidar de você é a nossa essência.</p><p style='margin:0;color:#687151;font:14px Arial,sans-serif;'>Julyana Lima — Estética e Bem-estar</p></div><table width='100%%' style='margin-top:24px;'><tr>"+service("icon-estetica","Estética","Facial e Corporal")+service("icon-massoterapia","Massoterapia","")+service("icon-relaxamento","Relaxamento","")+service("icon-bem-estar","Bem-estar","")+"</tr></table>";}
-    private String footer(){return "<tr><td style=\"padding:0;line-height:0;background:#ffffff;\"><img src=\"cid:footer-background\" width=\"700\" alt=\"Siga nossas redes — Feira de Santana - BA\" style=\"display:block;width:100%%;height:auto;border:0;\"></td></tr>";}
-    private String service(String asset,String a,String b){return "<td class='service' width='25%%' align='center' valign='top' style='vertical-align:top;'>"+circle(asset,58)+"<div style='color:#687151;font:13px/1.35 Arial,sans-serif;'>"+esc(a)+(b.isBlank()?"":"<br>"+esc(b))+"</div></td>";}
+    private String closing(){return "<table width='100%%' style='margin:0 0 12px;'><tr><td width='42%%' style='border-top:1px solid #cdbb8c;'></td><td width='16%%' align='center'>"+circle("icon-assinatura",38)+"</td><td width='42%%' style='border-top:1px solid #cdbb8c;'></td></tr></table><div style='text-align:center;'><p style='margin:0 0 4px;color:"+VERDE+";font:22px/1.35 Georgia,serif;'>Cuidar de você é a nossa essência.</p><p style='margin:0;color:#687151;font:14px Arial,sans-serif;'>Julyana Lima — Estética e Bem-estar</p></div><table width='100%%' style='margin-top:24px;'><tr>"+service("icon-estetica","Estética","Facial e Corporal")+service("icon-massoterapia","Massoterapia","")+service("icon-relaxamento","Relaxamento","")+service("icon-bem-estar","Bem-estar","")+"</tr></table>";}
+    private String footer(){return "<tr><td style=\"padding:0;background:"+VERDE_FUNDO+";height:132px;background-image:url('cid:footer-background');background-position:center bottom;background-size:100%% auto;background-repeat:no-repeat;\"><table width=\"100%%\" height=\"132\"><tr><td class=\"footer-col\" width=\"50%%\" valign=\"bottom\" style=\"padding:0 22px 22px 34px;border-right:1px solid rgba(247,241,229,.55);\"><p style=\"margin:0 0 10px;color:"+CREME+";font:16px Georgia,serif;\">Siga nossas redes</p><a href=\"#\" style=\"color:"+CREME+";\">Instagram</a>&nbsp;&nbsp;<a href=\"#\" style=\"color:"+CREME+";\">WhatsApp</a></td><td class=\"footer-col\" width=\"50%%\" valign=\"bottom\" style=\"padding:0 34px 22px 22px;color:"+CREME+";font:14px Arial,sans-serif;\"><strong>Feira de Santana - BA</strong><br><small>Beleza, saúde e bem-estar em um só lugar.</small></td></tr></table></td></tr>";}
+    private String service(String asset,String a,String b){return "<td class='service' width='25%%' align='center'>"+circle(asset,58)+"<div style='color:#687151;font:13px/1.35 Arial,sans-serif;'>"+esc(a)+(b.isBlank()?"":"<br>"+esc(b))+"</div></td>";}
     private String duracao(int m){if(m<=0)return "—";int h=m/60,r=m%60;return h==0?r+"min":r==0?h+"h":h+"h"+r;}
-    private String circle(String asset,int size){
-        var scale = "icon-horario".equals(asset) ? 0.88 : 0.78;
-        var iconSize = Math.max(1, (int) Math.round(size * scale));
-        return "<table data-asset='"+esc(asset)+"' role='presentation' cellpadding='0' cellspacing='0' border='0' width='"+size+"' height='"+size+"' style='width:"+size+"px;height:"+size+"px;border-collapse:collapse;'>"
-                + "<tr><td width='"+size+"' height='"+size+"' align='center' valign='middle' bgcolor='"+ICONE+"' style='width:"+size+"px;height:"+size+"px;background:"+ICONE+";border-radius:50%;text-align:center;vertical-align:middle;overflow:hidden;'>"
-                + "<img src='cid:"+esc(asset)+"' width='"+iconSize+"' height='"+iconSize+"' alt='' style='display:block;width:"+iconSize+"px;height:"+iconSize+"px;margin:0 auto;object-fit:contain;border:0;'>"
-                + "</td></tr></table>";
-    }
+    private String circle(String asset,int size){return "<div data-asset='"+esc(asset)+"' style='width:"+size+"px;height:"+size+"px;border-radius:50%%;background:"+ICONE+";display:inline-flex;align-items:center;justify-content:center;overflow:hidden;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:78%%;height:78%%;object-fit:contain;border:0;'></div>";}
     private String icon(String asset,int size){return "<span data-asset='"+esc(asset)+"' style='display:inline-block;width:"+size+"px;height:"+size+"px;vertical-align:middle;'><img src='cid:"+esc(asset)+"' width='"+size+"' height='"+size+"' alt='' style='display:block;width:100%%;height:100%%;object-fit:contain;border:0;'></span>";}
-    private String primeirosNomes(String nome){
-        if(nome==null || nome.isBlank()) return "";
-        var partes=nome.trim().split("\\s+");
-        if(partes.length<=2) return nome.trim();
-        return partes[0]+" "+partes[1];
-    }
     private String money(java.math.BigDecimal value){return value==null?"—":NumberFormat.getCurrencyInstance(PT_BR).format(value);}
     private String esc(String s){if(s==null)return "";return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");}
 }

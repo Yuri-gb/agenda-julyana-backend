@@ -95,7 +95,7 @@ public class GmailApiService {
         related.addBodyPart(content);
 
         adicionarImagemInline(related, "email/julyana-email-header.jpg", "julyana-email-header", "image/jpeg");
-        adicionarImagemInline(related, "email/footer-background.png", "footer-background", "image/png");
+        adicionarImagemInline(related, "email/footer-background.webp", "footer-background", "image/webp");
 
         adicionarImagemInline(related, "email/icon-assinatura.png", "icon-assinatura", "image/png");
         adicionarImagemInline(related, "email/icon-bem-estar.png", "icon-bem-estar", "image/png");
@@ -129,7 +129,6 @@ public class GmailApiService {
         var image = new MimeBodyPart();
         image.setDataHandler(new jakarta.activation.DataHandler(resource.getURL()));
         image.setHeader("Content-ID", "<" + contentId + ">");
-        image.setHeader("X-Attachment-Id", contentId);
         image.setHeader("Content-Type", contentType);
         image.setDisposition(MimeBodyPart.INLINE);
         related.addBodyPart(image);
