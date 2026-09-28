@@ -126,10 +126,12 @@ public class Pagamento {
     }
 
     public BigDecimal valorReembolsoPorCancelamento(boolean canceladoPelaProfissional) {
-        if (!canceladoPelaProfissional || status != PagamentoStatus.APROVADO) {
+        if (status != PagamentoStatus.APROVADO) {
             return BigDecimal.ZERO.setScale(2);
         }
-        return valor;
+        return canceladoPelaProfissional
+                ? valor
+                : valor.divide(BigDecimal.valueOf(2), 2, java.math.RoundingMode.HALF_UP);
     }
 
     private void exigir(PagamentoStatus esperado) {
