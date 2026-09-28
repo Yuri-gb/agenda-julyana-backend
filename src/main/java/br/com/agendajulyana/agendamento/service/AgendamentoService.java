@@ -17,11 +17,14 @@ import br.com.agendajulyana.servico.repository.ServicoRepository;
 import br.com.agendajulyana.auditoria.domain.Auditoria;
 import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.*; import java.util.*;
 
 @Service
 public class AgendamentoService {
+ private static final Logger log = LoggerFactory.getLogger(AgendamentoService.class);
  private final AgendamentoRepository agendamentos; private final ReservaTemporariaRepository reservas; private final ClienteRepository clientes; private final ServicoRepository servicos;
  private final DisponibilidadeRepository disponibilidades; private final BloqueioRepository bloqueios; private final IndisponibilidadeServicoRepository indisponibilidades; private final AuditoriaRepository auditorias;
  private final ReagendamentoRepository reagendamentos; private final CancelamentoRepository cancelamentos; private final PagamentoRepository pagamentos; private final ReembolsoRepository reembolsos; private final PagamentoService pagamentoService;
@@ -56,13 +59,13 @@ public class AgendamentoService {
  }
  @Transactional public void cancelarCliente(UUID usuarioId,UUID id,CancelarAgendamentoRequest req){
   var a=obter(id); if(!a.getCliente().getUsuario().getId().equals(usuarioId))throw new IllegalStateException("Agendamento não pertence ao cliente.");
-  a.cancelar();agendamentos.save(a);var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,req.motivo(),usuarioId));pagamentos.findByAgendamentoId(id).ifPresent(p -> { var valor=p.valorReembolsoPorCancelamento(false); if(valor.signum()>0) pagamentoService.solicitarReembolso(p,cancelamento,valor,"Cancelamento realizado pelo cliente."); });auditar(usuarioId,"CANCELAR","AGENDAMENTO",id);
+  a.cancelar();agendamentos.save(a);var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,req.motivo(),usuarioId));pagamentos.findByAgendamentoId(id).ifPresent(p -> { var valor=p.valorReembolsoPorCancelamento(false); if(valor.signum()>0) pagamentoService.solicitarReembolso(p,cancelamento,valor,"Cancelamento realizado pelo cliente."); log.info("Reembolso de cancelamento do cliente processado: agendamentoId={}, pagamentoId={}, valor={}", id, p.getId(), valor); });auditar(usuarioId,"CANCELAR","AGENDAMENTO",id);
  }
  @Transactional public void cancelarAtendente(UUID usuarioId,UUID id,CancelarAgendamentoRequest req){
   var a=obter(id); a.cancelar();agendamentos.save(a); var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.ATENDENTE,req.motivo(),usuarioId));
   pagamentos.findByAgendamentoId(id).ifPresent(pagamento -> {
    var valorReembolso=pagamento.valorReembolsoPorCancelamento(true);
-   if(valorReembolso.signum()>0) pagamentoService.solicitarReembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente.");
+   if(valorReembolso.signum()>0) pagamentoService.solicitarReembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente.");\n   log.info("Reembolso de cancelamento da profissional processado: agendamentoId={}, pagamentoId={}, valor={}", id, pagamento.getId(), valorReembolso);
   });
   auditar(usuarioId,"CANCELAR_ATENDENTE","AGENDAMENTO",id);
  }
