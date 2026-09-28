@@ -9,6 +9,7 @@ import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderStatus;
+import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
@@ -176,6 +177,10 @@ class PagamentoServiceTest {
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-APROVADA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
+        when(reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(any(), any())).thenReturn(Optional.empty());
+        when(reembolsos.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(mercadoPago.reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class)))
+                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse("REF-1", "processed", "processed"));
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         service.processarWebhookOrder("ORDER-APROVADA");
@@ -213,9 +218,11 @@ class PagamentoServiceTest {
         assertEquals(br.com.agendajulyana.agendamento.domain.AgendamentoStatus.CANCELADO, agendamento.getStatus());
 
         var reembolso = org.mockito.ArgumentCaptor.forClass(br.com.agendajulyana.pagamento.domain.Reembolso.class);
-        verify(reembolsos).save(reembolso.capture());
+        verify(reembolsos, atLeastOnce()).save(reembolso.capture());
         assertEquals(new BigDecimal("100.00"), reembolso.getValue().getValor());
-        assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.SOLICITADO, reembolso.getValue().getStatus());
+        assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO, reembolso.getValue().getStatus());
+        assertEquals("REF-1", reembolso.getValue().getReferenciaExterna());
+        verify(mercadoPago).reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class));
     }
 
 }
