@@ -62,13 +62,13 @@ class AgendamentoServiceTest {
   var captor=org.mockito.ArgumentCaptor.forClass(br.com.agendajulyana.pagamento.domain.Pagamento.class); verify(pagamentos).save(captor.capture()); assertEquals(PagamentoModalidade.PAGAMENTO_TOTAL,captor.getValue().getModalidade()); assertEquals(new BigDecimal("100.00"),captor.getValue().getValor());
  }
  @Test void deveSolicitarReembolsoDeMetadeDaEntradaNoCancelamentoDoCliente(){
-  var usuario=new Usuario("Cliente","cancel@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario);
+  var usuario=mock(Usuario.class); var usuarioId=UUID.randomUUID(); when(usuario.getId()).thenReturn(usuarioId); var cliente=new Cliente(usuario);
   var servico=new Servico("Teste","x",60,new BigDecimal("200.00"),null); var inicio=OffsetDateTime.now().plusHours(2);
   var a=new Agendamento(cliente,servico,inicio,inicio.plusHours(1)); var pagamento=new br.com.agendajulyana.pagamento.domain.Pagamento(a,PagamentoModalidade.ENTRADA); pagamento.aprovar("ORDER-1");
   var id=UUID.randomUUID(); when(agendamentos.findById(id)).thenReturn(Optional.of(a)); when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
   var cancelamento=new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,"motivo",usuario.getId()); when(cancelamentos.save(any())).thenReturn(cancelamento);
   var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
-  s.cancelarCliente(usuario.getId(),id,new CancelarAgendamentoRequest("motivo"));
+  s.cancelarCliente(usuarioId,id,new CancelarAgendamentoRequest("motivo"));
   verify(pagamentoService).solicitarReembolso(eq(pagamento),eq(cancelamento),eq(new BigDecimal("100.00")),eq("Cancelamento realizado pelo cliente."));
  }
 
