@@ -1,6 +1,7 @@
 package br.com.agendajulyana.disponibilidade.controller;
 
 import br.com.agendajulyana.disponibilidade.dto.*;
+import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import br.com.agendajulyana.disponibilidade.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,9 +18,10 @@ import java.util.UUID;
 @Tag(name="Admin — Disponibilidade", description="Configuração de disponibilidade, bloqueios e indisponibilidades de serviços.")
 @SecurityRequirement(name="bearerAuth")
 public class AdminDisponibilidadeController {
-    private final DisponibilidadeService disponibilidade; private final BloqueioService bloqueio; private final IndisponibilidadeServicoService indisponibilidade;
-    public AdminDisponibilidadeController(DisponibilidadeService d,BloqueioService b,IndisponibilidadeServicoService i){disponibilidade=d;bloqueio=b;indisponibilidade=i;}
-    @PostMapping @Operation(summary="Criar disponibilidade") @ResponseStatus(HttpStatus.CREATED) public DisponibilidadeResponse criar(@Valid @RequestBody DisponibilidadeRequest r, Authentication a){return disponibilidade.criar(r, UUID.fromString(a.getName()));}
+    private final DisponibilidadeService disponibilidade; private final BloqueioService bloqueio; private final IndisponibilidadeServicoService indisponibilidade; private final UsuarioRepository usuarios;
+    public AdminDisponibilidadeController(DisponibilidadeService d,BloqueioService b,IndisponibilidadeServicoService i,UsuarioRepository u){disponibilidade=d;bloqueio=b;indisponibilidade=i;usuarios=u;}
+    private UUID usuarioId(Authentication a){return usuarios.findByEmailIgnoreCase(a.getName()).orElseThrow(()->new IllegalArgumentException("Usuário autenticado não encontrado.")).getId();}
+    @PostMapping @Operation(summary="Criar disponibilidade") @ResponseStatus(HttpStatus.CREATED) public DisponibilidadeResponse criar(@Valid @RequestBody DisponibilidadeRequest r, Authentication a){return disponibilidade.criar(r, usuarioId(a));}
     @GetMapping @Operation(summary="Listar disponibilidades") public List<DisponibilidadeResponse> listar(){return disponibilidade.listar();}
     @GetMapping("/{id}") @Operation(summary="Consultar disponibilidade") public DisponibilidadeResponse buscar(@PathVariable UUID id){return disponibilidade.buscar(id);}
     @PutMapping("/{id}") @Operation(summary="Atualizar disponibilidade") public DisponibilidadeResponse atualizar(@PathVariable UUID id,@Valid @RequestBody DisponibilidadeRequest r, Authentication a){return disponibilidade.atualizar(id,r, UUID.fromString(a.getName()));}
