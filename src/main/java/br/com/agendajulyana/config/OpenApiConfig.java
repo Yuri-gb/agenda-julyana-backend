@@ -1,6 +1,13 @@
 package br.com.agendajulyana.config;
 
 import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -20,13 +27,23 @@ public class OpenApiConfig {
                 .title("Agenda Julyana API")
                 .version("v1")
                 .description("API do sistema de agendamento da Agenda Julyana."))
+            .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
             .components(new Components()
                 .addSecuritySchemes("bearerAuth",
                     new SecurityScheme()
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
-                        .bearerFormat("JWT")))
-            .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                        .bearerFormat("JWT"))
+                .addSchemas("ApiErrorResponse", new ObjectSchema()
+                    .addProperty("timestamp", new StringSchema().format("date-time"))
+                    .addProperty("status", new Schema<Integer>().type("integer"))
+                    .addProperty("error", new StringSchema())
+                    .addProperty("code", new StringSchema())
+                    .addProperty("message", new StringSchema())
+                    .addProperty("path", new StringSchema())
+                    .addProperty("fieldErrors", new ObjectSchema()
+                        .additionalProperties(new StringSchema()))))
+
             .path("/oauth2/authorization/google", new PathItem()
                 .get(new Operation()
                     .summary("Entrar com Google")

@@ -22,7 +22,7 @@ class AgendamentoServiceTest {
  @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos;
  @Test void deveCriarReservaDe30Minutos(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var agora=OffsetDateTime.now().plusHours(1).withNano(0);
+  var agora=OffsetDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class)));
   var d=disponibilidades.findByDiaSemanaAndAtivoTrue((short)agora.getDayOfWeek().getValue()).get(0);
@@ -40,7 +40,7 @@ class AgendamentoServiceTest {
  }
  @Test void deveRecusarConflito(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var inicio=OffsetDateTime.now().plusHours(2);
+  var inicio=OffsetDateTime.now().plusDays(1).withHour(14).withMinute(0).withSecond(0).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
@@ -50,7 +50,7 @@ class AgendamentoServiceTest {
  }
  @Test void deveCobrarValorTotalQuandoModalidadeForPagamentoTotal(){
   var usuario=new Usuario("Cliente","total@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var inicio=OffsetDateTime.now().plusHours(2);
+  var inicio=OffsetDateTime.now().plusDays(1).withHour(14).withMinute(0).withSecond(0).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false); when(agendamentos.existeConflito(any(),any(),any())).thenReturn(false);

@@ -6,6 +6,7 @@ import br.com.agendajulyana.pagamento.service.PagamentoService;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -38,7 +39,10 @@ public class PagamentoController {
     ) {
         if (!"order".equalsIgnoreCase(type)
                 || !webhookValidator.isValid(signature, requestId, dataId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Webhook não autorizado."
+            );
         }
 
         pagamentos.processarWebhookOrder(dataId);
