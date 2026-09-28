@@ -9,7 +9,6 @@ import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderStatus;
-import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
@@ -169,11 +168,8 @@ class PagamentoServiceTest {
 
         when(mercadoPago.consultarOrder("ORDER-APROVADA"))
                 .thenReturn(new MercadoPagoOrderStatus(
-                        "ORDER-APROVADA",
-                        "processed",
-                        "processed",
-                        null,
-                        new BigDecimal("100.00")
+                        "ORDER-APROVADA", "processed", "processed", null,
+                        new BigDecimal("100.00"), null
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-APROVADA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
@@ -202,11 +198,8 @@ class PagamentoServiceTest {
 
         when(mercadoPago.consultarOrder("ORDER-TARDIA"))
                 .thenReturn(new MercadoPagoOrderStatus(
-                        "ORDER-TARDIA",
-                        "processed",
-                        "processed",
-                        null,
-                        new BigDecimal("100.00")
+                        "ORDER-TARDIA", "processed", "processed", null,
+                        new BigDecimal("100.00"), null
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-TARDIA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
@@ -222,10 +215,10 @@ class PagamentoServiceTest {
         assertEquals(new BigDecimal("100.00"), reembolso.getValue().getValor());
         assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO, reembolso.getValue().getStatus());
         assertEquals("REF-1", reembolso.getValue().getReferenciaExterna());
-        verify(mercadoPago).reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class));
+        verify(mercadoPago).reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
 
         service.processarWebhookOrder("ORDER-TARDIA");
-        verify(mercadoPago, times(1)).reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class));
+        verify(mercadoPago, times(1)).reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
     }
 
 }
