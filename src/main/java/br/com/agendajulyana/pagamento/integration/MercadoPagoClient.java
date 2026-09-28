@@ -108,6 +108,10 @@ public class MercadoPagoClient {
     public record MercadoPagoRefundResponse(
             String id,
             String status,
-            @JsonProperty("status_detail") String statusDetail
-    ) {}
+            @JsonProperty("status_detail") String statusDetail,
+            Transactions transactions
+    ) {
+        public record Transactions(java.util.List<Refund> refunds) {}
+        public record Refund(String id, @JsonProperty("transaction_id") String transactionId, BigDecimal amount, String status) {}
+    }
 }
