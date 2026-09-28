@@ -41,7 +41,7 @@ public class WhatsAppWebhookController {
 
     @PostMapping
     public ResponseEntity<Void> receberEvento(@RequestBody String payload) {
-        log.debug("Webhook WhatsApp recebido: {}", payload);
+        log.debug("Webhook WhatsApp recebido.");
         return ResponseEntity.ok().build();
     }
 }
