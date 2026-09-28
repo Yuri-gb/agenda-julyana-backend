@@ -56,7 +56,7 @@ class AgendamentoServiceTest {
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false); when(agendamentos.existeConflito(any(),any(),any())).thenReturn(false);
   var a=new Agendamento(cliente,servico,inicio,inicio.plusHours(1)); when(agendamentos.save(any())).thenReturn(a); when(reservas.save(any())).thenReturn(new ReservaTemporaria(a,OffsetDateTime.now()));
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL));
   assertEquals(PagamentoModalidade.PAGAMENTO_TOTAL,out.modalidadePagamento()); assertEquals(new BigDecimal("100.00"),out.valorPagamento());
   var captor=org.mockito.ArgumentCaptor.forClass(br.com.agendajulyana.pagamento.domain.Pagamento.class); verify(pagamentos).save(captor.capture()); assertEquals(PagamentoModalidade.PAGAMENTO_TOTAL,captor.getValue().getModalidade()); assertEquals(new BigDecimal("100.00"),captor.getValue().getValor());
