@@ -173,10 +173,7 @@ class PagamentoServiceTest {
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-APROVADA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
-        when(reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(any(), any())).thenReturn(Optional.empty());
-        when(reembolsos.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(mercadoPago.reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class)))
-                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse("ORDER-TARDIA", "processed", "refunded", new MercadoPagoClient.MercadoPagoRefundResponse.Transactions(java.util.List.of(new MercadoPagoClient.MercadoPagoRefundResponse.Refund("REF-1", null, new BigDecimal("100.00"), "processed")))));
+
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         service.processarWebhookOrder("ORDER-APROVADA");
@@ -203,6 +200,14 @@ class PagamentoServiceTest {
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-TARDIA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
+        when(reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(any(), any())).thenReturn(Optional.empty());
+        when(reembolsos.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(mercadoPago.reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class)))
+                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse(
+                        "REFUND-1", "processed", "refunded",
+                        new MercadoPagoClient.MercadoPagoRefundResponse.Transactions(
+                                java.util.List.of(new MercadoPagoClient.MercadoPagoRefundResponse.Refund(
+                                        "REF-1", null, new BigDecimal("100.00"), "processed")))));
 
         var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
         service.processarWebhookOrder("ORDER-TARDIA");
@@ -215,10 +220,10 @@ class PagamentoServiceTest {
         assertEquals(new BigDecimal("100.00"), reembolso.getValue().getValor());
         assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO, reembolso.getValue().getStatus());
         assertEquals("REF-1", reembolso.getValue().getReferenciaExterna());
-        verify(mercadoPago).reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
+        verify(mercadoPago).reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
 
         service.processarWebhookOrder("ORDER-TARDIA");
-        verify(mercadoPago, times(1)).reembolsarOrder(eq(null), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
+        verify(mercadoPago, times(1)).reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
     }
 
 }
