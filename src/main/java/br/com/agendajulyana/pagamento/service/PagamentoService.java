@@ -15,6 +15,8 @@ import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import br.com.agendajulyana.pagamento.domain.Reembolso;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 @Service
 public class PagamentoService {
+    private static final Logger log = LoggerFactory.getLogger(PagamentoService.class);
 
     private final AgendamentoRepository agendamentos;
     private final ReservaTemporariaRepository reservas;
@@ -100,6 +103,7 @@ public class PagamentoService {
 
     @Transactional
     public void processarWebhookOrder(String orderId) {
+        log.info("Webhook de pagamento recebido: orderId={}", orderId);
         var order = mercadoPago.consultarOrder(orderId);
         if (order == null || order.id() == null || !order.id().equals(orderId)) {
             throw new IllegalStateException("Order inválida.");
@@ -118,10 +122,14 @@ public class PagamentoService {
         switch (order.status()) {
             case "processed" -> processarAprovado(pagamento, agendamento, reserva, orderId);
             case "failed" -> {
-                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.recusar(orderId);
+                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) {
+                    pagamento.recusar(orderId);
+                    log.info("Pagamento recusado: orderId={}, pagamentoId={}", orderId, pagamento.getId());
+                }
             }
             case "canceled", "expired" -> {
                 if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.cancelar(orderId);
+                log.info("Order encerrada sem aprovação: orderId={}, status={}", orderId, order.status());
                 if (reserva != null && reserva.getStatus() == ReservaStatus.ATIVA) reserva.expirar();
                 if (agendamento.getStatus() == AgendamentoStatus.AGUARDANDO_PAGAMENTO) agendamento.cancelar();
             }
