@@ -49,6 +49,7 @@ public class VerificacaoTelefone {
     public int getTentativas() { return tentativas; }
     public OffsetDateTime getVerificadoEm() { return verificadoEm; }
     public OffsetDateTime getUtilizadoEm() { return utilizadoEm; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
     public void registrarTentativa() { tentativas++; }
     public void confirmar() {
         verificadoEm = OffsetDateTime.now();
