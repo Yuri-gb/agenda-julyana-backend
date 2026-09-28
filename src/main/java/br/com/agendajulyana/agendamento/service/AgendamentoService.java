@@ -68,7 +68,8 @@ public class AgendamentoService {
   var a=obter(id); a.cancelar();agendamentos.save(a); var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.ATENDENTE,req.motivo(),usuarioId));
   pagamentos.findByAgendamentoId(id).ifPresent(pagamento -> {
    var valorReembolso=pagamento.valorReembolsoPorCancelamento(true);
-   if(valorReembolso.signum()>0) pagamentoService.solicitarReembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente.");\n   if (emailService != null) emailService.cancelamento(a, pagamento);
+   if(valorReembolso.signum()>0) pagamentoService.solicitarReembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente.");
+   if (emailService != null) emailService.cancelamento(a, pagamento);
    log.info("Reembolso de cancelamento da profissional processado: agendamentoId={}, pagamentoId={}, valor={}", id, pagamento.getId(), valorReembolso);
   });
   auditar(usuarioId,"CANCELAR_ATENDENTE","AGENDAMENTO",id);
