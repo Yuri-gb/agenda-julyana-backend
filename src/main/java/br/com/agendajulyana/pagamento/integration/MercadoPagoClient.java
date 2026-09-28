@@ -1,6 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonProperty;\npackage br.com.agendajulyana.pagamento.integration;
+package br.com.agendajulyana.pagamento.integration;
 
 import br.com.agendajulyana.agendamento.domain.Agendamento;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
