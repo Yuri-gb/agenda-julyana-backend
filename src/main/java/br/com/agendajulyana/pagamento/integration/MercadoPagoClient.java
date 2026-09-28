@@ -81,14 +81,19 @@ public class MercadoPagoClient {
 
     record Payer(String email) {}
 
-    public MercadoPagoRefundResponse reembolsarOrder(String orderId, BigDecimal amount, UUID idempotencyKey) {
-        return client.post()
+    public MercadoPagoRefundResponse reembolsarOrder(String orderId, String transactionId, BigDecimal amount, boolean total, UUID idempotencyKey) {
+        var request = client.post()
                 .uri("/v1/orders/{id}/refund", orderId)
                 .header("X-Idempotency-Key", idempotencyKey.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new MercadoPagoRefundRequest(amount.toPlainString()))
-                .retrieve()
-                .body(MercadoPagoRefundResponse.class);
+                .contentType(MediaType.APPLICATION_JSON);
+
+        if (!total) {
+            request.body(new MercadoPagoRefundRequest(
+                    new MercadoPagoRefundTransaction[]{new MercadoPagoRefundTransaction(transactionId, amount.toPlainString())}
+            ));
+        }
+
+        return request.retrieve().body(MercadoPagoRefundResponse.class);
     }
 
     record Item(
@@ -98,7 +103,7 @@ public class MercadoPagoClient {
             String total_amount
     ) {}
 
-    record MercadoPagoRefundRequest(String amount) {}
+    record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}\n    record MercadoPagoRefundTransaction(String id, String amount) {}
 
     public record MercadoPagoRefundResponse(
             String id,
