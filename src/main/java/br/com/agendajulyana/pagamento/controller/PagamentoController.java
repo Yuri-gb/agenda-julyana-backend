@@ -3,6 +3,8 @@ package br.com.agendajulyana.pagamento.controller;
 import br.com.agendajulyana.pagamento.dto.CheckoutPagamentoResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoWebhookValidator;
 import br.com.agendajulyana.pagamento.service.PagamentoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,8 @@ public class PagamentoController {
     }
 
     @PostMapping("/agendamentos/{id}/pagamento/checkout")
+    @Operation(summary="Criar checkout de pagamento", tags={"Cliente — Pagamentos"})
+    @SecurityRequirement(name="bearerAuth")
     public ResponseEntity<CheckoutPagamentoResponse> criarCheckout(
             Authentication authentication,
             @PathVariable UUID id
@@ -30,6 +34,7 @@ public class PagamentoController {
     }
 
     @PostMapping("/webhooks/mercado-pago")
+    @Operation(summary="Receber atualização de pagamento", tags={"Integração — Mercado Pago"})
     public ResponseEntity<Void> receberWebhook(
             @RequestParam(name="data.id") String dataId,
             @RequestParam(name="type", required=false) String type,
