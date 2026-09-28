@@ -19,7 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {\n    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+public class GlobalExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ApiErrorResponse> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
         var status = ex.getStatusCode();
@@ -73,7 +74,9 @@ public class GlobalExceptionHandler {\n    private static final Logger log = Log
         return response(500, "Internal Server Error", "INTERNAL_SERVER_ERROR",
                 "Ocorreu um erro interno. Tente novamente.", request);
     }
-    private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request) {\n        if (status >= 500) log.error("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);\n        else if (status >= 400) log.warn("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);
+    private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request) {
+        if (status >= 500) log.error("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);
+        else if (status >= 400) log.warn("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);
         return ResponseEntity.status(status).body(new ApiErrorResponse(status, error, code, message, request.getRequestURI()));
     }
     private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request, Map<String,String> fields) {
