@@ -2,6 +2,8 @@ package br.com.agendajulyana.auth.controller;
 
 import br.com.agendajulyana.auth.service.EmailTesteService;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/test/emails")
+@Tag(name="Testes — E-mail", description="Endpoint técnico de teste de envio de e-mails, quando habilitado.")
 @ConditionalOnProperty(name = "app.email.test-endpoint.enabled", havingValue = "true")
 public class EmailTesteController {
     private final EmailTesteService emailTesteService;
@@ -20,6 +23,7 @@ public class EmailTesteController {
     }
 
     @PostMapping
+    @Operation(summary="Enviar e-mail de teste")
     public ResponseEntity<EmailTesteResponse> enviar(
             @Parameter(description = "Tipo de e-mail disponível para teste.")
             @RequestParam EmailTesteTipo tipo,
