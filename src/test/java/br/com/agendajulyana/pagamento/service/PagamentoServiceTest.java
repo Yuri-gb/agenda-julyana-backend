@@ -8,6 +8,7 @@ import br.com.agendajulyana.pagamento.domain.Pagamento;
 import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
+import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderStatus;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
@@ -166,11 +167,12 @@ class PagamentoServiceTest {
         var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
 
         when(mercadoPago.consultarOrder("ORDER-APROVADA"))
-                .thenReturn(new MercadoPagoOrderResponse(
+                .thenReturn(new MercadoPagoOrderStatus(
                         "ORDER-APROVADA",
-                        "https://mercadopago.test/checkout/aprovada",
                         "processed",
-                        "processed"
+                        "processed",
+                        null,
+                        new BigDecimal("100.00")
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-APROVADA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
@@ -194,11 +196,12 @@ class PagamentoServiceTest {
         var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
 
         when(mercadoPago.consultarOrder("ORDER-TARDIA"))
-                .thenReturn(new MercadoPagoOrderResponse(
+                .thenReturn(new MercadoPagoOrderStatus(
                         "ORDER-TARDIA",
-                        "https://mercadopago.test/checkout/tardia",
                         "processed",
-                        "processed"
+                        "processed",
+                        null,
+                        new BigDecimal("100.00")
                 ));
         when(pagamentos.findByReferenciaExterna("ORDER-TARDIA")).thenReturn(Optional.of(pagamento));
         when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
