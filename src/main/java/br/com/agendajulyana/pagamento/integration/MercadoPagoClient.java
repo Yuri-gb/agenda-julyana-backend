@@ -103,7 +103,8 @@ public class MercadoPagoClient {
             String total_amount
     ) {}
 
-    record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}\n    record MercadoPagoRefundTransaction(String id, String amount) {}
+    record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}
+    record MercadoPagoRefundTransaction(String id, String amount) {}
 
     public record MercadoPagoRefundResponse(
             String id,
