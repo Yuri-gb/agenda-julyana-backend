@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.client.RestClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler {\n    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ApiErrorResponse> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
         var status = ex.getStatusCode();
@@ -71,7 +73,7 @@ public class GlobalExceptionHandler {
         return response(500, "Internal Server Error", "INTERNAL_SERVER_ERROR",
                 "Ocorreu um erro interno. Tente novamente.", request);
     }
-    private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request) {
+    private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request) {\n        if (status >= 500) log.error("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);\n        else if (status >= 400) log.warn("Erro HTTP: status={}, code={}, path={}, message={}", status, code, request.getRequestURI(), message);
         return ResponseEntity.status(status).body(new ApiErrorResponse(status, error, code, message, request.getRequestURI()));
     }
     private ResponseEntity<ApiErrorResponse> response(int status, String error, String code, String message, HttpServletRequest request, Map<String,String> fields) {
