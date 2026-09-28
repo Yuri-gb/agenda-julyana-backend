@@ -170,15 +170,28 @@ public class PagamentoService {
         var reembolso = reembolsos.save(new Reembolso(pagamento, cancelamento, valor, motivo));
         try {
             reembolso.marcarProcessando();
+            boolean total = valor.compareTo(pagamento.getValor()) == 0;
+            String transactionId = null;
+            if (!total) {
+                var order = mercadoPago.consultarOrder(pagamento.getReferenciaExterna());
+                if (order == null || order.transactions() == null || order.transactions().payments() == null
+                        || order.transactions().payments().isEmpty()) {
+                    throw new IllegalStateException("Mercado Pago não retornou a transação da order.");
+                }
+                transactionId = order.transactions().payments().get(0).id();
+            }
             var refund = mercadoPago.reembolsarOrder(
                     pagamento.getReferenciaExterna(),
+                    transactionId,
                     valor,
+                    total,
                     reembolso.getId() != null ? reembolso.getId() : UUID.randomUUID()
             );
-            if (refund == null || refund.id() == null) {
+            if (refund == null || refund.transactions() == null || refund.transactions().refunds() == null
+                    || refund.transactions().refunds().isEmpty() || refund.transactions().refunds().get(0).id() == null) {
                 throw new IllegalStateException("Mercado Pago não confirmou o reembolso.");
             }
-            reembolso.concluir(refund.id());
+            reembolso.concluir(refund.transactions().refunds().get(0).id());
             return reembolsos.save(reembolso);
         } catch (RuntimeException ex) {
             reembolso.falhar();
