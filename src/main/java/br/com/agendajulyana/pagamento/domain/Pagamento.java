@@ -131,7 +131,7 @@ public class Pagamento {
         }
         return canceladoPelaProfissional
                 ? valor
-                : valor.divide(BigDecimal.valueOf(2), 2, java.math.RoundingMode.HALF_UP);
+                : valor.min(agendamento.getValorEntrada());
     }
 
     private void exigir(PagamentoStatus esperado) {
