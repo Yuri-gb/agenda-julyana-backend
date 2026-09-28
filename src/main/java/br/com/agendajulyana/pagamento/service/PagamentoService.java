@@ -150,12 +150,41 @@ public class PagamentoService {
             agendamento.cancelar();
         }
 
-        reembolsos.save(new Reembolso(
-                pagamento,
-                null,
-                pagamento.getValor(),
-                "Pagamento aprovado após expiração da reserva temporária."
-        ));
+        solicitarReembolso(pagamento, null, pagamento.getValor(),
+                "Pagamento aprovado após expiração da reserva temporária.");
+    }
+
+    @Transactional
+    public Reembolso solicitarReembolso(Pagamento pagamento,
+                                        br.com.agendajulyana.agendamento.domain.Cancelamento cancelamento,
+                                        java.math.BigDecimal valor,
+                                        String motivo) {
+        var ativos = java.util.List.of(
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.SOLICITADO,
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.PROCESSANDO,
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO
+        );
+        var existente = reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(pagamento.getId(), ativos);
+        if (existente.isPresent()) return existente.get();
+
+        var reembolso = reembolsos.save(new Reembolso(pagamento, cancelamento, valor, motivo));
+        try {
+            reembolso.marcarProcessando();
+            var refund = mercadoPago.reembolsarOrder(
+                    pagamento.getReferenciaExterna(),
+                    valor,
+                    reembolso.getId() != null ? reembolso.getId() : UUID.randomUUID()
+            );
+            if (refund == null || refund.id() == null) {
+                throw new IllegalStateException("Mercado Pago não confirmou o reembolso.");
+            }
+            reembolso.concluir(refund.id());
+            return reembolsos.save(reembolso);
+        } catch (RuntimeException ex) {
+            reembolso.falhar();
+            reembolsos.save(reembolso);
+            throw ex;
+        }
     }
 
     private CheckoutPagamentoResponse resposta(Pagamento pagamento) {
