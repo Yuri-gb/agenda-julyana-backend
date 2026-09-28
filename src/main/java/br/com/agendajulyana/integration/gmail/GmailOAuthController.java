@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/integrations/google/gmail")
 @ConditionalOnProperty(name = "app.gmail.authorization.enabled", havingValue = "true")
-@Tag(name = "Google Gmail", description = "Fluxo de autorização OAuth da conta Gmail usada como remetente.")
+@Tag(name = "Integração — Google Gmail", description = "Fluxo de autorização OAuth da conta Gmail usada como remetente.")
 public class GmailOAuthController {
 
     private final GmailOAuthService oauthService;
