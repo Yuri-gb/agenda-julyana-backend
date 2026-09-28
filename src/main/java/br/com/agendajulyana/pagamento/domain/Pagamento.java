@@ -84,6 +84,15 @@ public class Pagamento {
     public String getReferenciaExterna() { return referenciaExterna; }
     public String getCheckoutUrl() { return checkoutUrl; }
 
+    public void iniciarNovaTentativa() {
+        if (status != PagamentoStatus.RECUSADO) {
+            throw new IllegalStateException("Nova tentativa de pagamento só pode ser iniciada após uma recusa.");
+        }
+        this.status = PagamentoStatus.PENDENTE;
+        this.referenciaExterna = null;
+        this.checkoutUrl = null;
+    }
+
     public void registrarOrder(String referenciaExterna, String checkoutUrl) {
         exigir(PagamentoStatus.PENDENTE);
         if (referenciaExterna == null || referenciaExterna.isBlank()) {
