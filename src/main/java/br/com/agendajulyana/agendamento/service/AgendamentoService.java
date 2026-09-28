@@ -12,6 +12,7 @@ import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.domain.Reembolso;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
+import br.com.agendajulyana.pagamento.service.PagamentoService;
 import br.com.agendajulyana.servico.repository.ServicoRepository;
 import br.com.agendajulyana.auditoria.domain.Auditoria;
 import br.com.agendajulyana.auditoria.repository.AuditoriaRepository;
@@ -23,8 +24,8 @@ import java.time.*; import java.util.*;
 public class AgendamentoService {
  private final AgendamentoRepository agendamentos; private final ReservaTemporariaRepository reservas; private final ClienteRepository clientes; private final ServicoRepository servicos;
  private final DisponibilidadeRepository disponibilidades; private final BloqueioRepository bloqueios; private final IndisponibilidadeServicoRepository indisponibilidades; private final AuditoriaRepository auditorias;
- private final ReagendamentoRepository reagendamentos; private final CancelamentoRepository cancelamentos; private final PagamentoRepository pagamentos; private final ReembolsoRepository reembolsos;
- public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa,ReembolsoRepository rb){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;reembolsos=rb;}
+ private final ReagendamentoRepository reagendamentos; private final CancelamentoRepository cancelamentos; private final PagamentoRepository pagamentos; private final ReembolsoRepository reembolsos; private final PagamentoService pagamentoService;
+ public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa,ReembolsoRepository rb,PagamentoService ps){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;reembolsos=rb;pagamentoService=ps;}
  @Transactional public AgendamentoResponse criar(UUID usuarioId,CriarAgendamentoRequest req){
   Cliente cliente=clientes.findByUsuarioId(usuarioId).orElseThrow(()->new IllegalStateException("Perfil de cliente não encontrado."));
   var usuario=cliente.getUsuario();
@@ -55,13 +56,13 @@ public class AgendamentoService {
  }
  @Transactional public void cancelarCliente(UUID usuarioId,UUID id,CancelarAgendamentoRequest req){
   var a=obter(id); if(!a.getCliente().getUsuario().getId().equals(usuarioId))throw new IllegalStateException("Agendamento não pertence ao cliente.");
-  a.cancelar();agendamentos.save(a);cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,req.motivo(),usuarioId));auditar(usuarioId,"CANCELAR","AGENDAMENTO",id);
+  a.cancelar();agendamentos.save(a);var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,req.motivo(),usuarioId));pagamentos.findByAgendamentoId(id).ifPresent(p -> { var valor=p.valorReembolsoPorCancelamento(false); if(valor.signum()>0) pagamentoService.solicitarReembolso(p,cancelamento,valor,"Cancelamento realizado pelo cliente."); });auditar(usuarioId,"CANCELAR","AGENDAMENTO",id);
  }
  @Transactional public void cancelarAtendente(UUID usuarioId,UUID id,CancelarAgendamentoRequest req){
   var a=obter(id); a.cancelar();agendamentos.save(a); var cancelamento=cancelamentos.save(new Cancelamento(a,Cancelamento.OrigemCancelamento.ATENDENTE,req.motivo(),usuarioId));
   pagamentos.findByAgendamentoId(id).ifPresent(pagamento -> {
    var valorReembolso=pagamento.valorReembolsoPorCancelamento(true);
-   if(valorReembolso.signum()>0) reembolsos.save(new Reembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente."));
+   if(valorReembolso.signum()>0) pagamentoService.solicitarReembolso(pagamento,cancelamento,valorReembolso,"Cancelamento realizado pela profissional/atendente.");
   });
   auditar(usuarioId,"CANCELAR_ATENDENTE","AGENDAMENTO",id);
  }
