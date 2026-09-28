@@ -70,7 +70,9 @@ public class PagamentoService {
         var pagamento = pagamentos.findByAgendamentoId(agendamentoId)
                 .orElseThrow(() -> new IllegalStateException("Pagamento não encontrado."));
 
-        if (pagamento.getStatus() != PagamentoStatus.PENDENTE) {
+        if (pagamento.getStatus() == PagamentoStatus.RECUSADO) {
+            pagamento.iniciarNovaTentativa();
+        } else if (pagamento.getStatus() != PagamentoStatus.PENDENTE) {
             throw new IllegalStateException("O pagamento não está pendente.");
         }
 
