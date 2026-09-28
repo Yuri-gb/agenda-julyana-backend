@@ -223,6 +223,9 @@ class PagamentoServiceTest {
         assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO, reembolso.getValue().getStatus());
         assertEquals("REF-1", reembolso.getValue().getReferenciaExterna());
         verify(mercadoPago).reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class));
+
+        service.processarWebhookOrder("ORDER-TARDIA");
+        verify(mercadoPago, times(1)).reembolsarOrder(eq(null), eq(new BigDecimal("100.00")), any(UUID.class));
     }
 
 }
