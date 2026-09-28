@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import br.com.agendajulyana.auth.service.email.AgendaNotificationEmailService;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -32,6 +34,9 @@ public class PagamentoService {
     private final MercadoPagoClient mercadoPago;
     private final TentativaPagamentoRepository tentativas;
     private final ReembolsoRepository reembolsos;
+
+    @Autowired(required = false)
+    private AgendaNotificationEmailService emailService;
 
     public PagamentoService(
             AgendamentoRepository agendamentos,
@@ -178,6 +183,7 @@ public class PagamentoService {
         var reembolso = reembolsos.save(new Reembolso(pagamento, cancelamento, valor, motivo));
         try {
             reembolso.marcarProcessando();
+            if (emailService != null) emailService.reembolsoIniciado(pagamento.getAgendamento(), pagamento, valor);
             boolean total = valor.compareTo(pagamento.getValor()) == 0;
             String transactionId = null;
             if (!total) {
@@ -200,7 +206,9 @@ public class PagamentoService {
                 throw new IllegalStateException("Mercado Pago não confirmou o reembolso.");
             }
             reembolso.concluir(refund.transactions().refunds().get(0).id());
-            return reembolsos.save(reembolso);
+            var salvo = reembolsos.save(reembolso);
+            if (emailService != null) emailService.reembolsoConcluido(pagamento.getAgendamento(), pagamento, valor);
+            return salvo;
         } catch (RuntimeException ex) {
             reembolso.falhar();
             reembolsos.save(reembolso);
