@@ -117,4 +117,42 @@ class PagamentoServiceTest {
         assertThrows(IllegalStateException.class, () -> service.criarCheckout(outroId, id));
         verifyNoInteractions(mercadoPago);
     }
+    @Test
+    void devePermitirNovaTentativaQuandoPagamentoFoiRecusado() {
+        var usuarioId = UUID.randomUUID();
+        var usuario = mock(Usuario.class);
+        when(usuario.getId()).thenReturn(usuarioId);
+
+        var cliente = new Cliente(usuario);
+        var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
+        var inicio = OffsetDateTime.now().plusHours(2);
+        var agendamento = new Agendamento(cliente, servico, inicio, inicio.plusHours(1));
+        var reserva = new ReservaTemporaria(agendamento, OffsetDateTime.now());
+        var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
+        pagamento.recusar("ORDER-RECUSADA");
+
+        var id = UUID.randomUUID();
+        when(agendamentos.findById(id)).thenReturn(Optional.of(agendamento));
+        when(reservas.findByAgendamentoId(id)).thenReturn(Optional.of(reserva));
+        when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
+        when(mercadoPago.criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class)))
+                .thenReturn(new MercadoPagoOrderResponse(
+                        "ORDER-NOVA",
+                        "https://mercadopago.test/checkout/nova",
+                        "created",
+                        "created"
+                ));
+
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
+        var response = service.criarCheckout(usuarioId, id);
+
+        assertEquals(new BigDecimal("100.00"), response.valor());
+        assertEquals("ORDER-NOVA", response.orderId());
+        assertEquals("https://mercadopago.test/checkout/nova", response.checkoutUrl());
+        assertEquals(br.com.agendajulyana.pagamento.domain.PagamentoStatus.PENDENTE, pagamento.getStatus());
+        assertEquals("ORDER-NOVA", pagamento.getReferenciaExterna());
+        verify(mercadoPago).criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class));
+        verify(tentativas).save(any());
+    }
+
 }
