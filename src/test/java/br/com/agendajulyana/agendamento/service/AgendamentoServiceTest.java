@@ -69,7 +69,7 @@ class AgendamentoServiceTest {
   var cancelamento=new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,"motivo",usuario.getId()); when(cancelamentos.save(any())).thenReturn(cancelamento);
   var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   s.cancelarCliente(usuario.getId(),id,new CancelarAgendamentoRequest("motivo"));
-  verify(pagamentoService).solicitarReembolso(eq(pagamento),eq(cancelamento),eq(new BigDecimal("50.00")),eq("Cancelamento realizado pelo cliente."));
+  verify(pagamentoService).solicitarReembolso(eq(pagamento),eq(cancelamento),eq(new BigDecimal("100.00")),eq("Cancelamento realizado pelo cliente."));
  }
 
 }
