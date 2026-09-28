@@ -16,9 +16,9 @@ public class WhatsAppMessageClient {
     private final String apiVersion;
 
     public WhatsAppMessageClient(
-            @Value("${app.whatsapp.access-token:}") String accessToken,
-            @Value("${app.whatsapp.phone-number-id:}") String phoneNumberId,
-            @Value("${app.whatsapp.api-version:v23.0}") String apiVersion
+            @Value("${WHATSAPP_ACCESS_TOKEN:}") String accessToken,
+            @Value("${WHATSAPP_PHONE_NUMBER_ID:1282297904975456}") String phoneNumberId,
+            @Value("${WHATSAPP_API_VERSION:v26.0}") String apiVersion
     ) {
         this.accessToken = accessToken;
         this.phoneNumberId = phoneNumberId;
