@@ -1,0 +1,27 @@
+services:
+  wppconnect:
+    build:
+      context: .
+      dockerfile: docker/wppconnect/Dockerfile
+    container_name: agenda-julyana-wppconnect
+    restart: unless-stopped
+    ports:
+      - "21465:21465"
+    environment:
+      SECRET_KEY: ${WPP_CONNECT_SECRET_KEY:?Defina WPP_CONNECT_SECRET_KEY no .env}
+      PORT: 21465
+      MANAGER_ENABLED: "true"
+      WEBHOOK_URL: ${WPP_CONNECT_WEBHOOK_URL:-}
+    volumes:
+      - wppconnect_tokens:/usr/src/wpp-server/tokens
+      - wppconnect_user_data:/usr/src/wpp-server/userDataDir
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:21465/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  wppconnect_tokens:
+  wppconnect_user_data:
