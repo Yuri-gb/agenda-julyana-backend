@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feat/**"]
   pull_request:
     branches: [main]
 
@@ -13,7 +13,6 @@ jobs:
   test:
     name: Build e testes automatizados
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:17
@@ -28,7 +27,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     env:
       DB_URL: jdbc:postgresql://localhost:5432/agenda_julyana
       DB_USERNAME: postgres
@@ -38,17 +36,18 @@ jobs:
       GOOGLE_CLIENT_ID: test-client
       GOOGLE_CLIENT_SECRET: test-secret
       GOOGLE_FRONTEND_CALLBACK: http://localhost:5173/auth/callback
-
+      WHATSAPP_PROVIDER: wppconnect
+      WPP_CONNECT_BASE_URL: http://localhost:21465
+      WPP_CONNECT_TOKEN: test-token
+      WPP_CONNECT_SESSION: agenda-julyana
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-
       - name: Build e testes
         run: chmod +x mvnw && ./mvnw -B clean verify
