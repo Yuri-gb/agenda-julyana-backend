@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AuthController.class)
 @Import({
         SecurityConfig.class,
+        JwtAuthenticationFilter.class,
         ApiAuthenticationEntryPoint.class,
         ApiAccessDeniedHandler.class
 })
@@ -36,7 +37,10 @@ class SecurityConfigTest {
     private AuthService authService;
 
     @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtService jwtService;
+
+    @MockitoBean
+    private br.com.agendajulyana.auth.repository.UsuarioRepository usuarioRepository;
 
     @MockitoBean
     private GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler;
