@@ -5,8 +5,7 @@ import br.com.agendajulyana.auth.domain.VerificacaoTelefone;
 import br.com.agendajulyana.auth.dto.MeResponse;
 import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import br.com.agendajulyana.auth.repository.VerificacaoTelefoneRepository;
-import br.com.agendajulyana.integration.whatsapp.WhatsAppMessageClient;
-import org.springframework.beans.factory.annotation.Value;
+import br.com.agendajulyana.integration.whatsapp.WhatsAppMessageSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,7 @@ public class VerificacaoTelefoneService {
 
     private final UsuarioRepository usuarios;
     private final VerificacaoTelefoneRepository verificacoes;
-    private final WhatsAppMessageClient whatsapp;
+    private final WhatsAppMessageSender whatsapp;
     private final SecureRandom random = new SecureRandom();
     private final String templateName;
     private final String templateLanguage;
@@ -34,9 +33,7 @@ public class VerificacaoTelefoneService {
     public VerificacaoTelefoneService(
             UsuarioRepository usuarios,
             VerificacaoTelefoneRepository verificacoes,
-            WhatsAppMessageClient whatsapp,
-            @Value("${WHATSAPP_VERIFICATION_TEMPLATE_NAME:verificacao_telefone}") String templateName,
-            @Value("${WHATSAPP_VERIFICATION_TEMPLATE_LANGUAGE:pt_BR}") String templateLanguage
+            WhatsAppMessageSender whatsapp
     ) {
         this.usuarios = usuarios;
         this.verificacoes = verificacoes;
@@ -74,7 +71,7 @@ public class VerificacaoTelefoneService {
         );
         verificacoes.save(verificacao);
 
-        whatsapp.sendTemplate(novoTelefone, templateName, templateLanguage, codigo);
+        whatsapp.sendVerificationCode(novoTelefone, codigo);
     }
 
     @Transactional
