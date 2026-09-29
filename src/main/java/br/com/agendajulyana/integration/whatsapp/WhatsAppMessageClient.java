@@ -1,6 +1,7 @@
 package br.com.agendajulyana.integration.whatsapp;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -26,6 +27,11 @@ public class WhatsAppMessageClient {
         this.client = RestClient.builder()
                 .baseUrl("https://graph.facebook.com/" + apiVersion)
                 .build();
+    }
+
+    @Override
+    public void sendVerificationCode(String telefone, String codigo) {
+        sendTemplate(telefone, templateName, templateLanguage, codigo);
     }
 
     public void sendTemplate(String telefone, String templateName, String languageCode, String... bodyParameters) {
