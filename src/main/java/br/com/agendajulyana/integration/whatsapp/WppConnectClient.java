@@ -1,5 +1,6 @@
 package br.com.agendajulyana.integration.whatsapp;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ public class WppConnectClient implements WhatsAppMessageSender {
     private final String token;
     private final String session;
 
+    @Autowired
     public WppConnectClient(
             @Value("${app.whatsapp.wppconnect.base-url:http://localhost:21465}") String baseUrl,
             @Value("${app.whatsapp.wppconnect.token:}") String token,
