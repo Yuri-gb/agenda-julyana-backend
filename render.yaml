@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: agenda-julyana-wppconnect
+    runtime: docker
+    region: oregon
+    plan: 1c-2g
+    dockerfilePath: ./docker/wppconnect/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PORT
+        value: "21465"
+      - key: MANAGER_ENABLED
+        value: "true"
+      - key: WEBHOOK_URL
+        sync: false
+      - key: CUSTOM_USER_DATA_DIR
+        value: /usr/src/wpp-server/userDataDir/
+    disk:
+      name: wppconnect-data
+      mountPath: /usr/src/wpp-server
+      sizeGB: 5
