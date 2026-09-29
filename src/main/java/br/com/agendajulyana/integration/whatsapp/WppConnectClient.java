@@ -22,14 +22,14 @@ public class WppConnectClient implements WhatsAppMessageSender {
             @Value("${app.whatsapp.wppconnect.session:agenda-julyana}") String session
     ) {
         this(
-                RestClient.builder().baseUrl(normalizeBaseUrl(baseUrl)).build(),
+                RestClient.builder().baseUrl(normalizeBaseUrl(baseUrl)),
                 token,
                 session
         );
     }
 
-    WppConnectClient(RestClient client, String token, String session) {
-        this.client = client;
+    WppConnectClient(RestClient.Builder clientBuilder, String token, String session) {
+        this.client = clientBuilder.build();
         this.token = token;
         this.session = session;
     }
