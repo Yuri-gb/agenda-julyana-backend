@@ -27,8 +27,6 @@ public class VerificacaoTelefoneService {
     private final VerificacaoTelefoneRepository verificacoes;
     private final WhatsAppMessageSender whatsapp;
     private final SecureRandom random = new SecureRandom();
-    private final String templateName;
-    private final String templateLanguage;
 
     public VerificacaoTelefoneService(
             UsuarioRepository usuarios,
@@ -38,8 +36,6 @@ public class VerificacaoTelefoneService {
         this.usuarios = usuarios;
         this.verificacoes = verificacoes;
         this.whatsapp = whatsapp;
-        this.templateName = templateName;
-        this.templateLanguage = templateLanguage;
     }
 
     @Transactional
