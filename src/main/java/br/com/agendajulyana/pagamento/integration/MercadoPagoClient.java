@@ -1,6 +1,7 @@
 package br.com.agendajulyana.pagamento.integration;
 
 import br.com.agendajulyana.agendamento.domain.Agendamento;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -80,10 +81,38 @@ public class MercadoPagoClient {
 
     record Payer(String email) {}
 
+    public MercadoPagoRefundResponse reembolsarOrder(String orderId, String transactionId, BigDecimal amount, boolean total, UUID idempotencyKey) {
+        var request = client.post()
+                .uri("/v1/orders/{id}/refund", orderId)
+                .header("X-Idempotency-Key", idempotencyKey.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        if (!total) {
+            request.body(new MercadoPagoRefundRequest(
+                    new MercadoPagoRefundTransaction[]{new MercadoPagoRefundTransaction(transactionId, amount.toPlainString())}
+            ));
+        }
+
+        return request.retrieve().body(MercadoPagoRefundResponse.class);
+    }
+
     record Item(
             String title,
             String unit_price,
             int quantity,
             String total_amount
     ) {}
+
+    record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}
+    record MercadoPagoRefundTransaction(String id, String amount) {}
+
+    public record MercadoPagoRefundResponse(
+            String id,
+            String status,
+            @JsonProperty("status_detail") String statusDetail,
+            Transactions transactions
+    ) {
+        public record Transactions(java.util.List<Refund> refunds) {}
+        public record Refund(String id, @JsonProperty("transaction_id") String transactionId, BigDecimal amount, String status) {}
+    }
 }

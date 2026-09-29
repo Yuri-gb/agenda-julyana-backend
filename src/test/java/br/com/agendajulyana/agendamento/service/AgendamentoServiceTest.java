@@ -11,6 +11,7 @@ import br.com.agendajulyana.servico.domain.*;
 import br.com.agendajulyana.servico.repository.ServicoRepository;
 import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
+import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.*;
 import java.math.BigDecimal; import java.time.*; import java.util.*;
 import static org.junit.jupiter.api.Assertions.*; import static org.mockito.Mockito.*;
@@ -19,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.*; import static org.mockito.Mock
 class AgendamentoServiceTest {
  @Mock AgendamentoRepository agendamentos; @Mock ReservaTemporariaRepository reservas; @Mock ClienteRepository clientes; @Mock ServicoRepository servicos;
  @Mock DisponibilidadeRepository disponibilidades; @Mock BloqueioRepository bloqueios; @Mock IndisponibilidadeServicoRepository indisponibilidades; @Mock AuditoriaRepository auditorias;
- @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos;
+ @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos; @Mock ReembolsoRepository reembolsos; @Mock br.com.agendajulyana.pagamento.service.PagamentoService pagamentoService;
  @Test void deveCriarReservaDe30Minutos(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var agora=OffsetDateTime.now().plusHours(1).withNano(0);
+  var agora=OffsetDateTime.of(2026,10,5,10,0,0,0,ZoneOffset.of("-03:00"));
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class)));
   var d=disponibilidades.findByDiaSemanaAndAtivoTrue((short)agora.getDayOfWeek().getValue()).get(0);
@@ -31,7 +32,7 @@ class AgendamentoServiceTest {
   when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
   var a=new Agendamento(cliente,servico,agora,agora.plusHours(1)); when(agendamentos.save(any())).thenReturn(a);
   var r=new ReservaTemporaria(a,OffsetDateTime.now()); when(reservas.save(any())).thenReturn(r);
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),agora,PagamentoModalidade.ENTRADA));
   assertEquals("AGUARDANDO_PAGAMENTO",out.status()); assertNotNull(out.reservaExpiraEm()); assertEquals(PagamentoModalidade.ENTRADA,out.modalidadePagamento()); assertEquals(new BigDecimal("50.00"),out.valorPagamento()); verify(pagamentos).save(any());
   var reservaSalva=org.mockito.ArgumentCaptor.forClass(ReservaTemporaria.class);
@@ -40,12 +41,12 @@ class AgendamentoServiceTest {
  }
  @Test void deveRecusarConflito(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var inicio=OffsetDateTime.now().plusHours(2);
+  var inicio=OffsetDateTime.of(2026,10,5,10,0,0,0,ZoneOffset.of("-03:00"));
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
   when(agendamentos.existeConflito(any(),any(),any())).thenReturn(true);
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   assertThrows(IllegalStateException.class,()->s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL)));
  }
  @Test void deveCobrarValorTotalQuandoModalidadeForPagamentoTotal(){
@@ -55,9 +56,20 @@ class AgendamentoServiceTest {
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false); when(agendamentos.existeConflito(any(),any(),any())).thenReturn(false);
   var a=new Agendamento(cliente,servico,inicio,inicio.plusHours(1)); when(agendamentos.save(any())).thenReturn(a); when(reservas.save(any())).thenReturn(new ReservaTemporaria(a,OffsetDateTime.now()));
-  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL));
   assertEquals(PagamentoModalidade.PAGAMENTO_TOTAL,out.modalidadePagamento()); assertEquals(new BigDecimal("100.00"),out.valorPagamento());
   var captor=org.mockito.ArgumentCaptor.forClass(br.com.agendajulyana.pagamento.domain.Pagamento.class); verify(pagamentos).save(captor.capture()); assertEquals(PagamentoModalidade.PAGAMENTO_TOTAL,captor.getValue().getModalidade()); assertEquals(new BigDecimal("100.00"),captor.getValue().getValor());
  }
+ @Test void deveSolicitarReembolsoDeMetadeDaEntradaNoCancelamentoDoCliente(){
+  var usuario=mock(Usuario.class); var usuarioId=UUID.randomUUID(); when(usuario.getId()).thenReturn(usuarioId); var cliente=new Cliente(usuario);
+  var servico=new Servico("Teste","x",60,new BigDecimal("200.00"),null); var inicio=OffsetDateTime.now().plusHours(2);
+  var a=new Agendamento(cliente,servico,inicio,inicio.plusHours(1)); var pagamento=new br.com.agendajulyana.pagamento.domain.Pagamento(a,PagamentoModalidade.ENTRADA); pagamento.aprovar("ORDER-1");
+  var id=UUID.randomUUID(); when(agendamentos.findById(id)).thenReturn(Optional.of(a)); when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
+  var cancelamento=new Cancelamento(a,Cancelamento.OrigemCancelamento.CLIENTE,"motivo",usuario.getId()); when(cancelamentos.save(any())).thenReturn(cancelamento);
+  var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
+  s.cancelarCliente(usuarioId,id,new CancelarAgendamentoRequest("motivo"));
+  verify(pagamentoService).solicitarReembolso(eq(pagamento),eq(cancelamento),eq(new BigDecimal("100.00")),eq("Cancelamento realizado pelo cliente."));
+ }
+
 }

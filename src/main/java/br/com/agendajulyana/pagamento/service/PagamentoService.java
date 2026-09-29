@@ -15,13 +15,18 @@ import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
 import br.com.agendajulyana.pagamento.domain.Reembolso;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import br.com.agendajulyana.auth.service.email.AgendaNotificationEmailService;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
 public class PagamentoService {
+    private static final Logger log = LoggerFactory.getLogger(PagamentoService.class);
 
     private final AgendamentoRepository agendamentos;
     private final ReservaTemporariaRepository reservas;
@@ -29,6 +34,9 @@ public class PagamentoService {
     private final MercadoPagoClient mercadoPago;
     private final TentativaPagamentoRepository tentativas;
     private final ReembolsoRepository reembolsos;
+
+    @Autowired(required = false)
+    private AgendaNotificationEmailService emailService;
 
     public PagamentoService(
             AgendamentoRepository agendamentos,
@@ -70,7 +78,9 @@ public class PagamentoService {
         var pagamento = pagamentos.findByAgendamentoId(agendamentoId)
                 .orElseThrow(() -> new IllegalStateException("Pagamento não encontrado."));
 
-        if (pagamento.getStatus() != PagamentoStatus.PENDENTE) {
+        if (pagamento.getStatus() == PagamentoStatus.RECUSADO) {
+            pagamento.iniciarNovaTentativa();
+        } else if (pagamento.getStatus() != PagamentoStatus.PENDENTE) {
             throw new IllegalStateException("O pagamento não está pendente.");
         }
 
@@ -98,6 +108,7 @@ public class PagamentoService {
 
     @Transactional
     public void processarWebhookOrder(String orderId) {
+        log.info("Webhook de pagamento recebido: orderId={}", orderId);
         var order = mercadoPago.consultarOrder(orderId);
         if (order == null || order.id() == null || !order.id().equals(orderId)) {
             throw new IllegalStateException("Order inválida.");
@@ -116,10 +127,14 @@ public class PagamentoService {
         switch (order.status()) {
             case "processed" -> processarAprovado(pagamento, agendamento, reserva, orderId);
             case "failed" -> {
-                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.recusar(orderId);
+                if (pagamento.getStatus() == PagamentoStatus.PENDENTE) {
+                    pagamento.recusar(orderId);
+                    log.info("Pagamento recusado: orderId={}, pagamentoId={}", orderId, pagamento.getId());
+                }
             }
             case "canceled", "expired" -> {
                 if (pagamento.getStatus() == PagamentoStatus.PENDENTE) pagamento.cancelar(orderId);
+                log.info("Order encerrada sem aprovação: orderId={}, status={}", orderId, order.status());
                 if (reserva != null && reserva.getStatus() == ReservaStatus.ATIVA) reserva.expirar();
                 if (agendamento.getStatus() == AgendamentoStatus.AGUARDANDO_PAGAMENTO) agendamento.cancelar();
             }
@@ -148,12 +163,57 @@ public class PagamentoService {
             agendamento.cancelar();
         }
 
-        reembolsos.save(new Reembolso(
-                pagamento,
-                null,
-                pagamento.getValor(),
-                "Pagamento aprovado após expiração da reserva temporária."
-        ));
+        solicitarReembolso(pagamento, null, pagamento.getValor(),
+                "Pagamento aprovado após expiração da reserva temporária.");
+    }
+
+    @Transactional
+    public Reembolso solicitarReembolso(Pagamento pagamento,
+                                        br.com.agendajulyana.agendamento.domain.Cancelamento cancelamento,
+                                        java.math.BigDecimal valor,
+                                        String motivo) {
+        var ativos = java.util.List.of(
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.SOLICITADO,
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.PROCESSANDO,
+                br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO
+        );
+        var existente = reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(pagamento.getId(), ativos);
+        if (existente.isPresent()) return existente.get();
+
+        var reembolso = reembolsos.save(new Reembolso(pagamento, cancelamento, valor, motivo));
+        try {
+            reembolso.marcarProcessando();
+            if (emailService != null) emailService.reembolsoIniciado(pagamento.getAgendamento(), pagamento, valor);
+            boolean total = valor.compareTo(pagamento.getValor()) == 0;
+            String transactionId = null;
+            if (!total) {
+                var order = mercadoPago.consultarOrder(pagamento.getReferenciaExterna());
+                if (order == null || order.transactions() == null || order.transactions().payments() == null
+                        || order.transactions().payments().isEmpty()) {
+                    throw new IllegalStateException("Mercado Pago não retornou a transação da order.");
+                }
+                transactionId = order.transactions().payments().get(0).id();
+            }
+            var refund = mercadoPago.reembolsarOrder(
+                    pagamento.getReferenciaExterna(),
+                    transactionId,
+                    valor,
+                    total,
+                    reembolso.getId() != null ? reembolso.getId() : UUID.randomUUID()
+            );
+            if (refund == null || refund.transactions() == null || refund.transactions().refunds() == null
+                    || refund.transactions().refunds().isEmpty() || refund.transactions().refunds().get(0).id() == null) {
+                throw new IllegalStateException("Mercado Pago não confirmou o reembolso.");
+            }
+            reembolso.concluir(refund.transactions().refunds().get(0).id());
+            var salvo = reembolsos.save(reembolso);
+            if (emailService != null) emailService.reembolsoConcluido(pagamento.getAgendamento(), pagamento, valor);
+            return salvo;
+        } catch (RuntimeException ex) {
+            reembolso.falhar();
+            reembolsos.save(reembolso);
+            throw ex;
+        }
     }
 
     private CheckoutPagamentoResponse resposta(Pagamento pagamento) {
