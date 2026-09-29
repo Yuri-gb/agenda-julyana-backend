@@ -22,7 +22,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
+@Import({
+        SecurityConfig.class,
+        ApiAuthenticationEntryPoint.class,
+        ApiAccessDeniedHandler.class
+})
 class SecurityConfigTest {
 
     @Autowired
@@ -36,12 +40,6 @@ class SecurityConfigTest {
 
     @MockitoBean
     private GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler;
-
-    @MockitoBean
-    private ApiAuthenticationEntryPoint authenticationEntryPoint;
-
-    @MockitoBean
-    private ApiAccessDeniedHandler accessDeniedHandler;
 
     @Test
     void endpointMeDeveExigirAutenticacao() throws Exception {
