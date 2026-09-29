@@ -10,20 +10,27 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class WhatsAppMessageClient {
+@ConditionalOnProperty(name = "app.whatsapp.provider", havingValue = "meta")
+public class WhatsAppMessageClient implements WhatsAppMessageSender {
     private final RestClient client;
     private final String accessToken;
     private final String phoneNumberId;
     private final String apiVersion;
+    private final String templateName;
+    private final String templateLanguage;
 
     public WhatsAppMessageClient(
             @Value("${WHATSAPP_ACCESS_TOKEN:}") String accessToken,
             @Value("${WHATSAPP_PHONE_NUMBER_ID:1282297904975456}") String phoneNumberId,
-            @Value("${WHATSAPP_API_VERSION:v26.0}") String apiVersion
+            @Value("${WHATSAPP_API_VERSION:v26.0}") String apiVersion,
+            @Value("${WHATSAPP_TEMPLATE_NAME:}") String templateName,
+            @Value("${WHATSAPP_TEMPLATE_LANGUAGE:pt_BR}") String templateLanguage
     ) {
         this.accessToken = accessToken;
         this.phoneNumberId = phoneNumberId;
         this.apiVersion = apiVersion;
+        this.templateName = templateName;
+        this.templateLanguage = templateLanguage;
         this.client = RestClient.builder()
                 .baseUrl("https://graph.facebook.com/" + apiVersion)
                 .build();
