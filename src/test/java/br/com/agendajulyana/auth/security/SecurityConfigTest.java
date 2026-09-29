@@ -31,16 +31,16 @@ class SecurityConfigTest {
     @MockitoBean
     private AuthService authService;
 
-    @MockBean
+    @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @MockBean
+    @MockitoBean
     private GoogleAuthenticationSuccessHandler googleAuthenticationSuccessHandler;
 
-    @MockBean
+    @MockitoBean
     private ApiAuthenticationEntryPoint authenticationEntryPoint;
 
-    @MockBean
+    @MockitoBean
     private ApiAccessDeniedHandler accessDeniedHandler;
 
     @Test
