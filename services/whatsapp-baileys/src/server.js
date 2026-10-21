@@ -18,7 +18,7 @@ const openApiSpec = {
   info: {
     title: 'Agenda Julyana — WhatsApp Gateway',
     version: '1.0.0',
-    description: 'API para verificar a sessão do WhatsApp, obter QR Code e testar envio de mensagens.'
+    description: 'API para verificar a sessão do WhatsApp, obter QR Code e testar envio de mensagens.\\n\\nPara visualizar e escanear o QR Code como imagem, abra o [Visualizador de QR Code](/qr-viewer) ou acesse https://agenda-julyana-backend-1.onrender.com/qr-viewer.'
   },
   servers: [{ url: '/' }],
   components: {
