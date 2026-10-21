@@ -49,15 +49,16 @@ public class VerificacaoTelefoneService {
         }
 
         var agora = OffsetDateTime.now(ZoneOffset.UTC);
-        verificacoes.findTopByUsuarioIdAndUtilizadoEmIsNullOrderByCriadoEmDesc(usuario.getId())
-                .filter(v -> v.getCriadoEm().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora))
-                .ifPresent(v -> { throw new IllegalStateException("Aguarde antes de solicitar um novo código."); });
+        var verificacaoAnterior = verificacoes
+                .findTopByUsuarioIdAndUtilizadoEmIsNullOrderByCriadoEmDesc(usuario.getId())
+                .orElse(null);
+        if (verificacaoAnterior != null &&
+                verificacaoAnterior.getCriadoEm().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)) {
+            throw new IllegalStateException("Aguarde antes de solicitar um novo código.");
+        }
 
         usuario.atualizarDados(null, novoTelefone);
         usuarios.save(usuario);
-
-        verificacoes.findTopByUsuarioIdAndUtilizadoEmIsNullOrderByCriadoEmDesc(usuario.getId())
-                .ifPresent(VerificacaoTelefone::invalidar);
 
         String codigo = gerarCodigo();
         var verificacao = new VerificacaoTelefone(
@@ -67,7 +68,15 @@ public class VerificacaoTelefoneService {
         );
         verificacoes.save(verificacao);
 
+        // The method is transactional: if the gateway fails, the runtime
+        // exception rolls back the new code and phone update. Keep the prior
+        // code intact until delivery succeeds, so a failed send doesn't leave
+        // the account blocked by a cooldown for a code never delivered.
         whatsapp.sendVerificationCode(novoTelefone, codigo);
+
+        if (verificacaoAnterior != null) {
+            verificacaoAnterior.invalidar();
+        }
     }
 
     @Transactional
