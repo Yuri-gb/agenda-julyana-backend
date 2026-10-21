@@ -1,24 +1,21 @@
 services:
   - type: web
-    name: agenda-julyana-wppconnect
-    runtime: docker
+    name: agenda-julyana-whatsapp-baileys
+    runtime: node
     region: oregon
-    plan: 1c-2g
-    dockerfilePath: ./docker/wppconnect/Dockerfile
-    dockerContext: .
-    healthCheckPath: /healthz
+    plan: starter
+    rootDir: services/whatsapp-baileys
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
     envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: PORT
-        value: "21465"
-      - key: MANAGER_ENABLED
-        value: "true"
-      - key: WEBHOOK_URL
+      - key: API_TOKEN
         sync: false
-      - key: CUSTOM_USER_DATA_DIR
-        value: /usr/src/wpp-server/userDataDir/
+      - key: AUTH_DIR
+        value: /var/data/auth_info
+      - key: LOG_LEVEL
+        value: info
     disk:
-      name: wppconnect-data
-      mountPath: /usr/src/wpp-server
-      sizeGB: 5
+      name: whatsapp-baileys-data
+      mountPath: /var/data
+      sizeGB: 1
