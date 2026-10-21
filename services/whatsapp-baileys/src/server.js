@@ -3,6 +3,8 @@ import QRCode from 'qrcode';
 import pino from 'pino';
 import swaggerUi from 'swagger-ui-express';
 import * as baileys from '@whiskeysockets/baileys';
+import { Pool } from 'pg';
+import { usePostgresAuthState } from './postgres-auth-state.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -128,6 +130,18 @@ app.use(express.json({ limit: '1mb' }));
 const PORT = Number(process.env.PORT || 3000);
 const API_TOKEN = process.env.API_TOKEN || '';
 const AUTH_DIR = process.env.AUTH_DIR || '/var/data/auth_info';
+const AUTH_STORAGE = (process.env.AUTH_STORAGE || (process.env.DATABASE_URL ? 'postgres' : 'filesystem')).toLowerCase();
+const AUTH_SESSION_ID = process.env.AUTH_SESSION_ID || 'agenda-julyana';
+const pool = AUTH_STORAGE === 'postgres' && process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 3,
+      connectionTimeoutMillis: 10000,
+      ...(process.env.PGSSL_REJECT_UNAUTHORIZED === 'false'
+        ? { ssl: { rejectUnauthorized: false } }
+        : {})
+    })
+  : null;
 const WEBHOOK_URL = process.env.WEBHOOK_URL || '';
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || '';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
@@ -142,6 +156,14 @@ let isStarting = false;
 
 if (!API_TOKEN) {
   logger.error('API_TOKEN não foi definido; encerrando para não expor a API.');
+  process.exit(1);
+}
+if (!['postgres', 'filesystem'].includes(AUTH_STORAGE)) {
+  logger.error({ authStorage: AUTH_STORAGE }, 'AUTH_STORAGE inválido; use postgres ou filesystem.');
+  process.exit(1);
+}
+if (AUTH_STORAGE === 'postgres' && !pool) {
+  logger.error('AUTH_STORAGE=postgres exige DATABASE_URL.');
   process.exit(1);
 }
 
@@ -187,8 +209,17 @@ async function startSocket() {
   isStarting = true;
   connection = 'connecting';
   try {
-    await fs.mkdir(AUTH_DIR, { recursive: true });
-    const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+    let state;
+    let saveCreds;
+    if (AUTH_STORAGE === 'postgres') {
+      await pool.query('SELECT 1');
+      ({ state, saveCreds } = await usePostgresAuthState(pool, AUTH_SESSION_ID));
+      logger.info({ authStorage: 'postgres', sessionId: AUTH_SESSION_ID }, 'Persistência PostgreSQL preparada');
+    } else {
+      await fs.mkdir(AUTH_DIR, { recursive: true });
+      ({ state, saveCreds } = await useMultiFileAuthState(AUTH_DIR));
+      logger.warn({ authDir: AUTH_DIR }, 'Usando persistência local; a sessão pode ser perdida em novos deploys');
+    }
     let version;
     try {
       ({ version } = await fetchLatestBaileysVersion());
@@ -367,7 +398,12 @@ app.post('/v1/session/logout', async (_req, res) => {
     connection = 'close';
     qrText = null;
     qrDataUrl = null;
-    await fs.rm(AUTH_DIR, { recursive: true, force: true });
+    if (AUTH_STORAGE === 'postgres') {
+      const authState = await usePostgresAuthState(pool, AUTH_SESSION_ID);
+      await authState.clear();
+    } else {
+      await fs.rm(AUTH_DIR, { recursive: true, force: true });
+    }
     res.json({ status: 'LOGGED_OUT' });
   } catch (error) {
     logger.error({ error: error.message }, 'Falha ao encerrar sessão');
@@ -389,7 +425,10 @@ async function shutdown() {
   logger.info('Encerrando gateway');
   clearTimeout(reconnectTimer);
   try { sock?.end(undefined); } catch {}
-  server.close(() => process.exit(0));
+  server.close(async () => {
+    try { await pool?.end(); } catch {}
+    process.exit(0);
+  });
   setTimeout(() => process.exit(0), 5000).unref();
 }
 process.on('SIGTERM', shutdown);
