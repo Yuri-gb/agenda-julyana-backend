@@ -38,11 +38,20 @@ public class BaileysMessageClient implements WhatsAppMessageSender {
                 .header("Authorization", "Bearer " + apiToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of(
-                        "phone", telefone,
+                        "phone", normalizePhone(telefone),
                         "message", "Seu código de verificação é: " + codigo
                 ))
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    private static String normalizePhone(String telefone) {
+        String digits = telefone.replaceAll("\\D", "");
+        // Números brasileiros locais (DDD + número) precisam do DDI 55 no gateway.
+        if (digits.length() == 10 || digits.length() == 11) {
+            return "55" + digits;
+        }
+        return digits;
     }
 
     private static String normalizeBaseUrl(String baseUrl) {
