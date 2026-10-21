@@ -131,7 +131,15 @@ const PORT = Number(process.env.PORT || 3000);
 const API_TOKEN = process.env.API_TOKEN || '';
 const AUTH_DIR = process.env.AUTH_DIR || '/var/data/auth_info';
 const rawDatabaseUrl = process.env.DATABASE_URL || process.env.DB_URL || '';
-const databaseUrl = rawDatabaseUrl ? rawDatabaseUrl.replace(/^jdbc:/i, '') : '';
+function buildDatabaseUrl(raw) {
+  if (!raw) return '';
+  const normalized = raw.replace(/^jdbc:/i, '');
+  const parsed = new URL(normalized);
+  if (!parsed.username && process.env.DB_USERNAME) parsed.username = process.env.DB_USERNAME;
+  if (!parsed.password && process.env.DB_PASSWORD) parsed.password = process.env.DB_PASSWORD;
+  return parsed.toString();
+}
+const databaseUrl = buildDatabaseUrl(rawDatabaseUrl);
 const AUTH_STORAGE = (process.env.AUTH_STORAGE || (databaseUrl ? 'postgres' : 'filesystem')).toLowerCase();
 const AUTH_SESSION_ID = process.env.AUTH_SESSION_ID || 'agenda-julyana';
 const pool = AUTH_STORAGE === 'postgres' && databaseUrl
