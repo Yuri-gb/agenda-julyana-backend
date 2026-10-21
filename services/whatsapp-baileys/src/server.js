@@ -181,8 +181,11 @@ function normalizePhone(value) {
 }
 
 async function startSocket() {
-  if (isStarting || (sock && connection === 'open')) return;
+  // A socket in the handshake phase is already a live attempt. Never create a
+  // second socket while it is connecting, or WhatsApp may replace the session.
+  if (isStarting || (sock && (connection === 'open' || connection === 'connecting'))) return;
   isStarting = true;
+  connection = 'connecting';
   try {
     await fs.mkdir(AUTH_DIR, { recursive: true });
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
@@ -193,7 +196,7 @@ async function startSocket() {
       logger.warn({ error: error.message }, 'Não foi possível buscar a versão mais recente; usando versão padrão da biblioteca');
     }
 
-    sock = makeWASocket({
+    const socket = makeWASocket({
       ...(version ? { version } : {}),
       auth: state,
       logger: logger.child({ component: 'baileys' }),
@@ -204,9 +207,12 @@ async function startSocket() {
       connectTimeoutMs: 60000,
       defaultQueryTimeoutMs: 60000
     });
+    sock = socket;
 
-    sock.ev.on('creds.update', saveCreds);
-    sock.ev.on('connection.update', async (update) => {
+    socket.ev.on('creds.update', saveCreds);
+    socket.ev.on('connection.update', async (update) => {
+      // Ignore events from a stale socket after a reconnect has started.
+      if (sock !== socket) return;
       const { connection: nextConnection, lastDisconnect: disconnectInfo, qr } = update;
       if (qr) {
         qrText = qr;
@@ -232,6 +238,7 @@ async function startSocket() {
         const statusCode = disconnectInfo?.error?.output?.statusCode;
         const loggedOut = statusCode === DisconnectReason.loggedOut;
         sock = undefined;
+        connection = 'close';
         if (!loggedOut && !reconnectTimer) {
           reconnectTimer = setTimeout(() => {
             reconnectTimer = undefined;
@@ -241,7 +248,8 @@ async function startSocket() {
       }
     });
 
-    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+    socket.ev.on('messages.upsert', async ({ messages, type }) => {
+      if (sock !== socket) return;
       for (const message of messages || []) {
         if (!message.message || message.key?.fromMe) continue;
         const remoteJid = message.key?.remoteJid || '';
