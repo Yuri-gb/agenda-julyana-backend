@@ -1,14 +1,16 @@
 import express from 'express';
 import QRCode from 'qrcode';
 import pino from 'pino';
-import makeWASocket, {
-  Browsers,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-  useMultiFileAuthState
-} from '@whiskeysockets/baileys';
+import * as baileys from '@whiskeysockets/baileys';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+
+const makeWASocket = baileys.default ?? baileys.makeWASocket ?? baileys.default?.default;
+const { Browsers, DisconnectReason, fetchLatestBaileysVersion, useMultiFileAuthState } = baileys;
+
+if (typeof makeWASocket !== 'function') {
+  throw new TypeError('A biblioteca Baileys não exportou uma função de criação de socket compatível.');
+}
 
 const app = express();
 app.disable('x-powered-by');
@@ -35,7 +37,7 @@ if (!API_TOKEN) {
 }
 
 function auth(req, res, next) {
-  const supplied = req.get('authorization')?.replace(/^Bearer\s+/i, '') || '';
+  const supplied = req.get('authorization')?.replace(/^Bearer\\s+/i, '') || '';
   if (supplied.length !== API_TOKEN.length ||
       !Buffer.from(supplied).equals(Buffer.from(API_TOKEN))) {
     return res.status(401).json({ error: 'Não autorizado' });
@@ -62,7 +64,7 @@ async function sendWebhook(event, data) {
 }
 
 function normalizePhone(value) {
-  const digits = String(value || '').replace(/\D/g, '');
+  const digits = String(value || '').replace(/\\D/g, '');
   if (digits.length < 10 || digits.length > 15) {
     throw new Error('Telefone inválido. Informe DDI + DDD + número, somente dígitos ou com símbolos.');
   }
@@ -144,7 +146,7 @@ async function startSocket() {
         await sendWebhook('message.received', {
           type,
           messageId: message.key?.id || null,
-          from: remoteJid.replace(/@s\.whatsapp\.net$/, ''),
+          from: remoteJid.replace(/@s\\.whatsapp\\.net$/, ''),
           pushName: message.pushName || null,
           text: textMessage,
           timestamp: message.messageTimestamp ? Number(message.messageTimestamp) : null
