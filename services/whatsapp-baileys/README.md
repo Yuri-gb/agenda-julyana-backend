@@ -20,7 +20,8 @@ Eventos opcionais enviados para `WEBHOOK_URL`: `connection.open`, `connection.cl
 - `PORT`: fornecida automaticamente pelo Render.
 - `API_TOKEN`: segredo aleatório forte para proteger a API; obrigatório.
 - `AUTH_STORAGE`: `postgres` ou `filesystem`. Se `DATABASE_URL` estiver definida, o padrão é `postgres`; caso contrário, usa `filesystem` para compatibilidade.
-- `DATABASE_URL`: string de conexão PostgreSQL usada para persistir credenciais e todas as chaves criptográficas do Baileys. Obrigatória quando `AUTH_STORAGE=postgres`.
+- `DATABASE_URL`: string de conexão PostgreSQL usada para persistir credenciais e todas as chaves de autenticação do Baileys. Obrigatória quando `AUTH_STORAGE=postgres`.
+- `AUTH_ENCRYPTION_KEY`: obrigatória no modo PostgreSQL; chave AES-256 em hexadecimal com exatamente 64 caracteres (32 bytes). Gere uma chave aleatória criptograficamente segura, armazene-a somente nas variáveis de ambiente do Render e mantenha um backup seguro. Perder ou trocar a chave impede descriptografar a sessão existente.
 - `AUTH_SESSION_ID`: identificador lógico da sessão no banco; padrão `agenda-julyana`. Mantenha estável entre deploys e use um ID diferente para cada instância lógica.
 - `PGSSL_REJECT_UNAUTHORIZED`: opcional; defina `false` somente se o provedor exigir TLS sem validação do certificado.
 - `AUTH_DIR`: diretório local usado apenas com `AUTH_STORAGE=filesystem`; padrão `/var/data/auth_info`.
@@ -49,4 +50,4 @@ Configure Root Directory como `services/whatsapp-baileys`, Build Command `npm in
 4. Como a sessão atual pode estar apenas nos arquivos locais efêmeros, esteja preparado para escanear um novo QR Code uma única vez após ativar o armazenamento PostgreSQL. Depois de conectado, as credenciais e chaves serão salvas no banco e reutilizadas em reinicializações.
 5. Não execute `POST /v1/session/logout` para testar persistência: esse endpoint desconecta o WhatsApp e apaga a sessão armazenada.
 
-A tabela contém material de autenticação sensível. Restrinja o acesso ao banco, use TLS e nunca exponha `DATABASE_URL` em logs, respostas HTTP ou no repositório.
+A tabela contém material de autenticação sensível. Os valores são cifrados com AES-256-GCM antes da gravação; restrinja também o acesso ao banco, use TLS e nunca exponha `DATABASE_URL` ou `AUTH_ENCRYPTION_KEY` em logs, respostas HTTP ou no repositório. Não altere a chave após começar a persistir a sessão, a menos que implemente uma migração de recriptografia.
