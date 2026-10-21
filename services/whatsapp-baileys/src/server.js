@@ -44,6 +44,19 @@ const openApiSpec = {
         responses: { '200': { description: 'API disponível' } }
       }
     },
+    '/qr-viewer': {
+      get: {
+        summary: 'Abrir página visual para vincular o WhatsApp por QR Code',
+        description: 'Página HTML que solicita o API_TOKEN no formulário e exibe a imagem retornada por GET /v1/session/qr.',
+        security: [],
+        responses: {
+          '200': {
+            description: 'Página HTML do visualizador de QR Code',
+            content: { 'text/html': { schema: { type: 'string' } } }
+          }
+        }
+      }
+    },
     '/v1/session/status': {
       get: {
         summary: 'Consultar status da sessão WhatsApp',
