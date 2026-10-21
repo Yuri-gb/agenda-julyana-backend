@@ -166,6 +166,10 @@ if (AUTH_STORAGE === 'postgres' && !pool) {
   logger.error('AUTH_STORAGE=postgres exige DATABASE_URL.');
   process.exit(1);
 }
+if (AUTH_STORAGE === 'postgres' && !/^[a-fA-F0-9]{64}$/.test(process.env.AUTH_ENCRYPTION_KEY || '')) {
+  logger.error('AUTH_STORAGE=postgres exige AUTH_ENCRYPTION_KEY com exatamente 64 caracteres hexadecimais (32 bytes).');
+  process.exit(1);
+}
 
 function auth(req, res, next) {
   const supplied = req.get('authorization')?.replace(/^Bearer\s+/i, '') || '';
