@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js"
+    "check": "node --check src/server.js && node --check src/postgres-auth-state.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "6.7.18",
