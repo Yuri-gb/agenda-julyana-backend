@@ -1,4 +1,5 @@
-import { BufferJSON, initAuthCreds, proto } from '@whiskeysockets/baileys';
+import baileys from '@whiskeysockets/baileys';
+const { BufferJSON, initAuthCreds, proto } = baileys;
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 
 const ENVELOPE_PREFIX = 'enc:v1:';
