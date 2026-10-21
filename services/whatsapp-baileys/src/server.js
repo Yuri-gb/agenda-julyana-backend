@@ -130,11 +130,13 @@ app.use(express.json({ limit: '1mb' }));
 const PORT = Number(process.env.PORT || 3000);
 const API_TOKEN = process.env.API_TOKEN || '';
 const AUTH_DIR = process.env.AUTH_DIR || '/var/data/auth_info';
-const AUTH_STORAGE = (process.env.AUTH_STORAGE || (process.env.DATABASE_URL ? 'postgres' : 'filesystem')).toLowerCase();
+const rawDatabaseUrl = process.env.DATABASE_URL || process.env.DB_URL || '';
+const databaseUrl = rawDatabaseUrl ? rawDatabaseUrl.replace(/^jdbc:/i, '') : '';
+const AUTH_STORAGE = (process.env.AUTH_STORAGE || (databaseUrl ? 'postgres' : 'filesystem')).toLowerCase();
 const AUTH_SESSION_ID = process.env.AUTH_SESSION_ID || 'agenda-julyana';
-const pool = AUTH_STORAGE === 'postgres' && process.env.DATABASE_URL
+const pool = AUTH_STORAGE === 'postgres' && databaseUrl
   ? new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: databaseUrl,
       max: 3,
       connectionTimeoutMillis: 10000,
       ...(process.env.PGSSL_REJECT_UNAUTHORIZED === 'false'
@@ -163,7 +165,7 @@ if (!['postgres', 'filesystem'].includes(AUTH_STORAGE)) {
   process.exit(1);
 }
 if (AUTH_STORAGE === 'postgres' && !pool) {
-  logger.error('AUTH_STORAGE=postgres exige DATABASE_URL.');
+  logger.error('AUTH_STORAGE=postgres exige DATABASE_URL ou DB_URL.');
   process.exit(1);
 }
 if (AUTH_STORAGE === 'postgres' && !/^[a-fA-F0-9]{64}$/.test(process.env.AUTH_ENCRYPTION_KEY || '')) {
