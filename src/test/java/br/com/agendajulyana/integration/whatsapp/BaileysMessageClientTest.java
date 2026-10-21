@@ -24,7 +24,7 @@ class BaileysMessageClientTest {
                 .andRespond(withSuccess());
 
         new BaileysMessageClient(builder, "baileys-token")
-                .sendVerificationCode("5575999999999", "123456");
+                .sendVerificationCode("75999999999", "123456");
 
         server.verify();
     }
