@@ -26,23 +26,11 @@ const openApiSpec = {
       BearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'API_TOKEN' }
     },
     schemas: {
-      Error: { type: 'object', properties: { error: { type: 'string' } } },
-      SessionStatus: {
-        type: 'object',
-        properties: {
-          status: { type: 'string', example: 'QR_REQUIRED' },
-          connected: { type: 'boolean', example: false },
-          qrAvailable: { type: 'boolean', example: true },
-          lastDisconnect: { nullable: true, type: 'object', properties: {
-            statusCode: { type: 'integer', nullable: true },
-            message: { type: 'string' }
-          } }
-        }
-      },
       SendMessage: {
-        type: 'object', required: ['phone', 'message'],
+        type: 'object',
+        required: ['phone', 'message'],
         properties: {
-          phone: { type: 'string', description: 'Telefone com DDI + DDD + número, ex.: 5511999999999', example: '5511999999999' },
+          phone: { type: 'string', description: 'Telefone com DDI + DDD + número', example: '5511999999999' },
           message: { type: 'string', maxLength: 4000, example: 'Olá! Teste do Agenda Julyana.' }
         }
       }
@@ -50,39 +38,72 @@ const openApiSpec = {
   },
   paths: {
     '/health': {
-      get: { summary: 'Verificar se a API está no ar', security: [], responses: {
-        '200': { description: 'API disponível', content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' }, service: { type: 'string' } } } } }
-      } }
+      get: {
+        summary: 'Verificar se a API está no ar',
+        security: [],
+        responses: { '200': { description: 'API disponível' } }
+      }
     },
     '/v1/session/status': {
-      get: { summary: 'Consultar status da sessão WhatsApp', security: [{ BearerAuth: [] }], responses: {
-        '200': { description: 'Status da sessão', content: { 'application/json': { schema: { $ref: '#/components/schemas/SessionStatus' } } },
-        '401': { description: 'Token ausente ou inválido' }
-      } }
+      get: {
+        summary: 'Consultar status da sessão WhatsApp',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': { description: 'Status da sessão' },
+          '401': { description: 'Token ausente ou inválido' }
+        }
+      }
     },
     '/v1/session/start': {
-      post: { summary: 'Iniciar ou tentar iniciar a sessão', security: [{ BearerAuth: [] }], responses: {
-        '202': { description: 'Solicitação aceita' }, '401': { description: 'Token ausente ou inválido' }, '500': { description: 'Falha ao iniciar sessão' }
-      } }
+      post: {
+        summary: 'Iniciar ou tentar iniciar a sessão',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '202': { description: 'Solicitação aceita' },
+          '401': { description: 'Token ausente ou inválido' },
+          '500': { description: 'Falha ao iniciar sessão' }
+        }
+      }
     },
     '/v1/session/qr': {
-      get: { summary: 'Obter QR Code para vincular o WhatsApp', security: [{ BearerAuth: [] }], responses: {
-        '200': { description: 'QR Code atual', content: { 'application/json': { schema: { type: 'object', properties: { qr: { type: 'string' }, qrCodeDataUrl: { type: 'string', nullable: true, description: 'Data URL da imagem do QR Code' } } } } },
-        '404': { description: 'QR ainda não disponível' }, '409': { description: 'WhatsApp já conectado' }, '401': { description: 'Token ausente ou inválido' }
-      } }
+      get: {
+        summary: 'Obter QR Code para vincular o WhatsApp',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': { description: 'QR Code atual' },
+          '404': { description: 'QR ainda não disponível' },
+          '409': { description: 'WhatsApp já conectado' },
+          '401': { description: 'Token ausente ou inválido' }
+        }
+      }
     },
     '/v1/messages': {
-      post: { summary: 'Enviar uma mensagem de texto', security: [{ BearerAuth: [] }], requestBody: {
-        required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/SendMessage' } } }
-      }, responses: {
-        '200': { description: 'Mensagem aceita para envio' }, '400': { description: 'Telefone ou mensagem inválidos' },
-        '401': { description: 'Token ausente ou inválido' }, '502': { description: 'Falha no envio' }, '503': { description: 'WhatsApp não conectado' }
-      } }
+      post: {
+        summary: 'Enviar uma mensagem de texto',
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/SendMessage' } } }
+        },
+        responses: {
+          '200': { description: 'Mensagem aceita para envio' },
+          '400': { description: 'Telefone ou mensagem inválidos' },
+          '401': { description: 'Token ausente ou inválido' },
+          '502': { description: 'Falha no envio' },
+          '503': { description: 'WhatsApp não conectado' }
+        }
+      }
     },
     '/v1/session/logout': {
-      post: { summary: 'Desconectar a sessão e apagar credenciais locais', security: [{ BearerAuth: [] }], responses: {
-        '200': { description: 'Sessão encerrada' }, '401': { description: 'Token ausente ou inválido' }, '500': { description: 'Falha ao encerrar sessão' }
-      } }
+      post: {
+        summary: 'Desconectar a sessão e apagar credenciais locais',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': { description: 'Sessão encerrada' },
+          '401': { description: 'Token ausente ou inválido' },
+          '500': { description: 'Falha ao encerrar sessão' }
+        }
+      }
     }
   }
 };
