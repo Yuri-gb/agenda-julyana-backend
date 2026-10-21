@@ -1,5 +1,6 @@
 package br.com.agendajulyana.integration.whatsapp;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ public class BaileysMessageClient implements WhatsAppMessageSender {
     private final RestClient client;
     private final String apiToken;
 
+    @Autowired
     public BaileysMessageClient(
             @Value("${app.whatsapp.baileys.base-url:http://localhost:3000}") String baseUrl,
             @Value("${app.whatsapp.baileys.api-token:}") String apiToken
