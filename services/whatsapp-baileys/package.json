@@ -9,13 +9,14 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js"
+    "check": "node --check src/server.js && node --check src/postgres-auth-state.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "6.7.18",
     "express": "^4.21.2",
     "pino": "^9.6.0",
     "qrcode": "^1.5.4",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "pg": "^8.16.3"
   }
 }
