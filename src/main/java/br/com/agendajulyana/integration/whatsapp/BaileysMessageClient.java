@@ -1,17 +1,23 @@
 package br.com.agendajulyana.integration.whatsapp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Map;
 
 @Component
 @ConditionalOnProperty(name = "app.whatsapp.provider", havingValue = "baileys")
 public class BaileysMessageClient implements WhatsAppMessageSender {
+
+    private static final Logger log = LoggerFactory.getLogger(BaileysMessageClient.class);
 
     private final RestClient client;
     private final String apiToken;
@@ -35,16 +41,33 @@ public class BaileysMessageClient implements WhatsAppMessageSender {
             throw new IllegalStateException("Integração WhatsApp Baileys não configurada: BAILEYS_API_TOKEN ausente.");
         }
 
-        client.post()
-                .uri("/v1/messages")
-                .header("Authorization", "Bearer " + apiToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of(
-                        "phone", normalizePhone(telefone),
-                        "message", "Seu código de verificação é: " + codigo
-                ))
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            client.post()
+                    .uri("/v1/messages")
+                    .header("Authorization", "Bearer " + apiToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "phone", normalizePhone(telefone),
+                            "message", "Seu código de verificação é: " + codigo
+                    ))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
+            // Keep the verification code and API token out of logs; capture only
+            // the gateway status/body so an upstream 4xx/5xx is diagnosable.
+            log.error("Gateway Baileys respondeu HTTP {} ao enviar verificação. Resposta: {}",
+                    ex.getStatusCode().value(), safeBody(ex.getResponseBodyAsString()));
+            throw ex;
+        } catch (RestClientException ex) {
+            log.error("Não foi possível alcançar o gateway Baileys ({}).", ex.getClass().getSimpleName());
+            throw ex;
+        }
+    }
+
+    private static String safeBody(String body) {
+        if (body == null || body.isBlank()) return "(sem corpo)";
+        String sanitized = body.replaceAll("(?i)(token|authorization|codigo|code)\\s*[:=]\\s*[^,}\\s]+", "$1=[REDACTED]");
+        return sanitized.length() > 500 ? sanitized.substring(0, 500) : sanitized;
     }
 
     private static String normalizePhone(String telefone) {
