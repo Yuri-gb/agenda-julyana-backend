@@ -256,6 +256,41 @@ async function startSocket() {
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'agenda-julyana-whatsapp-gateway' }));
 app.get('/openapi.json', (_req, res) => res.json(openApiSpec));
+app.get('/qr-viewer', (_req, res) => {
+  res.type('html').send(`<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vincular WhatsApp — Agenda Julyana</title>
+<style>
+body{font:16px system-ui,sans-serif;max-width:620px;margin:40px auto;padding:0 18px;background:#101414;color:#f4f7f6}
+h1{font-size:1.5rem}p{line-height:1.5;color:#c5d0cd}form{display:grid;gap:12px}input,button{font:inherit;padding:12px;border-radius:8px}input{background:#202929;color:#fff;border:1px solid #50605c}button{background:#4da3ff;border:0;font-weight:700;cursor:pointer}#result{margin-top:20px}img{display:block;max-width:min(100%,340px);background:white;padding:10px;border-radius:8px}small{color:#aab8b4}
+</style>
+</head>
+<body>
+<h1>Vincular WhatsApp</h1>
+<p>Informe o API_TOKEN configurado no Render. O token será usado somente nesta página para consultar o gateway; não o envie a ninguém nem o coloque na URL.</p>
+<form id="form"><label for="token">API_TOKEN</label><input id="token" type="password" autocomplete="off" required><button>Buscar QR Code</button></form>
+<div id="result" role="status"></div>
+<script>
+const form=document.getElementById('form'), tokenInput=document.getElementById('token'), result=document.getElementById('result');
+form.addEventListener('submit',async event=>{
+ event.preventDefault(); result.textContent='Buscando QR Code…';
+ try{
+  const response=await fetch('/v1/session/qr',{headers:{Authorization:'Bearer '+tokenInput.value}});
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.error||('HTTP '+response.status));
+  if(!data.qrCodeDataUrl) throw new Error('A API não retornou a imagem do QR Code.');
+  result.replaceChildren();
+  const message=document.createElement('p'); message.textContent='Escaneie pelo WhatsApp: Configurações → Dispositivos conectados → Conectar dispositivo.'; result.append(message);
+  const img=document.createElement('img'); img.alt='QR Code para vincular o WhatsApp'; img.src=data.qrCodeDataUrl; result.append(img);
+  const note=document.createElement('small'); note.textContent='O QR Code expira. Se não funcionar, clique em Buscar QR Code novamente.'; result.append(note);
+ }catch(error){result.textContent='Não foi possível obter o QR Code: '+error.message;}
+});
+</script>
+</body></html>`);
+});
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { explorer: true }));
 
 app.use('/v1', auth);
