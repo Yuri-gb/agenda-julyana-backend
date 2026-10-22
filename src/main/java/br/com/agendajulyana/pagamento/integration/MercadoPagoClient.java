@@ -52,6 +52,13 @@ public class MercadoPagoClient {
      * Não cria agendamento nem grava/atualiza pagamentos no banco local.
      */
     public MercadoPagoOrderResponse criarOrderTeste() {
+        // Endpoint de diagnóstico nunca deve enviar pedidos usando credenciais de produção.
+        if (properties.accessToken() == null || !properties.accessToken().startsWith("TEST-")) {
+            throw new IllegalStateException(
+                    "O diagnóstico de checkout exige um access token de teste do Mercado Pago (prefixo TEST-)."
+            );
+        }
+
         var emailTeste = properties.testPayerEmail() != null && !properties.testPayerEmail().isBlank()
                 ? properties.testPayerEmail()
                 : EMAIL_PAGADOR_TESTE_PADRAO;
