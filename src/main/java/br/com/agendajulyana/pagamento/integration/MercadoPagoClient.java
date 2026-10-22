@@ -52,16 +52,12 @@ public class MercadoPagoClient {
      * Não cria agendamento nem grava/atualiza pagamentos no banco local.
      */
     public MercadoPagoOrderResponse criarOrderTeste() {
-        // O diagnóstico usa uma credencial dedicada, separada da credencial dos pagamentos reais.
-        String testAccessToken = properties.testAccessToken();
-        if (testAccessToken == null || testAccessToken.isBlank()) {
+        // Usa a credencial configurada para a integração. O ambiente (teste/produção)
+        // é determinado pela credencial fornecida pelo Mercado Pago, não por um prefixo inventado pela aplicação.
+        String accessToken = properties.accessToken();
+        if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalStateException(
-                    "Configure MERCADOPAGO_TEST_ACCESS_TOKEN com a credencial de teste do Mercado Pago."
-            );
-        }
-        if (properties.accessToken() != null && testAccessToken.equals(properties.accessToken())) {
-            throw new IllegalStateException(
-                    "A credencial de diagnóstico não pode ser a mesma credencial configurada para pagamentos reais."
+                    "Configure MERCADOPAGO_ACCESS_TOKEN com uma credencial válida do Mercado Pago."
             );
         }
 
@@ -82,7 +78,7 @@ public class MercadoPagoClient {
 
         RestClient testClient = RestClient.builder()
                 .baseUrl(properties.baseUrl())
-                .defaultHeader("Authorization", "Bearer " + testAccessToken)
+                .defaultHeader("Authorization", "Bearer " + accessToken)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
         return enviarOrder(testClient, request, UUID.randomUUID());
