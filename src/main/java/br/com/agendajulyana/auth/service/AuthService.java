@@ -75,7 +75,7 @@ public class AuthService {
         var roles = usuario.getPapeis().stream().map(p -> p.getNome().name())
             .collect(Collectors.toUnmodifiableSet());
         return new MeResponse(usuario.getId(), usuario.getNome(), usuario.getEmail(),
-            usuario.getTelefone(), usuario.getStatus().name(), roles);
+            usuario.getTelefone(), usuario.getStatus().name(), roles, usuario.isTelefoneVerificado());
     }
 
     private LoginResponse response(Usuario usuario) {

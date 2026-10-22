@@ -8,6 +8,7 @@ import br.com.agendajulyana.pagamento.domain.Pagamento;
 import br.com.agendajulyana.pagamento.domain.PagamentoModalidade;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
+import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderStatus;
 import br.com.agendajulyana.pagamento.repository.PagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.TentativaPagamentoRepository;
 import br.com.agendajulyana.pagamento.repository.ReembolsoRepository;
@@ -117,4 +118,112 @@ class PagamentoServiceTest {
         assertThrows(IllegalStateException.class, () -> service.criarCheckout(outroId, id));
         verifyNoInteractions(mercadoPago);
     }
+    @Test
+    void devePermitirNovaTentativaQuandoPagamentoFoiRecusado() {
+        var usuarioId = UUID.randomUUID();
+        var usuario = mock(Usuario.class);
+        when(usuario.getId()).thenReturn(usuarioId);
+
+        var cliente = new Cliente(usuario);
+        var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
+        var inicio = OffsetDateTime.now().plusHours(2);
+        var agendamento = new Agendamento(cliente, servico, inicio, inicio.plusHours(1));
+        var reserva = new ReservaTemporaria(agendamento, OffsetDateTime.now());
+        var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
+        pagamento.recusar("ORDER-RECUSADA");
+
+        var id = UUID.randomUUID();
+        when(agendamentos.findById(id)).thenReturn(Optional.of(agendamento));
+        when(reservas.findByAgendamentoId(id)).thenReturn(Optional.of(reserva));
+        when(pagamentos.findByAgendamentoId(id)).thenReturn(Optional.of(pagamento));
+        when(mercadoPago.criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class)))
+                .thenReturn(new MercadoPagoOrderResponse(
+                        "ORDER-NOVA",
+                        "https://mercadopago.test/checkout/nova",
+                        "created",
+                        "created"
+                ));
+
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
+        var response = service.criarCheckout(usuarioId, id);
+
+        assertEquals(new BigDecimal("100.00"), response.valor());
+        assertEquals("ORDER-NOVA", response.orderId());
+        assertEquals("https://mercadopago.test/checkout/nova", response.checkoutUrl());
+        assertEquals(br.com.agendajulyana.pagamento.domain.PagamentoStatus.PENDENTE, pagamento.getStatus());
+        assertEquals("ORDER-NOVA", pagamento.getReferenciaExterna());
+        verify(mercadoPago).criarOrder(eq(agendamento), eq(new BigDecimal("100.00")), any(UUID.class));
+        verify(tentativas).save(any());
+    }
+
+
+    @Test
+    void deveConfirmarAgendamentoQuandoPagamentoForAprovadoComReservaValida() {
+        var cliente = new Cliente(mock(Usuario.class));
+        var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
+        var inicio = OffsetDateTime.now().plusHours(2);
+        var agendamento = new Agendamento(cliente, servico, inicio, inicio.plusHours(1));
+        var reserva = new ReservaTemporaria(agendamento, OffsetDateTime.now());
+        var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
+
+        when(mercadoPago.consultarOrder("ORDER-APROVADA"))
+                .thenReturn(new MercadoPagoOrderStatus(
+                        "ORDER-APROVADA", "processed", "processed", null,
+                        new BigDecimal("100.00"), null
+                ));
+        when(pagamentos.findByReferenciaExterna("ORDER-APROVADA")).thenReturn(Optional.of(pagamento));
+        when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
+
+
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
+        service.processarWebhookOrder("ORDER-APROVADA");
+
+        assertEquals(br.com.agendajulyana.pagamento.domain.PagamentoStatus.APROVADO, pagamento.getStatus());
+        assertEquals(br.com.agendajulyana.agendamento.domain.AgendamentoStatus.CONFIRMADO, agendamento.getStatus());
+        verify(reembolsos, never()).save(any());
+    }
+
+    @Test
+    void deveCriarReembolsoQuandoPagamentoForAprovadoAposExpiracaoDaReserva() {
+        var cliente = new Cliente(mock(Usuario.class));
+        var servico = new Servico("Massagem", "Teste", 60, new BigDecimal("200.00"), null);
+        var inicio = OffsetDateTime.now().plusHours(2);
+        var agendamento = new Agendamento(cliente, servico, inicio, inicio.plusHours(1));
+        var reserva = new ReservaTemporaria(agendamento, OffsetDateTime.now());
+        reserva.expirar();
+        var pagamento = new Pagamento(agendamento, PagamentoModalidade.ENTRADA);
+
+        when(mercadoPago.consultarOrder("ORDER-TARDIA"))
+                .thenReturn(new MercadoPagoOrderStatus(
+                        "ORDER-TARDIA", "processed", "processed", null,
+                        new BigDecimal("100.00"), null
+                ));
+        when(pagamentos.findByReferenciaExterna("ORDER-TARDIA")).thenReturn(Optional.of(pagamento));
+        when(reservas.findByAgendamentoId(any())).thenReturn(Optional.of(reserva));
+        when(reembolsos.findFirstByPagamentoIdAndStatusInOrderBySolicitadoEmDesc(any(), any())).thenReturn(Optional.empty());
+        when(reembolsos.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(mercadoPago.reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class)))
+                .thenReturn(new MercadoPagoClient.MercadoPagoRefundResponse(
+                        "REFUND-1", "processed", "refunded",
+                        new MercadoPagoClient.MercadoPagoRefundResponse.Transactions(
+                                java.util.List.of(new MercadoPagoClient.MercadoPagoRefundResponse.Refund(
+                                        "REF-1", null, new BigDecimal("100.00"), "processed")))));
+
+        var service = new PagamentoService(agendamentos, reservas, pagamentos, mercadoPago, tentativas, reembolsos);
+        service.processarWebhookOrder("ORDER-TARDIA");
+
+        assertEquals(br.com.agendajulyana.pagamento.domain.PagamentoStatus.APROVADO, pagamento.getStatus());
+        assertEquals(br.com.agendajulyana.agendamento.domain.AgendamentoStatus.CANCELADO, agendamento.getStatus());
+
+        var reembolso = org.mockito.ArgumentCaptor.forClass(br.com.agendajulyana.pagamento.domain.Reembolso.class);
+        verify(reembolsos, atLeastOnce()).save(reembolso.capture());
+        assertEquals(new BigDecimal("100.00"), reembolso.getValue().getValor());
+        assertEquals(br.com.agendajulyana.pagamento.domain.ReembolsoStatus.CONCLUIDO, reembolso.getValue().getStatus());
+        assertEquals("REF-1", reembolso.getValue().getReferenciaExterna());
+        verify(mercadoPago).reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
+
+        service.processarWebhookOrder("ORDER-TARDIA");
+        verify(mercadoPago, times(1)).reembolsarOrder(eq("ORDER-TARDIA"), isNull(), eq(new BigDecimal("100.00")), eq(true), any(UUID.class));
+    }
+
 }
