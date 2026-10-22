@@ -23,7 +23,7 @@ class AgendamentoServiceTest {
  @Mock ReagendamentoRepository reagendamentos; @Mock CancelamentoRepository cancelamentos; @Mock PagamentoRepository pagamentos; @Mock ReembolsoRepository reembolsos; @Mock br.com.agendajulyana.pagamento.service.PagamentoService pagamentoService;
  @Test void deveCriarReservaDe30Minutos(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var agora=OffsetDateTime.of(2026,10,5,10,0,0,0,ZoneOffset.of("-03:00"));
+  var agora=OffsetDateTime.now().plusDays(2).withHour(10).withMinute(0).withSecond(0).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class)));
   var d=disponibilidades.findByDiaSemanaAndAtivoTrue((short)agora.getDayOfWeek().getValue()).get(0);
@@ -41,7 +41,7 @@ class AgendamentoServiceTest {
  }
  @Test void deveRecusarConflito(){
   var usuario=new Usuario("Cliente","c@e.com","75999999999"); usuario.confirmarTelefone(); var cliente=new Cliente(usuario); var servico=new Servico("Teste","x",60,new BigDecimal("100.00"),null);
-  var inicio=OffsetDateTime.of(2026,10,5,10,0,0,0,ZoneOffset.of("-03:00"));
+  var inicio=OffsetDateTime.now().plusDays(2).withHour(10).withMinute(0).withSecond(0).withNano(0);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
