@@ -28,7 +28,7 @@ class AgendamentoServiceTest {
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class)));
   var d=disponibilidades.findByDiaSemanaAndAtivoTrue((short)agora.getDayOfWeek().getValue()).get(0);
   when(d.getHoraInicio()).thenReturn(agora.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(agora.toLocalTime().plusHours(2));
-  when(agendamentos.existeConflito(any(),any(),any())).thenReturn(false);
+  when(agendamentos.existeConflito(any(),any(),any(),any())).thenReturn(false);
   when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
   var a=new Agendamento(cliente,servico,agora,agora.plusHours(1)); when(agendamentos.save(any())).thenReturn(a);
   var r=new ReservaTemporaria(a,OffsetDateTime.now()); when(reservas.save(any())).thenReturn(r);
@@ -45,7 +45,7 @@ class AgendamentoServiceTest {
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
   when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false);
-  when(agendamentos.existeConflito(any(),any(),any())).thenReturn(true);
+  when(agendamentos.existeConflito(any(),any(),any(),any())).thenReturn(true);
   var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   assertThrows(IllegalStateException.class,()->s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL)));
  }
@@ -54,7 +54,7 @@ class AgendamentoServiceTest {
   var inicio=OffsetDateTime.now().plusHours(2);
   when(clientes.findByUsuarioId(any())).thenReturn(Optional.of(cliente)); when(servicos.findById(any())).thenReturn(Optional.of(servico));
   var d=mock(br.com.agendajulyana.disponibilidade.domain.Disponibilidade.class); when(d.getHoraInicio()).thenReturn(inicio.toLocalTime().minusMinutes(1)); when(d.getHoraFim()).thenReturn(inicio.toLocalTime().plusHours(2));
-  when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false); when(agendamentos.existeConflito(any(),any(),any())).thenReturn(false);
+  when(disponibilidades.findByDiaSemanaAndAtivoTrue(anyShort())).thenReturn(List.of(d)); when(bloqueios.existeSobreposicao(any(),any(),isNull())).thenReturn(false); when(indisponibilidades.existeSobreposicao(any(),any(),any(),isNull())).thenReturn(false); when(agendamentos.existeConflito(any(),any(),any(),any())).thenReturn(false);
   var a=new Agendamento(cliente,servico,inicio,inicio.plusHours(1)); when(agendamentos.save(any())).thenReturn(a); when(reservas.save(any())).thenReturn(new ReservaTemporaria(a,OffsetDateTime.now()));
   var s=new AgendamentoService(agendamentos,reservas,clientes,servicos,disponibilidades,bloqueios,indisponibilidades,auditorias,reagendamentos,cancelamentos,pagamentos,reembolsos,pagamentoService);
   var out=s.criar(UUID.randomUUID(),new CriarAgendamentoRequest(UUID.randomUUID(),inicio,PagamentoModalidade.PAGAMENTO_TOTAL));

@@ -12,6 +12,9 @@ import java.util.UUID;
 @Component
 public class MercadoPagoClient {
 
+    private static final BigDecimal VALOR_CHECKOUT_TESTE = new BigDecimal("10.00");
+    private static final String EMAIL_PAGADOR_TESTE_PADRAO = "test@testuser.com";
+
     private final RestClient client;
     private final MercadoPagoProperties properties;
 
@@ -36,12 +39,57 @@ public class MercadoPagoClient {
                 new Item(
                         "Agendamento - " + agendamento.getServico().getNome(),
                         valor.toPlainString(),
-                        1,
-                        valor.toPlainString()
+                        1
                 )
         );
 
-        return client.post()
+        return enviarOrder(request, idempotencyKey);
+    }
+
+    /**
+     * Cria uma order sintética para diagnosticar a geração do checkout.
+     * Não cria agendamento nem grava/atualiza pagamentos no banco local.
+     */
+    public MercadoPagoOrderResponse criarOrderTeste() {
+        // Usa a credencial configurada para a integração. O ambiente (teste/produção)
+        // é determinado pela credencial fornecida pelo Mercado Pago, não por um prefixo inventado pela aplicação.
+        String accessToken = properties.accessToken();
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new IllegalStateException(
+                    "Configure MERCADOPAGO_ACCESS_TOKEN com uma credencial válida do Mercado Pago."
+            );
+        }
+
+        var emailTeste = properties.testPayerEmail() != null && !properties.testPayerEmail().isBlank()
+                ? properties.testPayerEmail()
+                : EMAIL_PAGADOR_TESTE_PADRAO;
+        var valor = VALOR_CHECKOUT_TESTE;
+        var referencia = "checkout-test-" + UUID.randomUUID();
+        var request = new MercadoPagoOrderRequest(
+                "online",
+                valor.toPlainString(),
+                referencia,
+                "manual",
+                "automatic_async",
+                new Payer(emailTeste),
+                new Item("Teste de geração de checkout", valor.toPlainString(), 1)
+        );
+
+        RestClient testClient = RestClient.builder()
+                .baseUrl(properties.baseUrl())
+                .defaultHeader("Authorization", "Bearer " + accessToken)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+        return enviarOrder(testClient, request, UUID.randomUUID());
+    }
+
+    private MercadoPagoOrderResponse enviarOrder(MercadoPagoOrderRequest request, UUID idempotencyKey) {
+        return enviarOrder(client, request, idempotencyKey);
+    }
+
+    private MercadoPagoOrderResponse enviarOrder(
+            RestClient targetClient, MercadoPagoOrderRequest request, UUID idempotencyKey) {
+        return targetClient.post()
                 .uri("/v1/orders")
                 .header("X-Idempotency-Key", idempotencyKey.toString())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -99,8 +147,7 @@ public class MercadoPagoClient {
     record Item(
             String title,
             String unit_price,
-            int quantity,
-            String total_amount
+            int quantity
     ) {}
 
     record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}

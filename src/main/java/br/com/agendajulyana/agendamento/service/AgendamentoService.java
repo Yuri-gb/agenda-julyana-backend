@@ -33,6 +33,7 @@ public class AgendamentoService {
  @Autowired(required = false) private AgendaNotificationEmailService emailService;
  public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa,ReembolsoRepository rb,PagamentoService ps){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;reembolsos=rb;pagamentoService=ps;}
  @Transactional public AgendamentoResponse criar(UUID usuarioId,CriarAgendamentoRequest req){
+  liberarReservasExpiradas();
   Cliente cliente=clientes.findByUsuarioId(usuarioId).orElseThrow(()->new IllegalStateException("Perfil de cliente não encontrado."));
   var usuario=cliente.getUsuario();
   if(usuario.getTelefone()==null || usuario.getTelefone().isBlank() || !usuario.isTelefoneVerificado())throw new IllegalStateException("Telefone informado e verificado é obrigatório para agendar.");
@@ -41,10 +42,23 @@ public class AgendamentoService {
   var inicio=req.inicio(); var fim=inicio.plusMinutes(servico.getDuracaoMinutos()); var agora=OffsetDateTime.now();
   if(inicio.isBefore(agora))throw new IllegalArgumentException("O horário deve ser futuro.");
   validarDisponibilidade(servico.getId(),inicio,fim);
-  if(agendamentos.existeConflito(inicio,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO,AgendamentoStatus.CONFIRMADO)))throw new IllegalStateException("Horário já reservado.");
+  if(agendamentos.existeConflito(inicio,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO.name(), AgendamentoStatus.CONFIRMADO.name()),OffsetDateTime.now()))throw new IllegalStateException("Horário já reservado.");
   var a=agendamentos.save(new Agendamento(cliente,servico,inicio,fim)); var r=reservas.save(new ReservaTemporaria(a,agora));
   pagamentos.save(new Pagamento(a,req.modalidadePagamento()));
   auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r,req.modalidadePagamento());
+ }
+ private void liberarReservasExpiradas(){
+  var agora=OffsetDateTime.now();
+  for(var reserva:reservas.findByStatusAndExpiraEmBefore(ReservaStatus.ATIVA,agora)){
+   var agendamento=reserva.getAgendamento();
+   reserva.expirar();
+   if(agendamento.getStatus()==AgendamentoStatus.AGUARDANDO_PAGAMENTO){
+    agendamento.cancelar();
+    agendamentos.saveAndFlush(agendamento);
+   }
+   reservas.saveAndFlush(reserva);
+   log.info("Reserva temporária expirada liberada antes de validar novo agendamento: reservaId={}, agendamentoId={}",reserva.getId(),agendamento.getId());
+  }
  }
  @Transactional public AgendamentoResponse expirarReserva(UUID usuarioId,UUID agendamentoId){
   var a=obter(agendamentoId); var r=reservas.findByAgendamentoId(agendamentoId).orElseThrow();
@@ -56,7 +70,7 @@ public class AgendamentoService {
   long total=reagendamentos.countByAgendamentoId(id); if(total>=2)throw new IllegalStateException("Limite de 2 reagendamentos atingido.");
   var novo=req.inicio(); if(novo.isBefore(OffsetDateTime.now()))throw new IllegalArgumentException("O novo horário deve ser futuro.");
   var fim=novo.plusMinutes(a.getDuracaoMinutos()); validarDisponibilidade(a.getServico().getId(),novo,fim);
-  if(agendamentos.existeConflito(novo,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO,AgendamentoStatus.CONFIRMADO)))throw new IllegalStateException("Novo horário já reservado.");
+  if(agendamentos.existeConflito(novo,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO.name(), AgendamentoStatus.CONFIRMADO.name()),OffsetDateTime.now()))throw new IllegalStateException("Novo horário já reservado.");
   var antigo=a.getInicio(); a.reagendar(novo); agendamentos.save(a); reagendamentos.save(new Reagendamento(a,(short)(total+1),antigo,novo,req.motivo()));
   auditar(usuarioId,"REAGENDAR","AGENDAMENTO",id); return response(a,null,pagamentos.findByAgendamentoId(a.getId()).map(Pagamento::getModalidade).orElse(null));
  }
