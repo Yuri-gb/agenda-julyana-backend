@@ -52,10 +52,16 @@ public class MercadoPagoClient {
      * Não cria agendamento nem grava/atualiza pagamentos no banco local.
      */
     public MercadoPagoOrderResponse criarOrderTeste() {
-        // Endpoint de diagnóstico nunca deve enviar pedidos usando credenciais de produção.
-        if (properties.accessToken() == null || !properties.accessToken().startsWith("TEST-")) {
+        // O diagnóstico usa uma credencial dedicada, separada da credencial dos pagamentos reais.
+        String testAccessToken = properties.testAccessToken();
+        if (testAccessToken == null || testAccessToken.isBlank()) {
             throw new IllegalStateException(
-                    "O diagnóstico de checkout exige um access token de teste do Mercado Pago (prefixo TEST-)."
+                    "Configure MERCADOPAGO_TEST_ACCESS_TOKEN com a credencial de teste do Mercado Pago."
+            );
+        }
+        if (properties.accessToken() != null && testAccessToken.equals(properties.accessToken())) {
+            throw new IllegalStateException(
+                    "A credencial de diagnóstico não pode ser a mesma credencial configurada para pagamentos reais."
             );
         }
 
@@ -74,11 +80,21 @@ public class MercadoPagoClient {
                 new Item("Teste de geração de checkout", valor.toPlainString(), 1, valor.toPlainString())
         );
 
-        return enviarOrder(request, UUID.randomUUID());
+        RestClient testClient = RestClient.builder()
+                .baseUrl(properties.baseUrl())
+                .defaultHeader("Authorization", "Bearer " + testAccessToken)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+        return enviarOrder(testClient, request, UUID.randomUUID());
     }
 
     private MercadoPagoOrderResponse enviarOrder(MercadoPagoOrderRequest request, UUID idempotencyKey) {
-        return client.post()
+        return enviarOrder(client, request, idempotencyKey);
+    }
+
+    private MercadoPagoOrderResponse enviarOrder(
+            RestClient targetClient, MercadoPagoOrderRequest request, UUID idempotencyKey) {
+        return targetClient.post()
                 .uri("/v1/orders")
                 .header("X-Idempotency-Key", idempotencyKey.toString())
                 .contentType(MediaType.APPLICATION_JSON)
