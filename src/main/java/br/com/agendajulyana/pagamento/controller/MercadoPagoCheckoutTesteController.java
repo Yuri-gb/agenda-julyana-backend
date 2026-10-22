@@ -4,6 +4,7 @@ import br.com.agendajulyana.pagamento.integration.MercadoPagoClient;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 @RestController
 @RequestMapping("/api/dev/pagamentos")
+@Tag(name = "Testes", description = "Endpoints de diagnóstico e testes controlados.")
 @ConditionalOnProperty(
         name = "app.mercadopago.test-endpoint.enabled",
         havingValue = "true"
@@ -33,7 +35,7 @@ public class MercadoPagoCheckoutTesteController {
     @Operation(
             summary = "Diagnosticar geração de checkout do Mercado Pago",
             description = "Cria uma order sintética de baixo valor, sem agendamento ou gravação de pagamento local.",
-            tags = {"Desenvolvimento — Diagnóstico"}
+            tags = {"Testes"}
     )
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> testarCheckout() {
