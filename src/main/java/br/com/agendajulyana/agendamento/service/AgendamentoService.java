@@ -41,7 +41,7 @@ public class AgendamentoService {
   var inicio=req.inicio(); var fim=inicio.plusMinutes(servico.getDuracaoMinutos()); var agora=OffsetDateTime.now();
   if(inicio.isBefore(agora))throw new IllegalArgumentException("O horário deve ser futuro.");
   validarDisponibilidade(servico.getId(),inicio,fim);
-  if(agendamentos.existeConflito(inicio,fim,List.of("AGUARDANDO_PAGAMENTO","CONFIRMADO"),OffsetDateTime.now()))throw new IllegalStateException("Horário já reservado.");
+  if(agendamentos.existeConflito(inicio,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO.name(), AgendamentoStatus.CONFIRMADO.name()),OffsetDateTime.now()))throw new IllegalStateException("Horário já reservado.");
   var a=agendamentos.save(new Agendamento(cliente,servico,inicio,fim)); var r=reservas.save(new ReservaTemporaria(a,agora));
   pagamentos.save(new Pagamento(a,req.modalidadePagamento()));
   auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r,req.modalidadePagamento());
@@ -56,7 +56,7 @@ public class AgendamentoService {
   long total=reagendamentos.countByAgendamentoId(id); if(total>=2)throw new IllegalStateException("Limite de 2 reagendamentos atingido.");
   var novo=req.inicio(); if(novo.isBefore(OffsetDateTime.now()))throw new IllegalArgumentException("O novo horário deve ser futuro.");
   var fim=novo.plusMinutes(a.getDuracaoMinutos()); validarDisponibilidade(a.getServico().getId(),novo,fim);
-  if(agendamentos.existeConflito(novo,fim,List.of("AGUARDANDO_PAGAMENTO","CONFIRMADO"),OffsetDateTime.now()))throw new IllegalStateException("Novo horário já reservado.");
+  if(agendamentos.existeConflito(novo,fim,List.of(AgendamentoStatus.AGUARDANDO_PAGAMENTO.name(), AgendamentoStatus.CONFIRMADO.name()),OffsetDateTime.now()))throw new IllegalStateException("Novo horário já reservado.");
   var antigo=a.getInicio(); a.reagendar(novo); agendamentos.save(a); reagendamentos.save(new Reagendamento(a,(short)(total+1),antigo,novo,req.motivo()));
   auditar(usuarioId,"REAGENDAR","AGENDAMENTO",id); return response(a,null,pagamentos.findByAgendamentoId(a.getId()).map(Pagamento::getModalidade).orElse(null));
  }
