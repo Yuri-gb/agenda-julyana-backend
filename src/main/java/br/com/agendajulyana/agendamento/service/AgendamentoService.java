@@ -33,6 +33,7 @@ public class AgendamentoService {
  @Autowired(required = false) private AgendaNotificationEmailService emailService;
  public AgendamentoService(AgendamentoRepository a,ReservaTemporariaRepository r,ClienteRepository c,ServicoRepository s,DisponibilidadeRepository d,BloqueioRepository b,IndisponibilidadeServicoRepository i,AuditoriaRepository au,ReagendamentoRepository re,CancelamentoRepository ca,PagamentoRepository pa,ReembolsoRepository rb,PagamentoService ps){agendamentos=a;reservas=r;clientes=c;servicos=s;disponibilidades=d;bloqueios=b;indisponibilidades=i;auditorias=au;reagendamentos=re;cancelamentos=ca;pagamentos=pa;reembolsos=rb;pagamentoService=ps;}
  @Transactional public AgendamentoResponse criar(UUID usuarioId,CriarAgendamentoRequest req){
+  liberarReservasExpiradas();
   Cliente cliente=clientes.findByUsuarioId(usuarioId).orElseThrow(()->new IllegalStateException("Perfil de cliente não encontrado."));
   var usuario=cliente.getUsuario();
   if(usuario.getTelefone()==null || usuario.getTelefone().isBlank() || !usuario.isTelefoneVerificado())throw new IllegalStateException("Telefone informado e verificado é obrigatório para agendar.");
@@ -45,6 +46,19 @@ public class AgendamentoService {
   var a=agendamentos.save(new Agendamento(cliente,servico,inicio,fim)); var r=reservas.save(new ReservaTemporaria(a,agora));
   pagamentos.save(new Pagamento(a,req.modalidadePagamento()));
   auditar(usuarioId,"CRIAR","AGENDAMENTO",a.getId()); return response(a,r,req.modalidadePagamento());
+ }
+ private void liberarReservasExpiradas(){
+  var agora=OffsetDateTime.now();
+  for(var reserva:reservas.findByStatusAndExpiraEmBefore(ReservaStatus.ATIVA,agora)){
+   var agendamento=reserva.getAgendamento();
+   reserva.expirar();
+   if(agendamento.getStatus()==AgendamentoStatus.AGUARDANDO_PAGAMENTO){
+    agendamento.cancelar();
+    agendamentos.saveAndFlush(agendamento);
+   }
+   reservas.saveAndFlush(reserva);
+   log.info("Reserva temporária expirada liberada antes de validar novo agendamento: reservaId={}, agendamentoId={}",reserva.getId(),agendamento.getId());
+  }
  }
  @Transactional public AgendamentoResponse expirarReserva(UUID usuarioId,UUID agendamentoId){
   var a=obter(agendamentoId); var r=reservas.findByAgendamentoId(agendamentoId).orElseThrow();
