@@ -54,11 +54,17 @@ public class MercadoPagoCheckoutTesteController {
                     "Checkout de teste criado. Nenhum pagamento foi confirmado pelo backend."
             ));
         } catch (RestClientResponseException ex) {
-            log.warn("Falha ao criar checkout sintético no Mercado Pago: HTTP {}", ex.getStatusCode().value());
+            String responseBody = ex.getResponseBodyAsString();
+            // Registra a resposta de erro da API para diagnóstico, sem registrar headers ou credenciais.
+            if (responseBody != null && responseBody.length() > 2000) {
+                responseBody = responseBody.substring(0, 2000);
+            }
+            log.warn("Falha ao criar checkout sintético no Mercado Pago: HTTP {}; resposta: {}",
+                    ex.getStatusCode().value(), responseBody);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(
                     new CheckoutTesteResponse(false, null, null, null,
                             "O Mercado Pago recusou a criação do checkout (HTTP "
-                                    + ex.getStatusCode().value() + "). Verifique o token e o payload de teste.")
+                                    + ex.getStatusCode().value() + "). Consulte os detalhes no log do backend.")
             );
         } catch (RuntimeException ex) {
             log.error("Falha inesperada no diagnóstico de checkout do Mercado Pago.", ex);
