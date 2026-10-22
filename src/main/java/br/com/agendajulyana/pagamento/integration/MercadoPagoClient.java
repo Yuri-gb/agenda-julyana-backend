@@ -12,6 +12,9 @@ import java.util.UUID;
 @Component
 public class MercadoPagoClient {
 
+    private static final BigDecimal VALOR_CHECKOUT_TESTE = new BigDecimal("10.00");
+    private static final String EMAIL_PAGADOR_TESTE_PADRAO = "test@testuser.com";
+
     private final RestClient client;
     private final MercadoPagoProperties properties;
 
@@ -41,6 +44,33 @@ public class MercadoPagoClient {
                 )
         );
 
+        return enviarOrder(request, idempotencyKey);
+    }
+
+    /**
+     * Cria uma order sintética para diagnosticar a geração do checkout.
+     * Não cria agendamento nem grava/atualiza pagamentos no banco local.
+     */
+    public MercadoPagoOrderResponse criarOrderTeste() {
+        var emailTeste = properties.testPayerEmail() != null && !properties.testPayerEmail().isBlank()
+                ? properties.testPayerEmail()
+                : EMAIL_PAGADOR_TESTE_PADRAO;
+        var valor = VALOR_CHECKOUT_TESTE;
+        var referencia = "checkout-test-" + UUID.randomUUID();
+        var request = new MercadoPagoOrderRequest(
+                "online",
+                valor.toPlainString(),
+                referencia,
+                "manual",
+                "automatic_async",
+                new Payer(emailTeste),
+                new Item("Teste de geração de checkout", valor.toPlainString(), 1, valor.toPlainString())
+        );
+
+        return enviarOrder(request, UUID.randomUUID());
+    }
+
+    private MercadoPagoOrderResponse enviarOrder(MercadoPagoOrderRequest request, UUID idempotencyKey) {
         return client.post()
                 .uri("/v1/orders")
                 .header("X-Idempotency-Key", idempotencyKey.toString())
