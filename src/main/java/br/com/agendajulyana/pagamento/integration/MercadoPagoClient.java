@@ -39,8 +39,7 @@ public class MercadoPagoClient {
                 new Item(
                         "Agendamento - " + agendamento.getServico().getNome(),
                         valor.toPlainString(),
-                        1,
-                        valor.toPlainString()
+                        1
                 )
         );
 
@@ -73,7 +72,7 @@ public class MercadoPagoClient {
                 "manual",
                 "automatic_async",
                 new Payer(emailTeste),
-                new Item("Teste de geração de checkout", valor.toPlainString(), 1, valor.toPlainString())
+                new Item("Teste de geração de checkout", valor.toPlainString(), 1)
         );
 
         RestClient testClient = RestClient.builder()
@@ -148,8 +147,7 @@ public class MercadoPagoClient {
     record Item(
             String title,
             String unit_price,
-            int quantity,
-            String total_amount
+            int quantity
     ) {}
 
     record MercadoPagoRefundRequest(MercadoPagoRefundTransaction[] transactions) {}
