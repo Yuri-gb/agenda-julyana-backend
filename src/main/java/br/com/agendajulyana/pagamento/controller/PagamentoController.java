@@ -1,5 +1,6 @@
 package br.com.agendajulyana.pagamento.controller;
 
+import br.com.agendajulyana.auth.repository.UsuarioRepository;
 import br.com.agendajulyana.pagamento.dto.CheckoutPagamentoResponse;
 import br.com.agendajulyana.pagamento.integration.MercadoPagoWebhookValidator;
 import br.com.agendajulyana.pagamento.service.PagamentoService;
@@ -16,10 +17,22 @@ import java.util.UUID;
 public class PagamentoController {
     private final PagamentoService pagamentos;
     private final MercadoPagoWebhookValidator webhookValidator;
+    private final UsuarioRepository usuarios;
 
-    public PagamentoController(PagamentoService pagamentos, MercadoPagoWebhookValidator webhookValidator) {
+    public PagamentoController(
+            PagamentoService pagamentos,
+            MercadoPagoWebhookValidator webhookValidator,
+            UsuarioRepository usuarios
+    ) {
         this.pagamentos = pagamentos;
         this.webhookValidator = webhookValidator;
+        this.usuarios = usuarios;
+    }
+
+    private UUID usuarioId(Authentication authentication) {
+        return usuarios.findByEmailIgnoreCase(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário autenticado não encontrado."))
+                .getId();
     }
 
     @PostMapping("/agendamentos/{id}/pagamento/checkout")
@@ -29,7 +42,7 @@ public class PagamentoController {
             Authentication authentication,
             @PathVariable UUID id
     ) {
-        var response = pagamentos.criarCheckout(UUID.fromString(authentication.getName()), id);
+        var response = pagamentos.criarCheckout(usuarioId(authentication), id);
         return ResponseEntity.ok(response);
     }
 
